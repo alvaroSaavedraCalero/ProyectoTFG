@@ -322,6 +322,70 @@ namespace ProyectoTFG.Server.Controllers
             }
         }
 
+        /**
+
+        [HttpPost]
+        public async Task<RestMessage> RealizarPagoPayPal([FromBody] Dictionary<String, String> datos)
+        {
+            try
+            {
+                Cliente cliente = JsonSerializer.Deserialize<Cliente>(datos["cliente"]);
+                DatosPago datosPago = JsonSerializer.Deserialize<DatosPago>(datos["datosPago"]);
+                String jwt = datos["jwt"];
+
+                if (validarJWT(jwt))
+                {
+                    Direccion direccionPaypal;
+
+                    if (datosPago.DireccionEnvio == null && datosPago.DireccionPrincipal == null)
+                    {
+                        return new RestMessage
+                        {
+                            Codigo = 7,
+                            DatosCliente = cliente,
+                            Error = "No hay una direccion asignada",
+                            Mensaje = "No hay una direccion asignada, vaya a su perfil y configure una direccion",
+                            OtrosDatos = null,
+                            TokenSesion = jwt
+                        };
+                    }
+                    else
+                    {
+                        direccionPaypal = datosPago.DireccionEnvio ?? datosPago.DireccionPrincipal;
+
+                    }
+
+
+                }
+                else
+                {
+                    return new RestMessage
+                    {
+                        Codigo = 5,
+                        Mensaje = "Tiempo de expiracion excedido, vuelva a realizar login",
+                        Error = null,
+                        DatosCliente = null,
+                        TokenSesion = null,
+                        OtrosDatos = null
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new RestMessage
+                {
+                    Codigo = 1,
+                    Mensaje = "error en el cobro con PayPal",
+                    Error = ex.Message,
+                    DatosCliente = null,
+                    TokenSesion = null,
+                    OtrosDatos = null
+                };
+            }
+        }
+
+        **/
+
         [HttpPost]
         public async Task<RestMessage> DesearProducto([FromBody] Dictionary<String, String> datos)
         {

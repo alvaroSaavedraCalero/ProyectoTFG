@@ -35,7 +35,7 @@ namespace ProyectoTFG.Client.Models
             };
 
             // Almacenamos la respuesta del servicio, en el cuerpo esta el RestMessage
-            HttpResponseMessage respuesta = await this.clienteHttp.PostAsJsonAsync<Dictionary<String, String>>("api/RESTCliente/Login", datos);
+            HttpResponseMessage respuesta = await this.clienteHttp.PostAsJsonAsync<Dictionary<String, String>>("api/Cliente/Login", datos);
             return await respuesta.Content.ReadFromJsonAsync<RestMessage>();
         }
 
@@ -51,7 +51,7 @@ namespace ProyectoTFG.Client.Models
                 {"cliente", JsonSerializer.Serialize<Cliente>(cliente)}
             };
 
-            HttpResponseMessage respuesta = await this.clienteHttp.PostAsJsonAsync<Dictionary<String, String>>("api/RESTCliente/Registro", datos);
+            HttpResponseMessage respuesta = await this.clienteHttp.PostAsJsonAsync<Dictionary<String, String>>("api/Cliente/Registro", datos);
             return await respuesta.Content.ReadFromJsonAsync<RestMessage>();
         }
 
@@ -71,7 +71,7 @@ namespace ProyectoTFG.Client.Models
                 {"jwt", jwt }
             };
 
-            HttpResponseMessage respuesta = await this.clienteHttp.PostAsJsonAsync<Dictionary<String, String>>("api/RESTCliente/IntroducirDireccion", datos);
+            HttpResponseMessage respuesta = await this.clienteHttp.PostAsJsonAsync<Dictionary<String, String>>("api/Cliente/IntroducirDireccion", datos);
             return await respuesta.Content.ReadFromJsonAsync<RestMessage>();
         }
 
@@ -81,7 +81,7 @@ namespace ProyectoTFG.Client.Models
         /// <returns>Una lista de Provincias</returns>
         public async Task<List<Provincia>> RecuperarProvincias()
         {
-            return await this.clienteHttp.GetFromJsonAsync<List<Provincia>>("/api/RESTCliente/RecuperarProvincias");
+            return await this.clienteHttp.GetFromJsonAsync<List<Provincia>>("/api/Cliente/RecuperarProvincias");
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace ProyectoTFG.Client.Models
         /// <returns>Una lista de Municipios</returns>
         public async Task<List<Municipio>> RecuperarMunicipios(string codprov)
         {
-            return await this.clienteHttp.GetFromJsonAsync<List<Municipio>>($"/api/RESTCliente/RecuperarMunicipios?codprov={codprov}");
+            return await this.clienteHttp.GetFromJsonAsync<List<Municipio>>($"/api/Cliente/RecuperarMunicipios?codprov={codprov}");
         }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace ProyectoTFG.Client.Models
         /// <returns>String con la url destino</returns>
         public async Task<String> LoginGoogle()
         {
-            return await this.clienteHttp.GetStringAsync("api/RESTCliente/LoginGoogle");
+            return await this.clienteHttp.GetStringAsync("api/Cliente/LoginGoogle");
         }
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace ProyectoTFG.Client.Models
                 {"jwt", jwt }
             };
 
-            HttpResponseMessage respuesta = await this.clienteHttp.PostAsJsonAsync<Dictionary<String, String>>("api/RESTCliente/ModificarCliente", datos);
+            HttpResponseMessage respuesta = await this.clienteHttp.PostAsJsonAsync<Dictionary<String, String>>("api/Cliente/ModificarCliente", datos);
             return await respuesta.Content.ReadFromJsonAsync<RestMessage>();
         }
 
@@ -139,7 +139,7 @@ namespace ProyectoTFG.Client.Models
                 {"jwt", jwt }
             };
 
-            HttpResponseMessage respuesta = await this.clienteHttp.PostAsJsonAsync<Dictionary<String, String>>("api/RESTCliente/ModificarDireccion", datos);
+            HttpResponseMessage respuesta = await this.clienteHttp.PostAsJsonAsync<Dictionary<String, String>>("api/Cliente/ModificarDireccion", datos);
             return await respuesta.Content.ReadFromJsonAsync<RestMessage>();
         }
 
@@ -159,7 +159,7 @@ namespace ProyectoTFG.Client.Models
                 {"jwt", jwt }
             };
 
-            HttpResponseMessage respuesta = await this.clienteHttp.PostAsJsonAsync<Dictionary<String, String>>("api/RESTCliente/EliminarDireccion", datos);
+            HttpResponseMessage respuesta = await this.clienteHttp.PostAsJsonAsync<Dictionary<String, String>>("api/Cliente/EliminarDireccion", datos);
             return await respuesta.Content.ReadFromJsonAsync<RestMessage>();
         }
 
@@ -220,7 +220,7 @@ namespace ProyectoTFG.Client.Models
                 {"jwt", jwt }
             };
 
-            HttpResponseMessage respuesta = await this.clienteHttp.PostAsJsonAsync<Dictionary<String, String>>("api/RESTTienda/AlmacenarPedido", datos);
+            HttpResponseMessage respuesta = await this.clienteHttp.PostAsJsonAsync<Dictionary<String, String>>("api/Tienda/AlmacenarPedido", datos);
             return await respuesta.Content.ReadFromJsonAsync<RestMessage>();
         }
 
@@ -233,7 +233,7 @@ namespace ProyectoTFG.Client.Models
                 {"jwt", jwt }
             };
 
-            HttpResponseMessage respuesta = await this.clienteHttp.PostAsJsonAsync<Dictionary<String, String>>("api/RESTTienda/RealizarPagoTarjeta", datos);
+            HttpResponseMessage respuesta = await this.clienteHttp.PostAsJsonAsync<Dictionary<String, String>>("api/Tienda/RealizarPagoTarjeta", datos);
             return await respuesta.Content.ReadFromJsonAsync<RestMessage>();
         }
 
@@ -253,7 +253,7 @@ namespace ProyectoTFG.Client.Models
                 {"jwt", jwt }
             };
 
-            HttpResponseMessage respuesta = await this.clienteHttp.PostAsJsonAsync<Dictionary<String, String>>("api/RESTTienda/DesearProducto", datos);
+            HttpResponseMessage respuesta = await this.clienteHttp.PostAsJsonAsync<Dictionary<String, String>>("api/Tienda/DesearProducto", datos);
             return await respuesta.Content.ReadFromJsonAsync<RestMessage>();
         }
 
@@ -273,7 +273,7 @@ namespace ProyectoTFG.Client.Models
                 {"jwt", jwt }
             };
 
-            HttpResponseMessage respuesta = await this.clienteHttp.PostAsJsonAsync<Dictionary<String, String>>("api/RESTTienda/DesDesearProducto", datos);
+            HttpResponseMessage respuesta = await this.clienteHttp.PostAsJsonAsync<Dictionary<String, String>>("api/Tienda/DesDesearProducto", datos);
             return await respuesta.Content.ReadFromJsonAsync<RestMessage>();
         }
 
@@ -297,7 +297,7 @@ namespace ProyectoTFG.Client.Models
                 {"idProducto", idProducto }
             };
 
-            HttpResponseMessage respuesta = await this.clienteHttp.PostAsJsonAsync<Dictionary<String, String>>("api/RESTTienda/AlmacenarComentario", datos);
+            HttpResponseMessage respuesta = await this.clienteHttp.PostAsJsonAsync<Dictionary<String, String>>("api/Tienda/AlmacenarComentario", datos);
             return await respuesta.Content.ReadFromJsonAsync<RestMessage>();
         }
 
