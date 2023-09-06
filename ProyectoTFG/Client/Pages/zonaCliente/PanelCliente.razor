@@ -1,0 +1,157 @@
+﻿@page "/Cliente/PanelCliente"
+
+@inject IStorageService storageService
+@inject NavigationManager navigate
+@inject IJSRuntime jsService
+@using ProyectoTFG.Client.Pages.zonaCliente.Panel
+
+
+<div class="container">
+    <div class="row">
+        <!-- Zona aside -->
+        <div class="col-lg-3 col-md-3">
+            <aside class="card">
+                <h1 class="card-header text-black">Mi cuenta</h1>
+                <div class="card-body grid d-flex flex-column">
+                    <a @onclick="() =>{ActivarNegrita(1); StateHasChanged();} "><span class="@clase1">Panel de control</span></a>
+                    <a @onclick="() =>{ActivarNegrita(2); StateHasChanged();} "><span class="@clase2">Información de la cuenta</span></a>
+                    <a @onclick="() =>{ActivarNegrita(3); StateHasChanged();} "><span class="@clase3">Libreta de Direcciones</span></a>
+                    <a @onclick="() =>{ActivarNegrita(4); StateHasChanged();} "><span class="@clase4">Mis pedidos</span></a>
+                    <a @onclick="() =>{ActivarNegrita(6); StateHasChanged();} "><span class="@clase6">Metodos de pago</span></a>
+                    <a @onclick="@(() =>this.navigate.NavigateTo("/"))"><span class="">Salir</span></a>
+                </div>
+            </aside>
+        </div>
+        <div class="col-lg-9 col-md-8">
+            <main>
+
+                @switch (ItemLista)
+                {
+                    case 1:
+                        <PanelDeControl ClienteActual="ClienteActual" />
+                        break;
+
+                    case 2:
+                        <InfoCuenta ClienteActual="ClienteActual" />
+                        break;
+
+                    case 3:
+                        <LibretaDirecciones ClienteActual="ClienteActual" />
+                        break;
+
+                    case 4:
+                        <MisPedidos ClienteActual="ClienteActual"/>
+                        break;
+
+                }
+            </main>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    public Cliente? ClienteActual { get; set; }
+    private int ItemLista = 0;
+    private String textoNegrita = "fw-bold";
+
+
+    // Strings de clases del aside
+    private String clase1 = "";
+    private String clase2 = "";
+    private String clase3 = "";
+    private String clase4 = "";
+    private String clase5 = "";
+    private String clase6 = "";
+
+    protected override void OnInitialized()
+    {
+        // si el cliente se ha logueado con google, hay que buscar dentro de la url su idCliente, 
+        // en caso contrario, todo igual
+
+        this.ClienteActual = this.storageService.RecuperarDatosCliente();
+        if (this.ClienteActual == null)
+        {
+            this.navigate.NavigateTo("/Cliente/Login");
+        }
+
+        ActivarNegrita(1);
+    }
+
+    protected override void OnParametersSet()
+    {
+        this.ClienteActual = this.storageService.RecuperarDatosCliente();
+        base.OnParametersSet();
+    }
+
+
+    private void ActivarNegrita(int i)
+    {
+        switch (i)
+        {
+            case 1:
+                clase1 = textoNegrita;
+                clase2 = "";
+                clase3 = "";
+                clase4 = "";
+                clase5 = "";
+                clase6 = "";
+                ItemLista = 1;
+                break;
+
+            case 2:
+                clase1 = "";
+                clase2 = textoNegrita;
+                clase3 = "";
+                clase4 = "";
+                clase5 = "";
+                clase6 = "";
+                ItemLista = 2;
+                break;
+
+            case 3:
+                clase1 = "";
+                clase2 = "";
+                clase3 = textoNegrita;
+                clase4 = "";
+                clase5 = "";
+                clase6 = "";
+                ItemLista = 3;
+                break;
+
+            case 4:
+                clase1 = "";
+                clase2 = "";
+                clase3 = "";
+                clase4 = textoNegrita;
+                clase5 = "";
+                clase6 = "";
+                ItemLista = 4;
+                break;
+
+            case 5:
+                clase1 = "";
+                clase2 = "";
+                clase3 = "";
+                clase4 = "";
+                clase5 = textoNegrita;
+                clase6 = "";
+                ItemLista = 5;
+                break;
+
+            case 6:
+                clase1 = "";
+                clase2 = "";
+                clase3 = "";
+                clase4 = "";
+                clase5 = "";
+                clase6 = textoNegrita;
+                ItemLista = 6;
+                break;
+
+        }
+    }
+
+
+
+}

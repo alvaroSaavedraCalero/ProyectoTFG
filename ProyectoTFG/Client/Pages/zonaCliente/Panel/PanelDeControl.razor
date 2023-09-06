@@ -1,0 +1,99 @@
+﻿@inject NavigationManager navigate
+@inject IStorageService storageService
+
+<div class="container">
+
+    <div class="row mt-3 mb-3 text-center">
+        <div class="col">
+            <h2 class="text-black">Información de Contacto</h2>
+            <span>@ClienteActual.Nombre @ClienteActual.Apellidos /</span>
+            <sapn>@ClienteActual.Telefono</sapn>
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="row mt-3 mb-3 text-center">
+        <div class="flex">
+            <h2 class="text-black ">Libreta de Direcciones</h2>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-md-6">
+            <div class="w-100 h-100">
+                <h2 class="text-black"><b>Dirección de pago predeterminada</b></h2>
+                @if (!String.IsNullOrEmpty(direcPago.MuniDirecc.DMUN50))
+                {
+                    <div class="">
+                        <span class="d-block">@direcPago.NombreContacto @direcPago.ApellidosContacto</span>
+                        @if (!String.IsNullOrEmpty(direcPago.NombreEmpresa))
+                        {
+                            <span>@direcPago.NombreEmpresa</span>
+                        }
+                        <span class="d-block">@direcPago.Calle</span>
+                        <span class="d-block">@direcPago.Numero</span>
+                        <span class="d-block">@direcPago.MuniDirecc.DMUN50</span>
+                        <span class="d-block">@direcPago.CP</span>
+                        <span class="d-block">@direcPago.Pais</span>
+                        <span class="d-block">T: @direcPago.TelefonoContacto</span>
+                    </div>
+                }
+                else
+                {
+                    <span>No ha establecido una dirección de facturación predeterminada.</span>
+                }
+
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="w-100 h-100">
+                <h2 class="text-black"><b>Dirección de envío predeterminada</b></h2>
+                @if (!String.IsNullOrEmpty(direcEnvio.MuniDirecc.DMUN50))
+                {
+                    <div class="">
+                        <span class="d-block">@direcEnvio.NombreContacto @direcEnvio.ApellidosContacto</span>
+                        @if (!String.IsNullOrEmpty(direcEnvio.NombreEmpresa))
+                        {
+                            <span>@direcEnvio.NombreEmpresa</span>
+                        }
+                        <span class="d-block">@direcEnvio.Calle</span>
+                        <span class="d-block">@direcEnvio.Numero</span>
+                        <span class="d-block">@direcEnvio.MuniDirecc.DMUN50</span>
+                        <span class="d-block">@direcEnvio.CP</span>
+                        <span class="d-block">@direcEnvio.Pais</span>
+                        <span class="d-block">T: @direcEnvio.TelefonoContacto</span>
+                    </div>
+                }
+                else
+                {
+                    <span>No ha establecido una dirección de envío predeterminada.</span>
+                }
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+@code {
+    [Parameter]
+    public Cliente ClienteActual { get; set; } = new Cliente();
+
+    private Direccion? direcPago = new Direccion();
+    private Direccion? direcEnvio = new Direccion();
+
+
+    protected override void OnInitialized()
+    {
+        this.ClienteActual = this.storageService.RecuperarDatosCliente();
+
+        if (ClienteActual.MisDirecciones.Count != 0)
+        {
+            direcPago = ClienteActual.MisDirecciones.FirstOrDefault((Direccion d) => d.EsPrincipal == true) ?? new Direccion();
+            direcEnvio = ClienteActual.MisDirecciones.FirstOrDefault((Direccion d) => d.EsFaturacion == true) ?? new Direccion();
+        }
+
+    }
+
+}

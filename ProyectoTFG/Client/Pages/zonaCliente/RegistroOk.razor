@@ -1,0 +1,22 @@
+﻿@page "/Cliente/RegistroOk"
+
+@inject NavigationManager navigate
+
+<div class="container">
+    <div class="row">
+        <h3><strong>Tus datos han sido registrados correctamente</strong></h3>
+    </div>
+    <div class="row">
+        <p>Se le ha mandado un email a su cuenta de correo con un enlace para activar su cuenta en <strong>Firebox.com</strong>.</p>
+        <p>Mientras no active su cuenta no podra realizar ningun pedido en la tienda. Revise su bandeja de Correo no deseado y de SPAM por si no encuentra el email.</p>
+    </div>
+
+    <div class="row">
+        <button class="btn" @onclick="@(()=>this.navigate.NavigateTo("/Cliente/Login"))">Inicia Sesion en tu Cuenta</button>
+    </div>
+
+</div>
+
+@code {
+
+}

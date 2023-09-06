@@ -1,0 +1,45 @@
+﻿@page "/Tienda/MostrarProductos/{Categoria}"
+@using Microsoft.AspNetCore.Components.Routing
+
+@inject IRestService restService
+@inject IStorageService storageService
+
+
+
+<div class="row">
+    @foreach (ProductoAPI p in listaProductos)
+    {
+        <div class="col-sm-3 ">
+            <MiniProducto ProductoActual="p" ClienteLogued="ClienteLogueado"></MiniProducto>
+        </div>
+    }
+</div>
+
+
+
+
+@code {
+
+    [Parameter]
+    public String Categoria { get; set; }
+
+    private List<ProductoAPI> listaProductos = new List<ProductoAPI>();
+    private Cliente ClienteLogueado;
+
+    protected override async Task OnInitializedAsync()
+    {
+        this.ClienteLogueado = this.storageService.RecuperarDatosCliente();
+
+        this.Categoria = Uri.UnescapeDataString(Categoria);
+        this.listaProductos = await this.restService.RecuperarProductosCategoria(Categoria);
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // De esta forma, aunque tarde en recuperar los siguientes productos, se verá algún cambio.
+        listaProductos.Clear();
+        this.Categoria = Uri.UnescapeDataString(Categoria);
+        this.listaProductos = await this.restService.RecuperarProductosCategoria(Categoria);
+    }
+
+}

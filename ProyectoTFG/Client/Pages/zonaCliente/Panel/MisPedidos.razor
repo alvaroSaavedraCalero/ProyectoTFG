@@ -1,0 +1,48 @@
+﻿
+
+<div class="container">
+
+    @if (ClienteActual.MisPedidos.Count == 0)
+    {
+        <div class="row">
+            <div class="col">
+                <h1 class="text-black"><b>No hay pedidos realizados aun.</b></h1>
+            </div>
+        </div>
+    }
+    else
+    {
+        @foreach (Pedido p in ClienteActual.MisPedidos)
+        {
+            <div class="row border m-2">
+                <div class="col-6 bg-success bg-gradient d-flex justify-content-center align-items-center">
+                    <div class="">
+                        <h3 class="text-black"><b>Id Pedido: @p.IdPedido.Substring(0, 7)</b></h3>
+                        <h5 class="text-black">Precio pedido: @p.Total</h5>
+                        <h5 class="text-black">Fecha: @p.FechaPedido.Date</h5>
+                    </div>
+                </div>
+                <div class="col-6">
+                    @foreach (ItemPedido itemP in p.ItemsPedido)
+                    {
+                        <div class="m-3">
+                            <img src="@itemP.ProductoItem.image" width="75" height="75" />
+                            <h5>@itemP.ProductoItem.title</h5>
+                            <span>@itemP.ProductoItem.price €</span>
+                            <br />
+                            <span>Uds.: @itemP.CatidadItem</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    }
+
+</div>
+
+@code {
+
+    [Parameter]
+    public Cliente ClienteActual { get; set; }
+
+}

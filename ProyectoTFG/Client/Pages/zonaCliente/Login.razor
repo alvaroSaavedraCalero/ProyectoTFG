@@ -1,0 +1,92 @@
+﻿@page "/Cliente/Login"
+@inject NavigationManager navigate
+@inject IRestService servicioREST
+@inject IJSRuntime jsService
+@inject IStorageService storageService
+
+
+<div class="container text-center">
+    <EditForm Model="NuevaCuenta" OnValidSubmit="LoginCliente">
+        <DataAnnotationsValidator></DataAnnotationsValidator>
+
+        <div class="row m-md-1"><h1 class="text-black">Acceso del cliente</h1></div>
+
+        <div class="row m-md-1"><h3 class="text-black">Registrarse / Acceder</h3></div>
+
+        <div class="row m-md-1">
+            <ValidationMessage For="@(()=>NuevaCuenta.Email)"></ValidationMessage>
+            <input type="email" class="form-control" id="email" @bind-value="@NuevaCuenta.Email">
+            <label for="email" class="form-label">Dirección E-Mail</label>
+        </div>
+
+        <div class="row m-md-1">
+            <ValidationMessage For="@(()=>NuevaCuenta.Password)"></ValidationMessage>
+            <input type="password" class="form-control" id="password" @bind-value="@NuevaCuenta.Password">
+            <label for="password" class="form-label">Contraseña</label>
+            <p class="text-grey">¿Has olvidado tu contraseña?</p>
+        </div>
+
+        <div class="row m-md-1">
+            <label class="text-danger">@MensajeError</label>
+        </div>
+
+        <div class="row m-md-1 w-100 h-50">
+            <div class="col">
+                <button type="submit" class="btn btn-outline-secondary">Continuar</button>
+            </div>
+        </div>
+
+        <div class="row m-md-1">
+            <div class="col">
+                <button class="btn btn-outline-info" @onclick="@LoginGoogle">Login con Google <i class="fa-brands fa-google"></i></button>
+            </div>
+        </div>
+
+        <div class="row m-md-1 w-100 h-50">
+            <div class="col">
+                <button type="button" class="btn btn-dark" @onclick="@(()=>this.navigate.NavigateTo("/Cliente/Registro"))">Registrarse</button>
+            </div>
+        </div>
+
+    </EditForm>
+</div>
+
+
+
+
+@code {
+    public Cuenta NuevaCuenta { get; set; } = new Cuenta();
+    private String MensajeError = "";
+
+    protected override void OnInitialized()
+    {
+        NuevaCuenta = this.storageService.RecuperarDatosCliente().cuenta;
+    }
+
+    public async Task LoginGoogle()
+    {
+        String urlGoogle = await this.servicioREST.LoginGoogle();
+        await this.jsService.InvokeVoidAsync("window.location.assign", urlGoogle);
+    }
+
+    public async Task LoginCliente()
+    {
+        // hay que mandar el objecto cuanta al servicios REST
+        RestMessage respuestaREST = await this.servicioREST.Login(this.NuevaCuenta);
+
+        if (respuestaREST.Codigo == 0)
+        {
+            await this.jsService.InvokeVoidAsync("console.log", respuestaREST.DatosCliente);
+            // antes de redirigir hay que almacenar los datos del cliente y el JWT en el storage del navegador o un subject
+            this.storageService.AlmacenarDatosCliente(respuestaREST.DatosCliente);
+            this.storageService.AlmacenarJWT(respuestaREST.TokenSesion);
+            this.navigate.NavigateTo("/Cliente/PanelCliente");
+        }
+        else
+        {
+            MensajeError = respuestaREST.Mensaje;
+            StateHasChanged();
+        }
+    }
+
+}

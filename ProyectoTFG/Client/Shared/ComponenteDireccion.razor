@@ -1,0 +1,224 @@
+﻿@inject IRestService restService
+@inject IStorageService storageService
+@inject IJSRuntime jsService
+@inject NavigationManager navigate
+
+<EditForm Model="DireccionEdit" Context="formContext">
+
+    @if (!String.IsNullOrEmpty(MensajeError))
+    {
+        <div class="row">
+            <span class="text-danger">@MensajeError</span>
+        </div>
+    }
+
+    <div class="row text-center">
+        <div class="row m-md-1"><h2>Dirección del cliente</h2></div>
+
+        <div class="col-md-6">
+            <div class="row m-md-1"><h3>Información de Contacto</h3></div>
+            <div class="row m-md-1">
+                <div class="col-4">
+                    <input class="form-control" id="nombre" rows="1" placeholder="@DireccionEdit.NombreContacto" @bind-value="@DireccionEdit.NombreContacto"></input>
+                    <label for="nombre" class="form-label">Nombre</label>
+                </div>
+            </div>
+            <div class="row m-md-1">
+                <div class="flex justify-between">
+                    <div class="col-4">
+                        <input class="form-control" id="apellidos" rows="1" placeholder="@DireccionEdit.ApellidosContacto" @bind-value="@DireccionEdit.ApellidosContacto"></input>
+                        <label for="apellidos" class="form-label">Apellidos</label>
+                    </div>
+                    <div class="col-4">
+                        <input class="form-control" id="empresa" rows="1" @bind-value="@DireccionEdit.NombreEmpresa"></input>
+                        <label for="empresa" class="form-label">Empresa</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row m-md-1">
+                <div class="col-4">
+                    <input class="form-control" id="movil" rows="1" @bind-value="@DireccionEdit.TelefonoContacto"></input>
+                    <label for="movil" class="form-label">Teléfono móvil</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="row m-md-1"><h2>Calle y número</h2></div>
+            <div class="row m-md-1">
+                <div class="flex justify-between">
+                    <div class="col-4">
+                        <input class="form-control" id="calle" rows="1" @bind-value="@DireccionEdit.Calle"></input>
+                        <label for="calle" class="form-label">Domicilio (Calle)</label>
+                    </div>
+                    <div class="col-4">
+                        <input class="form-control" id="numero" rows="1" @bind-value="@DireccionEdit.Numero"></input>
+                        <label for="numero" class="form-label">Número</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row m-md-1">
+                <div class="col-4">
+                    <input class="form-control" id="cp" rows="1" @bind-value="@DireccionEdit.CP"></input>
+                    <label for="cp" class="form-label">C.P.</label>
+                </div>
+            </div>
+            <div class="row m-md-1">
+                <InputSelect id="inputProvincia" class="form-select" @bind-Value="this.provincia" @oninput="@this.RecuperaMunicipios">
+                    <option value="0" selected> - Seleccionar Provincia - </option>
+                    @{
+                        foreach (Provincia unaprov in this.listaProvincias)
+                        {
+                            <option value="@unaprov.CPRO-@unaprov.PRO">@unaprov.PRO</option>
+                        }
+                    }
+                </InputSelect>
+                <label for="inputMunicipio" class="form-label">Provincia</label>
+            </div>
+            <div class="row m-md-1">
+                <InputSelect id="inputMunicipio" class="form-select" @bind-Value="@this.municipio" disabled="@this.disabledMunis">
+                    <option value="0" selected> - Selecciona un Municipio -</option>
+                    @foreach (Municipio muni in this.listaMunicipios)
+                    {
+                        <option value="@muni.CMUM-@muni.DMUN50">@muni.DMUN50</option>
+
+                    }
+                </InputSelect>
+                <label for="inputMunicipio" class="form-label">Municipio</label>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <input type="checkbox" @bind-value="@this.DireccionEdit.EsPrincipal"></input>
+            <label class="form-label">Dirección Princiapal</label>
+        </div>
+        <div class="col-md-6">
+            <input type="checkbox" @bind-value="@this.DireccionEdit.EsFaturacion"></input>
+            <label class="form-label">Dirección Envío</label>
+        </div>
+    </div>
+    <div class="row text-center">
+        <div class="col">
+            @if (Funcion.Equals("guardar"))
+            {
+                <div class="col">
+                    <button type="submit" class="btn rounded-pill btn-dark text-white" @onclick="(() => FormularioDireccionEdit(formContext))">Guardar</button>
+                </div>
+            }
+            else
+            {
+                <div class="col">
+                    <button type="submit" class="btn rounded-pill btn-dark text-white" @onclick="(() => FormularioDireccionEdit(formContext))">Modificar</button>
+                </div>
+            }
+        </div>
+
+        <div class="col">
+            <a class="btn btn-danger" @onclick="@(() => this.navigate.NavigateTo(this.navigate.BaseUri))"><span>Atras</span></a>
+        </div>
+
+    </div>
+
+</EditForm>
+
+@code {
+    [Parameter]
+    public Direccion DireccionEdit { get; set; } = new Direccion();
+
+    [Parameter]
+    public String Funcion { get; set; } = "guardar";
+
+    [Parameter]
+    public Cliente ClienteDir { get; set; } = new Cliente();
+
+    private String MensajeError = "";
+    private String provincia { get; set; } = "0";
+    private String municipio { get; set; } = "0";
+    private bool disabledMunis { get; set; } = true;
+
+    List<Provincia> listaProvincias { get; set; } = new List<Provincia>();
+    List<Municipio> listaMunicipios { get; set; } = new List<Municipio>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        this.listaProvincias = await this.restService.RecuperarProvincias();
+
+    }
+
+    protected async Task RecuperaMunicipios(ChangeEventArgs ev)
+    {
+        this.disabledMunis = false;
+        this.listaMunicipios = await this.restService.RecuperarMunicipios(ev.Value.ToString().Split("-")[0]);
+    }
+
+
+    public async Task FormularioDireccionEdit(EditContext formContext)
+    {
+
+        this.DireccionEdit.ProvDirec = new Provincia
+            {
+                CCOM = "",
+                CPRO = this.provincia.Split("-")[0],
+                PRO = this.provincia.Split("-")[1]
+            };
+        this.DireccionEdit.MuniDirecc = new Municipio
+            {
+                CPRO = this.provincia.Split("-")[0],
+                CMUM = this.municipio.Split("-")[0],
+                DMUN50 = this.municipio.Split("-")[1],
+                CUN = ""
+            };
+
+        if (Funcion.Equals("guardar"))
+        {
+            String jwt = this.storageService.RecuperarJWT();
+            // guardamos una direccion en la coleccion direcciones
+            RestMessage respuestaREST = await this.restService.IntroducirDireccion(DireccionEdit, ClienteDir, jwt);
+
+            switch (respuestaREST.Codigo)
+            {
+                case 0:
+                    this.ClienteDir = respuestaREST.DatosCliente;
+                    this.storageService.AlmacenarDatosCliente(respuestaREST.DatosCliente);
+                    StateHasChanged();
+                    this.navigate.NavigateTo(this.navigate.BaseUri);
+                    break;
+
+                case 5:
+                    this.navigate.NavigateTo("/Cliente/Login");
+                    break;
+
+                default:
+                    this.MensajeError = respuestaREST.Mensaje;
+                    StateHasChanged();
+                    break;
+            }
+        }
+        else
+        {
+            String jwt = this.storageService.RecuperarJWT();
+            // Entonces estamos en modificar
+            RestMessage respuestaREST = await this.restService.ModificarDireccion(DireccionEdit, ClienteDir, jwt);
+
+            switch (respuestaREST.Codigo)
+            {
+                case 0:
+                    this.ClienteDir = respuestaREST.DatosCliente;
+                    this.storageService.AlmacenarDatosCliente(respuestaREST.DatosCliente);
+                    StateHasChanged();
+                    this.navigate.NavigateTo(this.navigate.BaseUri);
+                    break;
+
+                case 5:
+                    this.navigate.NavigateTo("/Cliente/Login");
+                    break;
+
+                default:
+                    this.MensajeError = respuestaREST.Mensaje;
+                    StateHasChanged();
+                    break;
+            }
+        }
+    }
+}

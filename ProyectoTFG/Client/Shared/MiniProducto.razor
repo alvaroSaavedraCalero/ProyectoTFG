@@ -1,0 +1,112 @@
+﻿@inject NavigationManager navigate
+@inject IRestService restService
+@inject IStorageService storageService
+
+
+
+<div class="container">
+    <!-- Imagen -->
+    <div class="row">
+        <div class="col m-1">
+            <div>
+                <a @onclick="@(() => {
+                    if (this.ClienteLogued != null) {
+                        this.navigate.NavigateTo($"/Tienda/ProductoExpan?idProd={ProductoActual.id}");
+                    } else {
+                        this.navigate.NavigateTo("/Cliente/Login");
+                    }
+                })">
+                    <img src="@this.ProductoActual.image" width="200" height="200" />
+                </a>
+            </div>
+            <button class="btn" @onclick="@DesearProducto">
+                @if (CorazonRojo)
+                {
+                    <i class="fa-solid fa-heart"></i>
+                }
+                else
+                {
+                    <i class="fa-regular fa-heart"></i>
+                }
+            </button>
+        </div>
+    </div>
+
+    <!-- Nombre -->
+    <div class="row">
+        <div class="col">
+            <h3><b class="text-black">@ProductoActual.title</b></h3>
+        </div>
+    </div>
+
+    <!-- Precio -->
+    <div class="row">
+        <div class="col">
+            <h4><b class="text-secondary">@ProductoActual.price €</b></h4>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public ProductoAPI ProductoActual { get; set; } = new ProductoAPI();
+
+    [Parameter]
+    public Cliente ClienteLogued { get; set; } = new Cliente();
+
+    private Boolean CorazonRojo = false;
+
+    protected override void OnInitialized()
+    {
+        if (ClienteLogued.ListaDeseos.Count != 0)
+        {
+            ProductoAPI? p = ClienteLogued.ListaDeseos.Find((ProductoAPI p) => p.id == ProductoActual.id);
+            if (p != null)
+            {
+                CorazonRojo = true;
+            }
+        }
+    }
+
+
+    public async Task DesearProducto()
+    {
+        String jwt = this.storageService.RecuperarJWT();
+
+        if (CorazonRojo)
+        {
+            // En caso de que el producto ya este deseado, lo desdeseamos
+            RestMessage respuestaREST = await this.restService.DesDesearProd(ClienteLogued, ProductoActual, jwt);
+
+            if (respuestaREST.Codigo == 0)
+            {
+                CorazonRojo = false;
+                ClienteLogued.ListaDeseos.Remove(ProductoActual);
+                this.storageService.AlmacenarDatosCliente(ClienteLogued);
+                StateHasChanged();
+            }
+            else if (respuestaREST.Codigo == 5)
+            {
+                this.navigate.NavigateTo("/Cliente/Login");
+            }
+        }
+        else
+        {
+            // En caso de que no este deseado, lo deseamos
+            RestMessage respuestaREST = await this.restService.DesearProducto(ClienteLogued, ProductoActual, jwt);
+
+            if (respuestaREST.Codigo == 0)
+            {
+                CorazonRojo = true;
+                ClienteLogued.ListaDeseos.Add(ProductoActual);
+                this.storageService.AlmacenarDatosCliente(ClienteLogued);
+                StateHasChanged();
+            }
+            else if (respuestaREST.Codigo == 5)
+            {
+                this.navigate.NavigateTo("/Cliente/Login");
+            }
+        }
+    }
+}

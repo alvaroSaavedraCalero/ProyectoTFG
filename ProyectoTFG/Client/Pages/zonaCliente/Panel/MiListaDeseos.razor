@@ -1,0 +1,44 @@
+﻿@page "/Cliente/ListaDeseos"
+
+@inject IStorageService storageService
+@inject NavigationManager navigate
+
+@if (String.IsNullOrEmpty(ClienteActual.Nombre))
+{
+    this.navigate.NavigateTo("/Cliente/Login");
+}
+else
+{
+    @if (ClienteActual.ListaDeseos.Count == 0)
+    {
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <h2 class=" text-black">No hay ningún producto en la lista de deseos</h2>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="container">
+            <div class="row">
+                @foreach (ProductoAPI p in ClienteActual.ListaDeseos)
+                {
+                    <div class="col-sm-3"><MiniProducto ClienteLogued="@ClienteActual" ProductoActual="@p" /></div>
+                }
+            </div>
+        </div>
+    }
+}
+
+@code {
+
+    public Cliente ClienteActual { get; set; }
+
+    protected override void OnInitialized()
+    {
+        this.ClienteActual = this.storageService.RecuperarDatosCliente();
+    }
+
+}

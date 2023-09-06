@@ -1,0 +1,217 @@
+﻿@page "/Tienda/Carrito"
+
+@inject IStorageService storageService
+@inject NavigationManager navigate
+@inject IRestService restService
+
+
+<div class="container">
+
+    @if (!String.IsNullOrEmpty(MensajeError))
+    {
+        <div class="row m-md-1">
+            <label class="text-danger">@MensajeError</label>
+        </div>
+    }
+
+    @if (this.ClienteLogued != null)
+    {
+        @if (this.ClienteLogued.PedidoActual.ItemsPedido.Count == 0)
+        {
+            <div class="container">
+                <div class="row m-2"><h1 class="text-black"><b>Tu carrito de la compra</b></h1></div>
+                <div class="row m-2 mt-5"><span>Tu carrito de la compra está vacío.</span></div>
+                <div class="row m-2"><span>Haz clic <a @onclick="@(() => this.navigate.NavigateTo("/"))">aqui</a></span></div>
+                <div class="row m-2">
+                    <h3 class="m-4">Top regalos</h3>
+                    <div class="row">
+                        @if (itemsRegalosGeniales.Count >= 4)
+                        {
+                            @for (int i = 0; i < 4; i++)
+                            {
+                                ProductoAPI p = itemsRegalosGeniales[i];
+                                <div class="col-sm-3 w-25 h-25">
+                                    <MiniProducto ProductoActual="p" ClienteLogued="ClienteLogued"></MiniProducto>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="container">
+                <div class="row"><h1 class="text-black"><b>Tu carrito de la compra</b></h1></div>
+                <div class="row">
+                    <div class="col-8 ">
+                        <!-- Zona de productos -->
+                        @foreach (ItemPedido item in ClienteLogued.PedidoActual.ItemsPedido)
+                        {
+                            <div class="row border-bottom mb-2">
+                                <div class="col-2 m-5">
+                                    <img src="@item.ProductoItem.image" class="img-fluid rounded-square">
+                                </div>
+                                <div class="col-8 d-flex flex-column justify-content-center align-items-center w-50 m-3">
+                                    <h2>@item.ProductoItem.title</h2>
+                                    <div class="w-50 h-25">
+                                        @if (!MostrarMasCantidad)
+                                        {
+                                            <select id="cantidadItem" class="form-select" tabindex=""
+                                    @onchange="@(e => { if (e.Value.Equals("6")) MostrarMasCantidad = true;
+                                            @item.CatidadItem = int.Parse(e.Value.ToString());
+                                            CalcularTotal();
+                                            StateHasChanged(); })">
+                                                @for (@i = 1; i < 7; i++)
+                                                {
+                                                    if (i == @item.CatidadItem)
+                                                    {
+                                                        <option value="@i" class="" selected>@i</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@i" class="">@i</option>
+                                                    }
+                                                }
+                                            </select>
+                                        }
+                                        else
+                                        {
+                                            @*
+                            <input class="form-control" type="number"  aria-label="cantidadProducto"
+                            @onchange="@(e => {
+                            int cantidad = int.Parse(e.Value.ToString());
+                            if (cantidad >= 0) {
+                            @item.CatidadItem = cantidad;
+                            CalcularTotal();
+                            StateHasChanged();
+                            }
+                            else {
+                            @item.CatidadItem = 0;
+                            e.Value = 0;
+                            CalcularTotal();
+                            StateHasChanged();
+                            }
+                            })">
+                            *@
+
+                                            <button class="btn btn-outline-dark" @onclick="@(() => {
+                                                if (@item.CatidadItem > 0) {
+                                                    @item.CatidadItem--;
+                                                    CalcularTotal();
+                                                } else {
+                                                    @item.CatidadItem = 0;
+                                                    CalcularTotal();
+                                                }
+                                                StateHasChanged();
+                                            })">
+                                                -
+                                            </button>
+                                            <span>@item.CatidadItem</span>
+                                            <button class="btn btn-outline-dark" @onclick="@(() => {
+                                                @item.CatidadItem++;
+                                                CalcularTotal();
+                                                StateHasChanged();
+                                            })">
+                                                +
+                                            </button>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="col-2 d-flex flex-column justify-content-between align-items-end">
+                                    <button class="btn btn-primary mb-3" @onclick="@(() => EliminarItem(@item.IdItemPedido))"><i class="fa-solid fa-xmark"></i></button>
+                                    <h4 class="">@(@item.CatidadItem * @item.ProductoItem.price) €</h4>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div class="col-4 d-flex flex-column justify-content-center border border-3 border-info rounded-3 ">
+                        <!-- Zona resumen -->
+                        <div class="row ms-xxl-5 ">
+                            <h3 class="text-black"><b>Resumen</b></h3>
+                            <div class="flex">
+                                <span>Subtotal</span>
+                                <span>@SubTotal €</span>
+                            </div>
+                            <div class="flex">
+                                <span>Envío</span>
+                                <span>@ClienteLogued.PedidoActual.GastosEnvio €</span>
+                            </div>
+                            <h3 class="text-black"><b>@Total €</b></h3>
+                            <button class="btn btn-dark w-75" @onclick="@(() => IrAlCobro())">Finalizar compra</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        this.navigate.NavigateTo("/Cliente/Login");
+    }
+</div>
+
+@code {
+    public Cliente ClienteLogued { get; set; } = new Cliente();
+
+    List<ProductoAPI> itemsRegalosGeniales = new List<ProductoAPI>();
+    private String MensajeError = "";
+    private int i = 0;
+    private Boolean MostrarMasCantidad = false;
+    private Decimal Total = 0;
+    private Decimal SubTotal = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        this.ClienteLogued = this.storageService.RecuperarDatosCliente();
+        if (ClienteLogued != null)
+        {
+            ClienteLogued.PedidoActual.ItemsPedido.ForEach((ItemPedido i) => SubTotal += (i.ProductoItem.price * i.CatidadItem));
+            Decimal subtotal = ClienteLogued.PedidoActual.SubTotal;
+            Total = SubTotal + ClienteLogued.PedidoActual.GastosEnvio;
+            ClienteLogued.PedidoActual.SubTotal = SubTotal;
+        }
+        else
+        {
+            this.navigate.NavigateTo("/Cliente/Login");
+        }
+
+        String cat = "4-1";
+        this.itemsRegalosGeniales = await this.restService.RecuperarProductosCategoria(cat);
+    }
+
+    public void CalcularTotal()
+    {
+        Decimal subtotal = ClienteLogued.PedidoActual.ItemsPedido.Sum((ItemPedido i) => i.CatidadItem * i.ProductoItem.price);
+        SubTotal = subtotal;
+        Total = ClienteLogued.PedidoActual.GastosEnvio + SubTotal;
+    }
+
+    public async Task EliminarItem(String idItemPedido)
+    {
+        int posItem = ClienteLogued.PedidoActual.ItemsPedido.FindIndex((ItemPedido i) => i.IdItemPedido == idItemPedido);
+        ClienteLogued.PedidoActual.ItemsPedido.RemoveAt(posItem);
+        this.storageService.AlmacenarDatosCliente(ClienteLogued);
+        CalcularTotal();
+        StateHasChanged();
+    }
+
+    public async Task IrAlCobro()
+    {
+        Direccion direcEnvio = ClienteLogued.MisDirecciones.Find((Direccion d) => d.EsPrincipal == true);
+        Direccion direcFact = ClienteLogued.MisDirecciones.Find((Direccion d) => d.EsFaturacion == true);
+        if (direcEnvio != null)
+        {
+            ClienteLogued.PedidoActual.DireccionEnvio = direcEnvio;
+            if (direcFact != null)
+            {
+                ClienteLogued.PedidoActual.DireccionFacturacion = direcFact;
+            }
+        }
+        ClienteLogued.PedidoActual.Total = Total;
+        ClienteLogued.PedidoActual.SubTotal = SubTotal;
+        this.storageService.AlmacenarDatosCliente(ClienteLogued);
+        this.navigate.NavigateTo("Tienda/Cobro");
+    }
+
+}

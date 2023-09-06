@@ -1,0 +1,226 @@
+﻿@page "/Tienda/ProductoExpan"
+@using MongoDB.Bson;
+@using Microsoft.Extensions.Primitives
+@using Microsoft.AspNetCore.WebUtilities
+
+@inject NavigationManager navigate
+@inject IRestService restService
+@inject IStorageService storageService
+
+<div class="container">
+    <div class="row m-2 m-5">
+        <!-- Imagen -->
+        <div class="col-5 ">
+            <div class="w-100 h-100">
+                <img class="" width="350" height="350" src="@ProductoSelected.image" />
+            </div>
+        </div>
+
+        <!-- Info -->
+        <div class="col-7">
+            <div class="row m-4"><h1 class="text-black">@ProductoSelected.title</h1></div>
+            <div class="row m-2"><span class="text-primary fs-5">@ProductoSelected.price €</span></div>
+            <div class="row m-2">
+                <div class="w-50 h-25">
+                    <h4 class="text-black">Cantidad del producto</h4>
+                    @if (!MostrarMasCantidad)
+                    {
+                        <select id="cantidadItem" class="form-select" tabindex=""
+                            @onchange="@(e => {
+                                int cantidad = int.Parse(e.Value.ToString());
+                                if (cantidad == 6) {
+                                    MostrarMasCantidad = true;
+                                    CantidaItemProdActu = cantidad;
+                                }
+                                else {
+                                    CantidaItemProdActu = cantidad;
+                                }
+                                StateHasChanged();
+                                })">
+                            @for (i = 1; i < 7; i++)
+                            {
+                                <option value="@i" class="">@i</option>
+                            }
+                        </select>
+                    }
+                    else
+                    {
+
+                        @*
+                    <input class="form-control" type="number" aria-label="cantidadProducto"
+                    @onchange="@(e => {
+                    int cantidad = int.Parse(e.Value.ToString());
+                    if (cantidad >= 0) {
+                    CantidaItemProdActu = cantidad;
+                    }
+                    else {
+                    e.Value = 0;
+                    CantidaItemProdActu = 0;
+                    }
+                    StateHasChanged();
+                    })">
+                    *@
+
+                        <button class="btn btn-outline-dark" @onclick="@(() => {
+                                if (CantidaItemProdActu > 0) {
+                                    CantidaItemProdActu--;
+                                } else {
+                                    CantidaItemProdActu = 0;
+                                }
+                                StateHasChanged();
+                            })">
+                            -
+                        </button>
+                        <span>@CantidaItemProdActu</span>
+                        <button class="btn btn-outline-dark" @onclick="@(() => {
+                                CantidaItemProdActu++;
+                                StateHasChanged();
+                            })">
+                            +
+                        </button>
+
+                    }
+                </div>
+            </div>
+            <div class="row m-2">
+                <div class="col">
+                    <button class="btn btn-dark rounded-pill" @onclick=@(() => AniadirCarrito())>Añadir al carrito</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row m-2 mb-5">
+        <div class="col">
+            <h2 class="text-black">Descripción</h2>
+            <span class="text-center">@ProductoSelected.description</span>
+        </div>
+    </div>
+
+    <div class="row m-2 mb-lg-5">
+        @if (ListaComentarios.Count > 0)
+        {
+            <div class="col-5 bg-info rounded-3 m-1">
+                @for (int i = 0; i < ListaComentarios.Count; i++)
+                {
+                    KeyValuePair<String, String> comentario = ListaComentarios.ElementAt(i);
+                    <div class="rounded-1 bg-secondary bg-opacity-50 m-1">
+                        <h4 class="text-center">@comentario.Key</h4>
+                        <span class="text-center ms-2">@comentario.Value</span>
+                    </div>
+                }
+            </div>
+        }
+        <div class="col-6 bg-body rounded-3 m-1 mb-5">
+            <div class="form-group m-3">
+                <label for="comentario">Comentario:</label>
+                <input type="text" class="form-control" id="comentario" placeholder="Ingrese su comentario" @bind-value="@Comentario">
+            </div>
+            <button type="submit" class="btn btn-primary m-3" @onclick="@(() => AniadirComentario())">Subir comentario</button>
+            @if (!String.IsNullOrEmpty(ErrorComentario))
+            {
+                <span class="text-danger">@ErrorComentario</span>
+            }
+        </div>
+    </div>
+</div>
+
+
+@code {
+    public ProductoAPI ProductoSelected { get; set; } = new ProductoAPI();
+
+    public Cliente ClienteLogued { get; set; } = new Cliente();
+
+    private List<KeyValuePair<String, String>> ListaComentarios = new List<KeyValuePair<String, String>>();
+    private String Comentario = "";
+    private String ErrorComentario = "";
+
+    private int i = 0;
+    private Boolean MostrarMasCantidad = false;
+    private int CantidaItemProdActu = 1;
+    private int ContadorItemsId = 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Uri uri = new Uri(navigate.Uri);
+        Dictionary<String, StringValues> queryString = QueryHelpers.ParseQuery(uri.Query);
+        String idProducto = queryString["idProd"];
+
+        this.ProductoSelected = await this.restService.RecuperarProducto(idProducto);
+        this.ClienteLogued = this.storageService.RecuperarDatosCliente();
+
+
+
+    }
+
+    public async Task AniadirCarrito()
+    {
+        // Vamos a jugar constantemente con el pedido actual, y en caso de que se realice la compra,
+        // ya la guardamos de manera permanente en la base de datos
+        if (ClienteLogued != null)
+        {
+            ItemPedido itemP = ClienteLogued.PedidoActual.ItemsPedido.Find((ItemPedido i) => i.ProductoItem.id == ProductoSelected.id);
+
+            if (itemP != null)
+            {
+                int posItem = ClienteLogued.PedidoActual.ItemsPedido.FindIndex((ItemPedido i) => i.ProductoItem.id == ProductoSelected.id);
+                int cantidadNueva = itemP.CatidadItem + CantidaItemProdActu;
+                ClienteLogued.PedidoActual.ItemsPedido[posItem].CatidadItem = cantidadNueva;
+                this.storageService.AlmacenarDatosCliente(ClienteLogued);
+                this.navigate.NavigateTo("/Tienda/Carrito");
+            }
+            else
+            {
+                // significa que el cliente aun no tiene en el pedido este item
+                ItemPedido itemPedido = new ItemPedido
+                    {
+                        IdItemPedido = ContadorItemsId.ToString(),
+                        CatidadItem = CantidaItemProdActu,
+                        ProductoItem = ProductoSelected
+                    };
+                ClienteLogued.PedidoActual.ItemsPedido.Add(itemPedido);
+                ContadorItemsId++;
+                this.storageService.AlmacenarDatosCliente(ClienteLogued);
+                this.navigate.NavigateTo("/Tienda/Carrito");
+            }
+        }
+        else { this.navigate.NavigateTo("/Cliente/Login"); }
+    }
+
+    public async Task AniadirComentario()
+    {
+        if (String.IsNullOrEmpty(Comentario))
+        {
+            ErrorComentario = "El comentario esta vacio";
+            StateHasChanged();
+        }
+        else
+        {
+            String jwt = this.storageService.RecuperarJWT();
+            RestMessage respuestaServidor = await this.restService.AlmacenarComentario(jwt, Comentario, ClienteLogued.IdCliente,
+                ClienteLogued.cuenta.Login, ProductoSelected.id.ToString());
+
+            switch (respuestaServidor.Codigo)
+            {
+                case 0:
+                    ListaComentarios.Add(new KeyValuePair<string, string>(ClienteLogued.cuenta.Login, Comentario));
+                    break;
+
+                case 1:
+                    ErrorComentario = "Ha habido algun error al subir el comentario";
+                    break;
+
+                case 2:
+                    ErrorComentario = "Ha habido algun error al subir el comentario";
+                    break;
+
+                case 5:
+                    this.navigate.NavigateTo("/Cliente/Login");
+                    break;
+            }
+            StateHasChanged();
+
+        }
+    }
+
+}

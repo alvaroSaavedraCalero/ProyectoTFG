@@ -1,0 +1,44 @@
+﻿@page "/"
+
+@inject IRestService restService
+@inject IStorageService storageService
+@inject NavigationManager navigate
+@inject IJSRuntime jsService
+
+<!-- Arregla esto que se ve horrible -->
+
+<div class="container mt-5 mb-5">
+
+
+    <div class="row m-2">
+        <div class="row">
+            @if (items.Count >= 4)
+            {
+                @for (int i = 0; i < 4; i++)
+                {
+                    ProductoAPI p = items[i];
+                    <div class="col-sm-3 ">
+                        <MiniProducto ProductoActual="p" ClienteLogued="ClienteLogueado"></MiniProducto>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+
+</div>
+
+
+
+@code {
+    List<ProductoAPI> items = new List<ProductoAPI>();
+    private Cliente ClienteLogueado;
+
+    protected override async Task OnInitializedAsync()
+    {
+        this.items = await this.restService.RecuperarProductosAleatorios();
+
+        ClienteLogueado = this.storageService.RecuperarDatosCliente();
+    }
+
+
+}

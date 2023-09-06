@@ -1,0 +1,150 @@
+﻿@inherits LayoutComponentBase
+
+@inject NavigationManager navigate
+@inject IStorageService storageService
+@inject IJSRuntime jsService
+
+<style>
+    * {
+        font-family: Consolas
+    }
+
+    #textoIcono {
+        font-size: medium
+    }
+</style>
+
+
+<div class="container">
+    <!-- header -->
+    <div class="row m-2 border border-2 rounded-4">
+        <!-- Busqueda -->
+        <div class="col text-start d-flex align-items-center ms-4">
+            <form class="d-flex" role="search">
+                <input class="form-control ms-5" type="search" placeholder="Encuentre su producto..." aria-label="Buscar">
+                <button class="btn btn-light btn-lg m-2" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </form>
+        </div>
+
+
+        <!-- Icono principal -->
+        <div class="col text-center mt-2 mb-2">
+            <a class="" @onclick="@(()=>this.navigate.NavigateTo("/"))">
+                <img src="images/MegaShopLogo.png" width="189" height="189" alt="logo" class="mx-auto my-auto rounded rounded-circle" />
+            </a>
+        </div>
+
+        <!-- Iconos -->
+        <div class="col text-end d-flex align-items-center ms-5">
+            <a class="btn btn-light m-3" @onclick="@(()=> {
+                    ClienteLogged = this.storageService.RecuperarDatosCliente();
+                    if (String.IsNullOrEmpty(ClienteLogged.IdCliente)) {
+                        this.navigate.NavigateTo("/Cliente/Login");
+                    } else {
+                        this.navigate.NavigateTo("/Cliente/PanelCliente");
+                    }
+                })">
+                <i class="fa-solid fa-user"></i>
+                <span id="textoIcono">Cuenta</span>
+            </a>
+            <a class="btn btn-light m-3" @onclick="@(()=>this.navigate.NavigateTo("/Cliente/ListaDeseos"))">
+                <i class="fa-solid fa-heart"></i>
+                <span id="textoIcono">Deseos</span>
+            </a>
+            <a class="btn btn-light m-3" @onclick="@(()=>this.navigate.NavigateTo("/Tienda/Carrito"))">
+                <i class="fa-solid fa-bag-shopping"></i>
+                <span id="textoIcono">Carrito</span>
+            </a>
+        </div>
+    </div>
+
+
+    <!-- nav bar  -->
+    <div class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" @onclick="@(() => MostrarProductos("electronics"))"><span>Electrónica</span></a>
+            <a class="navbar-brand" @onclick="@(() => MostrarProductos("jewelery"))"><span>Joyería</span></a>
+            <a class="navbar-brand" @onclick="@(() => MostrarProductos("women's clothing"))"><span>Ropa mujer</span></a>
+            <a class="navbar-brand" @onclick="@(() => MostrarProductos("men's clothing"))"><span>Ropa hombre</span></a>
+        </div>
+    </div>
+
+    <!-- main -->
+    <div class="row m-2 mt-4 mb-4">
+        <div class="col">
+            @Body
+        </div>
+    </div>
+
+    <!-- footer -->
+    <div class="row m-2">
+        <div class="row">
+            <!-- Segunda columna -->
+            <div class="col">
+                <span class=""><b>Tienes dudas</b></span>
+                <div class="">
+                    <a class="list-group-item ">Servicio Cliente</a>
+                    <a class="list-group-item ">Metodos de Pago</a>
+                    <a class="list-group-item ">Gastos de envio</a>
+                    <a class="list-group-item ">Dónde esta mi paquete</a>
+                    <a class="list-group-item ">Reenvíos y Devoluciones</a>
+                    <a class="list-group-item ">Aquí puedes encontrar nuestras Preguntas Frecuentes (FAQ) y las Respuestas</a>
+                </div>
+            </div>
+
+            <div class="col">
+                <span class=""><b>Qué es FIREBOX</b></span>
+                <div class="">
+                    <a class="list-group-item ">Quiénes somos</a>
+                    <a class="list-group-item ">Politica de Cookies</a>
+                </div>
+            </div>
+
+            <div class="col">
+                <span class=""><b>Información de socios</b></span>
+                <div class="">
+                    <a class="list-group-item ">Prensa</a>
+                    <a class="list-group-item ">Consultas B2B</a>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row">
+        </div>
+    </div>
+</div>
+
+
+
+
+
+@code {
+    #region propiedades del componente
+
+    public Cliente ClienteLogged { get; set; } = new Cliente();
+    public int ContadorListasDeseos { get; set; } = 0;
+
+    #endregion
+
+
+    #region metodos del componente
+
+    protected override void OnParametersSet()
+    {
+        ClienteLogged = this.storageService.RecuperarDatosCliente();
+    }
+
+
+
+    public void MostrarProductos(String cat)
+    {
+        this.navigate.NavigateTo($"/Tienda/MostrarProductos/{Uri.EscapeDataString(cat)}", false);
+        StateHasChanged();
+    }
+
+    #endregion
+
+
+
+}

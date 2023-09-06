@@ -1,0 +1,377 @@
+﻿@page "/Tienda/Cobro"
+
+@layout EmptyLayout
+@inject IStorageService storageService
+@inject IJSRuntime jsService
+@inject IRestService restService
+@inject NavigationManager navigate
+
+@if (String.IsNullOrEmpty(ClienteLogueado.Nombre))
+{
+    this.navigate.NavigateTo("/Cliente/Login");
+}
+else
+{
+    <div class="container">
+        <div class="row">
+            <div class="row text-center mb-3">
+                <div class="col"><img src="images/logo.png" width="250" height="75" alt="logo" class="mx-auto my-auto" /></div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <span class="text-danger">@MensajeError</span>
+                </div>
+            </div>
+            <div class="row">
+                <!-- Primera columna -->
+                <div class="col-7 ">
+                    <!-- direccion de envio -->
+                    <div class="border rounded">
+                        <div class="row text-center">
+                            <div class="flex d-flex justify-content-between">
+                                <h3 class="text-black mt-2"><b>Dirección de Envío</b></h3>
+                                <a class="mt-3">Editar</a>
+                            </div>
+                            <span class="mt-5">@direcEnvio.NombreContacto @direcEnvio.ApellidosContacto</span>
+                            <span>@direcEnvio.Calle @direcEnvio.Numero</span>
+                            <span>@direcEnvio.CP @direcEnvio.MuniDirecc.DMUN50</span>
+                            <span>@ClienteLogueado.cuenta.Email</span>
+                            <span>@direcEnvio.TelefonoContacto</span>
+                        </div>
+                    </div>
+
+                    <!-- metodos de pago -->
+                    <div class="row">
+                        <div class="col">
+                            <div class="border rounded mt-4">
+                                <div class="row text-center">
+                                    <h3 class="text-black"><b>Métodos de pago</b></h3>
+                                </div>
+                                <div class="row">
+                                    <div class="form-check ms-5">
+                                        <input class="form-check-input" type="radio" name="flexRadioDefault" id="pagoTarjeta" @onchange="@(e => {
+                            this.jsService.InvokeVoidAsync("console.log", e);
+                            if (e.Value.ToString().Equals("on")) {
+                                ClasePagoTarjeta = DisplayBlock;
+                                ClasePagoPayPal = DisplayNone;
+                            }
+                        })">
+                                        <label class="form-check-label" for="pagoTarjeta">Tarjeta de crédito: Visa, Mastercard</label>
+                                        <i class="fa-brands fa-cc-visa float-end me-xxl-5"></i>
+                                        <div class="@ClasePagoTarjeta">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="form-group w-25 me-2">
+                                                        <input type="numer" class="@ClaseNumeroTarjeta" id="cardNumber" placeholder="1234 1234 1234 1234" @bind-value="NumeroTarjetaCliente">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col">
+                                                    <div class="form-group w-25 me-2 ms-2">
+                                                        <input type="text" class="form-group w-75" id="expirationMonth" placeholder="Mes Caducidad" @bind-value="Mes">
+                                                    </div>
+                                                    <div class="form-group w-25 me-2 ms-2">
+                                                        <input type="text" class="form-group w-75" id="expirationYear" placeholder="Año Caducidad" @bind-value="Anio">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col">
+                                                    <div class="form-group w-25">
+                                                        <input type="text" class="form-group w-75" id="cvv" placeholder="CVC" @bind-value="CVC">
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr class="w-75 ms-xl-5" />
+                                    <div class="form-check ms-5">
+                                        <input class="form-check-input" type="radio" name="flexRadioDefault" id="pagoPayPal" @onchange="@(e => {
+                            this.jsService.InvokeVoidAsync("console.log", e);
+                            if (e.Value.ToString().Equals("on")) {
+                                ClasePagoPayPal = DisplayBlock;
+                                ClasePagoTarjeta = DisplayNone;
+                            }
+                        })">
+                                        <label class="form-check-label" for="pagoPayPal">PayPal</label>
+                                        <i class="fa-brands fa-cc-paypal float-end me-xxl-5 "></i>
+                                    </div>
+
+
+                                    <div class="@ClasePagoPayPal ms-4">
+                                        <i class="fa-solid fa-shield"></i>
+                                        <span>Redirigiéndote a la página de Paypal para completar tu compra de forma segura</span>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Opciones de envio -->
+                    <div class="row mt-3">
+                        <div class="col">
+                            <div class="border rounded mt-4">
+                                <div class="form-check ms-5">
+                                    <input class="form-check-input" type="radio" name="flexRadioDefault1" id="Envio" checked="checked">
+                                    <label class="form-check-label" for="Envio">
+                                        <b>DHL estándar</b>    2 €<br />
+                                        Tiempo estandar de entrega 5-7 días laborables. Gratis a partir de 100 €.
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Boton de compra -->
+                    <div class="row mt-3 mb-3">
+                        <div class="flex d-flex justify-content-between">
+                            <a><span>&lt; Volver a tus datos</span></a>
+                            <button class="btn btn-outline-primary rounded" @onclick="@(() => RealizarPedido())"><b>Comprar</b></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Segunda columna -->
+                <div class="col-5 bg-secondary bg-gradient">
+                    <div class="row text-end mt-2"><a><span>Editar carrito</span></a></div>
+                    <div class="row mt-2">
+                        <div class="col">
+                            @foreach (ItemPedido itemP in ClienteLogueado.PedidoActual.ItemsPedido)
+                            {
+                                <div class="m-3">
+                                    <img src="@itemP.ProductoItem.image" width="75" height="75" />
+                                    <h5>@itemP.ProductoItem.title</h5>
+                                    <span>@itemP.ProductoItem.price €</span>
+                                    <br />
+                                    <span>Uds.: @itemP.CatidadItem</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <a class="" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+                            Cupón de descuento
+                        </a>
+                        <div class="collapse" id="collapseExample">
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="floatingInput" placeholder="12345">
+                                <label for="floatingInput">Codigo de Descuento</label>
+                                <button class="btn btn-outline-dark">Aplicar descuento</button>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="floatingInput1" placeholder="AB123">
+                                <label for="floatingInput1">Cupón de descuento</label>
+                                <button class="btn btn-outline-dark">Aplicar</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="flex d-flex justify-content-between">
+                            <span class="ms-5">Subtotal</span>
+                            <span class="me-5">@ClienteLogueado.PedidoActual.SubTotal €</span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="flex d-flex justify-content-between">
+                            <span class="ms-5">Envío</span>
+                            <span class="me-5">@ClienteLogueado.PedidoActual.GastosEnvio €</span>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="row">
+                        <div class="flex d-flex justify-content-between">
+                            <span class="ms-5"><b>Total. IVA incluido.</b></span>
+                            <span class="me-5">@ClienteLogueado.PedidoActual.Total €</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- footer -->
+        <div class="row mt-5">
+            <div class="row">
+                <!-- primera columna -->
+                <div class="col">
+                    <div class="">
+                        <img src="images/logo.png" width="189" height="64" alt="logo" />
+                    </div>
+                    <div class="flex">
+                        <img src="images/logoFacebook.png" width="30" height="30" alt="facebook" />
+                        <img src="images/logoPinterest.png" width="30" height="30" alt="pinterest" />
+                        <img src="images/logoInstagram.png" width="30" height="30" alt="instagram" />
+                    </div>
+                </div>
+
+                <!-- Segunda columna -->
+                <div class="col">
+                    <span class=""><b>Tienes dudas</b></span>
+                    <div class="">
+                        <a class="list-group-item ">Servicio Cliente</a>
+                        <a class="list-group-item ">Metodos de Pago</a>
+                        <a class="list-group-item ">Gastos de envio</a>
+                        <a class="list-group-item ">Dónde esta mi paquete</a>
+                        <a class="list-group-item ">Reenvíos y Devoluciones</a>
+                        <a class="list-group-item ">Aquí puedes encontrar nuestras Preguntas Frecuentes (FAQ) y las Respuestas</a>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <span class=""><b>Qué es FIREBOX</b></span>
+                    <div class="">
+                        <a class="list-group-item ">Quiénes somos</a>
+                        <a class="list-group-item ">Politica de Cookies</a>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <span class=""><b>Información de socios</b></span>
+                    <div class="">
+                        <a class="list-group-item ">Prensa</a>
+                        <a class="list-group-item ">Consultas B2B</a>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row">
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private Cliente ClienteLogueado = new Cliente();
+    private Direccion direcEnvio = new Direccion();
+    private Direccion direcFact = new Direccion();
+    private DatosPago datosPago = new DatosPago();
+    private String MensajeError = "";
+
+    // Para la forma de pago
+    private const String DisplayBlock = "d-block";
+    private const String DisplayNone = "d-none";
+    private const String TextDanger = "text-danger";
+
+    private String ClasePagoTarjeta = DisplayNone;
+    private String ClasePagoPayPal = DisplayNone;
+    private String ClaseNumeroTarjeta = "form-group";
+
+    // Para el pago con tarjeta
+    private String NumeroTarjetaCliente = "";
+    private int Mes;
+    private int Anio;
+    private int CVC;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        ClienteLogueado = this.storageService.RecuperarDatosCliente();
+
+        direcEnvio = ClienteLogueado.MisDirecciones.Find((Direccion d) => d.EsPrincipal == true);
+        if (direcEnvio != null) ClienteLogueado.PedidoActual.DireccionEnvio = direcEnvio;
+        direcFact = ClienteLogueado.MisDirecciones.Find((Direccion d) => d.EsFaturacion == true);
+        if (direcFact != null) ClienteLogueado.PedidoActual.DireccionFacturacion = direcFact;
+
+    }
+
+
+    public async Task RealizarPedido()
+    {
+        // Tenemos que comprobar el metodo de pago que ha elegido el cliente
+
+        // En caso de que el cliente haya elegido el pago con paypal
+        if (ClasePagoPayPal.Equals(DisplayBlock))
+        {
+
+        }
+        // En caso de que el cliente haya elegido el pago con tarjeta
+        else if (ClasePagoTarjeta.Equals(DisplayBlock))
+        {
+            DatosPago datosPago = new DatosPago
+                {
+                    DireccionPrincipal = direcFact,
+                    DireccionEnvio = direcEnvio,
+                    NombreDestinatario = ClienteLogueado.Nombre,
+                    ApellidosDestinatario = ClienteLogueado.Apellidos,
+                    TelefonoDestinatario = ClienteLogueado.Telefono,
+                    EmailDestinatario = ClienteLogueado.cuenta.Email,
+                    NumeroTarjeta = NumeroTarjetaCliente,
+                    MesCaducidad = Mes,
+                    AnioCaducidad = Anio,
+                    CVV = CVC
+                };
+            String jwt = this.storageService.RecuperarJWT();
+            RestMessage respuestaServidor = await this.restService.RealizarPagoTarjeta(ClienteLogueado, datosPago, jwt);
+
+            switch (respuestaServidor.Codigo)
+            {
+                case 0:
+                    RestMessage respuestaServerBD = await this.restService.AlmacenarPedido(this.ClienteLogueado.PedidoActual, this.ClienteLogueado, jwt);
+
+                    // Hay que modificar esto
+                    if (respuestaServerBD.Codigo == 0)
+                    {
+                        this.storageService.AlmacenarDatosCliente(respuestaServerBD.DatosCliente);
+                        this.navigate.NavigateTo("/Tienda/PedidoRealizadoOK");
+                    }
+
+                    break;
+
+                case 1:
+                    this.MensajeError = respuestaServidor.Mensaje;
+                    StateHasChanged();
+                    break;
+
+                case 2:
+                    this.MensajeError = respuestaServidor.Mensaje;
+                    StateHasChanged();
+                    break;
+
+                case 5:
+                    this.navigate.NavigateTo("/Cliente/Login");
+                    StateHasChanged();
+                    break;
+
+                case 7:
+                    this.MensajeError = respuestaServidor.Mensaje;
+                    StateHasChanged();
+                    break;
+            }
+        }
+        // en caso de que no se haya elegido nada, le obligamos al cliente a elegir alguno
+        else
+        {
+            this.MensajeError = "Debe elegir un metodo de pago";
+            StateHasChanged();
+        }
+    }
+
+    public async Task IntroducirPedidoBD()
+    {
+        String jwt = this.storageService.RecuperarJWT();
+        RestMessage respuestaServer = await this.restService.AlmacenarPedido(ClienteLogueado.PedidoActual, ClienteLogueado, jwt);
+
+        switch (respuestaServer.Codigo)
+        {
+            case 0:
+                // guardamos el pedido realizado correctamente en los peduidos del cliente del storage
+                ClienteLogueado = respuestaServer.DatosCliente;
+
+                this.storageService.AlmacenarDatosCliente(ClienteLogueado);
+
+                this.navigate.NavigateTo("/Tienda/PedidoRealizadoOK");
+                break;
+
+            case 5:
+                this.navigate.NavigateTo("/Cliente/Login");
+                break;
+
+            default:
+                this.MensajeError = respuestaServer.Mensaje;
+                break;
+        }
+    }
+} 

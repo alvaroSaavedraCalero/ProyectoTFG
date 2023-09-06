@@ -1,0 +1,194 @@
+﻿@inject NavigationManager navigate
+@inject IRestService restService
+@inject IStorageService storageService
+@inject IJSRuntime jsService
+
+<div class="container">
+    @if (MostrarCompMod)
+    {
+        <ComponenteDireccion ClienteDir="@ClienteActual" DireccionEdit="@Direc" Funcion="@FuncionCompoDirec" />
+    }
+    else
+    {
+        @if (ClienteActual.MisDirecciones.Count == 0)
+        {
+            <ComponenteDireccion DireccionEdit="@Direc" Funcion="guardar" ClienteDir="@ClienteActual" />
+        }
+        else
+        {
+            <div class="row m-md-2">
+                <span class="text-info">@MensajeServidor</span>
+            </div>
+            <div class="row m-xl-2">
+                <h2 class="text-black"><b>Direcciones (predeterminado)</b></h2>
+            </div>
+            <div class="row m-xl-2">
+                <div class="col-sm-5 border border-2">
+                    <h4 class="text-black"><b>Dirección de facturación predeterminada</b></h4>
+
+                    @if (direcPago != null)
+                    {
+                        <div class="row">
+                            <div class="col-7">
+                                <span class="d-block">@direcPago.NombreContacto @direcPago.ApellidosContacto</span>
+                                @if (!String.IsNullOrEmpty(direcPago.NombreEmpresa))
+                                {
+                                    <span>@direcPago.NombreEmpresa</span>
+                                }
+                                <span class="d-block">@direcPago.Calle</span>
+                                <span class="d-block">@direcPago.Numero</span>
+                                <span class="d-block">@direcPago.MuniDirecc.DMUN50</span>
+                                <span class="d-block">@direcPago.CP</span>
+                                <span class="d-block">@direcPago.Pais</span>
+                                <span class="d-block">T: @direcPago.TelefonoContacto</span>
+                            </div>
+                            <div class="col-4">
+                                <div class="mt-3">
+                                    <button class="btn btn-dark" @onclick="@(() => ActivarComponente(direcPago, "modificar"))">Modificar</button>
+                                </div>
+                                <div class="mt-3">
+                                    <button class="btn btn-danger" @onclick="@(() => EliminarDireccion(direcPago))">Eliminar</button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <span>No ha establecido una dirección de facturación predeterminada.</span>
+                    }
+                </div>
+                <div class="col-sm-5 border border-2 ms-2">
+                    <h4 class="text-black"><b>Dirección de envío predeterminada</b></h4>
+                    @if (direcEnvio != null)
+                    {
+                        <div class="row">
+                            <div class="col-7">
+                                <span class="d-block">@direcEnvio.NombreContacto @direcEnvio.ApellidosContacto</span>
+                                @if (!String.IsNullOrEmpty(direcEnvio.NombreEmpresa))
+                                {
+                                    <span>@direcEnvio.NombreEmpresa</span>
+                                }
+                                <span class="d-block">@direcEnvio.Calle</span>
+                                <span class="d-block">@direcEnvio.Numero</span>
+                                <span class="d-block">@direcEnvio.MuniDirecc.DMUN50</span>
+                                <span class="d-block">@direcEnvio.CP</span>
+                                <span class="d-block">@direcEnvio.Pais</span>
+                                <span class="d-block">T: @direcEnvio.TelefonoContacto</span>
+                            </div>
+                            <div class="col-4">
+                                <div class="mt-3">
+                                    <button class="btn btn-dark" @onclick="@(() => ActivarComponente(direcEnvio, "modificar"))">Modificar</button>
+                                </div>
+                                <div class="mt-3">
+                                    <button class="btn btn-danger" @onclick="@(() => EliminarDireccion(direcEnvio))">Eliminar</button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <span>No ha establecido una dirección de envío predeterminada.</span>
+                    }
+                </div>
+            </div>
+            <div class="row m-xl-2"><h3 class="text-black"><b>Libreta de Direcciones</b></h3></div>
+            @if (ClienteActual.MisDirecciones.Count > 2) 
+            {
+                @for (int i = 2; i < ClienteActual.MisDirecciones.Count; i++)
+                {
+                    Direccion d = ClienteActual.MisDirecciones.ElementAt(i);
+                    <div class="row border bg-info rounded-3 mt-2">
+                        <div class="col-8">
+                            <h4 class="text-black"><b>Id Direccion: @d.IdDireccion.Substring(0, 5)</b></h4>
+                            <span>@d.Calle, @d.Numero, @d.CP</span>
+                            <span>@d.MuniDirecc.DMUN50, @d.ProvDirec.PRO</span>
+                        </div>
+                        <div class="col-4">
+                            <div class="flex d-flex">
+                                <div class="me-3 mt-2">
+                                    <button class="btn btn-dark" @onclick="@(() => ActivarComponente(d, "modificar"))">Modificar</button>
+                                </div>
+                                <div class="ms-3 mt-2">
+                                    <button class="btn btn-danger" @onclick="@(() => EliminarDireccion(d))">Eliminar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="row m-xl-2"><span class="text-black"><b>No tiene otras entradas de direcciones en la libreta de direcciones.</b></span></div>
+                <div class="row m-xl-2">
+                    <div class="col-md-6">
+                        <a @onclick="@(()=>this.navigate.NavigateTo("/Cliente/PanelCliente"))"><span>Volver</span></a>
+                    </div>
+                    <div class="col-md-6">
+                        <button class="btn btn-dark text-white rounded-pill" @onclick="@(() => ActivarComponente(Direc, "guardar"))">Nueva dirección</button>
+                    </div>
+                </div>
+            }
+        }
+    }
+</div>
+
+@code {
+    [Parameter]
+    public Cliente ClienteActual { get; set; }
+
+    private String MensajeServidor = "";
+    private Boolean MostrarCompMod = false;
+
+    private Direccion Direc = new Direccion();
+    private String FuncionCompoDirec = "";
+
+    private Direccion direcPago = new Direccion();
+    private Direccion direcEnvio = new Direccion();
+
+
+    protected override void OnInitialized()
+    {
+        this.ClienteActual = this.storageService.RecuperarDatosCliente();
+
+        if (ClienteActual.MisDirecciones.Count != 0)
+        {
+            direcPago = ClienteActual.MisDirecciones.FirstOrDefault((Direccion d) => d.EsPrincipal == true);
+            direcEnvio = ClienteActual.MisDirecciones.FirstOrDefault((Direccion d) => d.EsFaturacion == true);
+        }
+    }
+
+
+    public async Task ActivarComponente(Direccion dir, String funcion)
+    {
+        FuncionCompoDirec = funcion;
+        MostrarCompMod = true;
+        Direc = dir;
+    }
+
+    public async Task EliminarDireccion(Direccion direccion)
+    {
+        String jwt = this.storageService.RecuperarJWT();
+        RestMessage respuestaREST = await this.restService.EliminarDireccion(direccion, ClienteActual, jwt);
+
+        this.MensajeServidor = respuestaREST.Mensaje;
+
+        switch (respuestaREST.Codigo)
+        {
+            case 0: 
+                this.ClienteActual = respuestaREST.DatosCliente;
+                this.storageService.AlmacenarDatosCliente(respuestaREST.DatosCliente);
+                break;
+
+            case 5:
+                this.navigate.NavigateTo("/Cliente/Login");
+                break;
+        }
+
+        if (ClienteActual.MisDirecciones.Count != 0)
+        {
+            direcPago = ClienteActual.MisDirecciones.FirstOrDefault((Direccion d) => d.EsPrincipal == true);
+            direcEnvio = ClienteActual.MisDirecciones.FirstOrDefault((Direccion d) => d.EsFaturacion == true);
+        }
+        StateHasChanged();
+    }
+}
