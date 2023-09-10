@@ -435,7 +435,7 @@ namespace ProyectoTFG.Server.Controllers
 
             // ¿solucion? generamos url a pelo con los parametro de necesita google
             // - redirectURl, client_id, scope, state, accesstype
-            String redirectURL = Url.Action(nameof(LoginCallBackGoogle), "RESTCliente", null, Request.Scheme);
+            String redirectURL = Url.Action(nameof(LoginCallBackGoogle), "Cliente", null, Request.Scheme);
             String client_id = this.accesoAppSettings["Google:client_id"];
             String scope = "openid profile email";  //"https://www.googleapis.com/auth/userinfo.profile";
             String state = "6gre66v1df6v1a54FBAEBaa8baebAEBAERBAEB"; // codigo aleatorio
@@ -448,6 +448,48 @@ namespace ProyectoTFG.Server.Controllers
         #endregion
 
         #region metodos de la clase
+
+        [HttpGet]
+        public async Task<IActionResult> LoginCallBackGoogle([FromQuery] String code)
+        {
+            // En la url que nos manda google, van estos parametros:
+            //  -code <-- codigo cliente para solicitar jwt de uso de las google-apis
+            // -state <-- codigo aleatorio para id.cliente
+            // -scope <-- ambito de valide del codigo para solicitar el uso de las google-apis
+            // -authuser
+            // -prompt
+            String codeGoogle = this.HttpContext.Request.Query["code"];
+            String[] scopes = this.HttpContext.Request.Query["scope"].ToString().Split(" ");
+
+            GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow(
+                    new GoogleAuthorizationCodeFlow.Initializer
+                    {
+                        ClientSecrets = new Google.Apis.Auth.OAuth2.ClientSecrets
+                        {
+                            ClientId = this.accesoAppSettings["Google:client_id"],
+                            ClientSecret = this.accesoAppSettings["Google:client_secret"]
+                        },
+                        Scopes = scopes, // "https://www.googleapis.com/auth/userinfo.profile"
+                        DataStore = new FileDataStore("Google.Apis.Auth")
+                    }
+                );
+
+            TokenResponse tokenResponse = await flow.ExchangeCodeForTokenAsync("user", codeGoogle, "https://localhost:7088/api/RESTCliente/LoginCallBackGoogle", CancellationToken.None);
+            UserCredential credencialesAPI = new UserCredential(flow, "user", tokenResponse);
+
+            // a obtener info del cliente que ha usado gmail para autentificarse
+            Oauth2Service servAPIS = new Oauth2Service(new Google.Apis.Services.BaseClientService.Initializer { HttpClientInitializer = credencialesAPI });
+            Userinfo userinfo = await servAPIS.Userinfo.Get().ExecuteAsync();
+
+            // con este objecto userInfo generas tu propio JWT de la aplicacion
+            // lo almacenas en mongoDB en coleccion googleSession, (y su id lo almacenamos en una variable que pasamos en la url) unicamente de forma temporal
+            // en cuanto se desloguea el cliente, lo eliminamos de la base de datos
+            String idGoogleSession = "615616";
+
+            return Redirect($"https://localhost:7088/Cliente/PanelCliente?idgooglesesion{idGoogleSession}");
+        }
+
+        /*************************************************************************/
 
         [HttpGet]
         public async Task<List<Provincia>> RecuperarProvincias()
@@ -494,48 +536,7 @@ namespace ProyectoTFG.Server.Controllers
             #endregion
 
         }
-
-        /*************************************************************************/
-
-        [HttpGet]
-        public async Task<IActionResult> LoginCallBackGoogle([FromQuery] String code)
-        {
-            // En la url que nos manda google, van estos parametros:
-            //  -code <-- codigo cliente para solicitar jwt de uso de las google-apis
-            // -state <-- codigo aleatorio para id.cliente
-            // -scope <-- ambito de valide del codigo para solicitar el uso de las google-apis
-            // -authuser
-            // -prompt
-            String codeGoogle = this.HttpContext.Request.Query["code"];
-            String[] scopes = this.HttpContext.Request.Query["scope"].ToString().Split(" ");
-
-            GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow(
-                    new GoogleAuthorizationCodeFlow.Initializer
-                    {
-                        ClientSecrets = new Google.Apis.Auth.OAuth2.ClientSecrets
-                        {
-                            ClientId = this.accesoAppSettings["Google:client_id"],
-                            ClientSecret = this.accesoAppSettings["Google:client_secret"]
-                        },
-                        Scopes = scopes, // "https://www.googleapis.com/auth/userinfo.profile"
-                        DataStore = new FileDataStore("Google.Apis.Auth")
-                    }
-                );
-
-            TokenResponse tokenResponse = await flow.ExchangeCodeForTokenAsync("user", codeGoogle, "https://localhost:7088/api/RESTCliente/LoginCallBackGoogle", CancellationToken.None);
-            UserCredential credencialesAPI = new UserCredential(flow, "user", tokenResponse);
-
-            // a obtener info del cliente que ha usado gmail para autentificarse
-            Oauth2Service servAPIS = new Oauth2Service(new Google.Apis.Services.BaseClientService.Initializer { HttpClientInitializer = credencialesAPI });
-            Userinfo userinfo = await servAPIS.Userinfo.Get().ExecuteAsync();
-
-            // con este objecto userInfo generas tu propio JWT de la aplicacion
-            // lo almacenas en mongoDB en coleccion googleSession, (y su id lo almacenamos en una variable que pasamos en la url) unicamente de forma temporal
-            // en cuanto se desloguea el cliente, lo eliminamos de la base de datos
-            String idGoogleSession = "615616";
-
-            return Redirect($"https://localhost:7088/Cliente/PanelCliente?idgooglesesion{idGoogleSession}");
-        }
+        
 
         /*************************************************************************/
 
