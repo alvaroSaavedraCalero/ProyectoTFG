@@ -81,9 +81,9 @@
 
             if (respuestaREST.Codigo == 0)
             {
-                CorazonRojo = false;
                 ClienteLogued.ListaDeseos.Remove(ProductoActual);
                 this.storageService.AlmacenarDatosCliente(ClienteLogued);
+                CorazonRojo = false;
                 StateHasChanged();
             }
             else if (respuestaREST.Codigo == 5)
@@ -98,9 +98,9 @@
 
             if (respuestaREST.Codigo == 0)
             {
-                CorazonRojo = true;
                 ClienteLogued.ListaDeseos.Add(ProductoActual);
                 this.storageService.AlmacenarDatosCliente(ClienteLogued);
+                CorazonRojo = true;
                 StateHasChanged();
             }
             else if (respuestaREST.Codigo == 5)

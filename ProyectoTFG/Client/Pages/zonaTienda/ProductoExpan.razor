@@ -45,22 +45,6 @@
                     }
                     else
                     {
-
-                        @*
-                    <input class="form-control" type="number" aria-label="cantidadProducto"
-                    @onchange="@(e => {
-                    int cantidad = int.Parse(e.Value.ToString());
-                    if (cantidad >= 0) {
-                    CantidaItemProdActu = cantidad;
-                    }
-                    else {
-                    e.Value = 0;
-                    CantidaItemProdActu = 0;
-                    }
-                    StateHasChanged();
-                    })">
-                    *@
-
                         <button class="btn btn-outline-dark" @onclick="@(() => {
                                 if (CantidaItemProdActu > 0) {
                                     CantidaItemProdActu--;
@@ -80,6 +64,16 @@
                         </button>
 
                     }
+                    <button class="btn" @onclick="@DesearProducto">
+                        @if (CorazonRojo)
+                        {
+                            <i class="fa-solid fa-heart"></i>
+                        }
+                        else
+                        {
+                            <i class="fa-regular fa-heart"></i>
+                        }
+                    </button>
                 </div>
             </div>
             <div class="row m-2">
@@ -134,6 +128,8 @@
     private List<KeyValuePair<String, String>> ListaComentarios = new List<KeyValuePair<String, String>>();
     private String Comentario = "";
     private String ErrorComentario = "";
+
+    private Boolean CorazonRojo = false;
 
     private int i = 0;
     private Boolean MostrarMasCantidad = false;
@@ -220,6 +216,46 @@
             }
             StateHasChanged();
 
+        }
+    }
+
+    public async Task DesearProducto()
+    {
+        String jwt = this.storageService.RecuperarJWT();
+
+        if (CorazonRojo)
+        {
+            // En caso de que el producto ya este deseado, lo desdeseamos
+            RestMessage respuestaREST = await this.restService.DesDesearProd(ClienteLogued, ProductoSelected, jwt);
+
+            if (respuestaREST.Codigo == 0)
+            {
+                ClienteLogued.ListaDeseos.Remove(ProductoSelected);
+                this.storageService.AlmacenarDatosCliente(ClienteLogued);
+                CorazonRojo = false;
+                StateHasChanged();
+            }
+            else if (respuestaREST.Codigo == 5)
+            {
+                this.navigate.NavigateTo("/Cliente/Login");
+            }
+        }
+        else
+        {
+            // En caso de que no este deseado, lo deseamos
+            RestMessage respuestaREST = await this.restService.DesearProducto(ClienteLogued, ProductoSelected, jwt);
+
+            if (respuestaREST.Codigo == 0)
+            {
+                ClienteLogued.ListaDeseos.Add(ProductoSelected);
+                this.storageService.AlmacenarDatosCliente(ClienteLogued);
+                CorazonRojo = true;
+                StateHasChanged();
+            }
+            else if (respuestaREST.Codigo == 5)
+            {
+                this.navigate.NavigateTo("/Cliente/Login");
+            }
         }
     }
 

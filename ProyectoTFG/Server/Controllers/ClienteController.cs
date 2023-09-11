@@ -11,6 +11,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Google;
 
 namespace ProyectoTFG.Server.Controllers
 {
@@ -420,10 +422,10 @@ namespace ProyectoTFG.Server.Controllers
         public String LoginGoogle()
         {
             /*
-             * codigo teorico que no dicen en todos lados que el navegador bloquea al hacer una redireccion forzada
-             * cod 302 a una url que no es la de blazor
+              codigo teorico que no dicen en todos lados que el navegador bloquea al hacer una redireccion forzada
+              cod 302 a una url que no es la de blazor
              
-            String redirectUrl = Url.Action(nameof(LoginCallBackGoogle), "RESTCliente", null, Request.Scheme);
+            String redirectUrl = Url.Action(nameof(LoginCallBackGoogle), "Cliente", null, Request.Scheme);
             AuthenticationProperties propsGoogle = new AuthenticationProperties
             {
                 RedirectUri = redirectUrl,
@@ -433,7 +435,15 @@ namespace ProyectoTFG.Server.Controllers
             return Challenge(propsGoogle, GoogleDefaults.AuthenticationScheme); // redirecciona pero de otra forma
             */
 
+
             // ¿solucion? generamos url a pelo con los parametro de necesita google
+            // https://accounts.google.com/o/oauth2/v2/auth ? 
+            //            response_type = code &
+            //            client_id = 987193666356 - a3ehmpjueng8agmf3csvt77q70ul2ig0.apps.googleusercontent.com &
+            //            redirect_uri = https://localhost:7016/signin-google & 
+            //            scope = openid profile email &
+            //            state = CfDJ8O8V7QK....
+
             // - redirectURl, client_id, scope, state, accesstype
             String redirectURL = Url.Action(nameof(LoginCallBackGoogle), "Cliente", null, Request.Scheme);
             String client_id = this.accesoAppSettings["Google:client_id"];
@@ -443,6 +453,7 @@ namespace ProyectoTFG.Server.Controllers
 
             String urlRedirect = $"https://accounts.google.com/o/oauth2/v2/auth?client_id={client_id}&redirect_uri={redirectURL}&response_type=code&scope={scope}&acces_type={accessType}&state={state}";
             return urlRedirect;
+            
         }
 
         #endregion
@@ -474,7 +485,8 @@ namespace ProyectoTFG.Server.Controllers
                     }
                 );
 
-            TokenResponse tokenResponse = await flow.ExchangeCodeForTokenAsync("user", codeGoogle, "https://localhost:7088/api/RESTCliente/LoginCallBackGoogle", CancellationToken.None);
+            // Generamos el token jwt del cliente
+            TokenResponse tokenResponse = await flow.ExchangeCodeForTokenAsync("user", codeGoogle, "https://localhost:7083/api/Cliente/LoginCallBackGoogle", CancellationToken.None);
             UserCredential credencialesAPI = new UserCredential(flow, "user", tokenResponse);
 
             // a obtener info del cliente que ha usado gmail para autentificarse
@@ -484,7 +496,7 @@ namespace ProyectoTFG.Server.Controllers
             // con este objecto userInfo generas tu propio JWT de la aplicacion
             // lo almacenas en mongoDB en coleccion googleSession, (y su id lo almacenamos en una variable que pasamos en la url) unicamente de forma temporal
             // en cuanto se desloguea el cliente, lo eliminamos de la base de datos
-            String idGoogleSession = "615616";
+            String idGoogleSession = userinfo.Id; //"615616";
 
             return Redirect($"https://localhost:7088/Cliente/PanelCliente?idgooglesesion{idGoogleSession}");
         }

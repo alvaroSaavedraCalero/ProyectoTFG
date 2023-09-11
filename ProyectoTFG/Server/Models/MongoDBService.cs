@@ -2,6 +2,7 @@
 using MongoDB.Driver;
 using ProyectoTFG.Server.Models.Interfaces;
 using ProyectoTFG.Shared;
+using System.Text.Json;
 
 namespace ProyectoTFG.Server.Models
 {
@@ -63,6 +64,18 @@ namespace ProyectoTFG.Server.Models
 
                     hashedPassword = clienteBson.GetElement("cuenta").Value.ToBsonDocument().GetElement("password").Value.ToString();
 
+                    List<int> listaProductosDeseados = clienteBson.GetElement("listaDeseos").Value.AsBsonArray.Select(s => s.ToInt32()).ToList() ?? new List<int>();
+                    if (listaProductosDeseados.Count > 0)
+                    {
+                        HttpClient clienteHttp = new HttpClient();
+                        foreach(int i in listaProductosDeseados)
+                        {
+                            HttpResponseMessage respuesta = await clienteHttp.GetAsync($"https://fakestoreapi.com/products/{i}");
+                            String respuestaString = await respuesta.Content.ReadAsStringAsync();
+                            ProductoAPI productoApi = JsonSerializer.Deserialize<ProductoAPI>(respuestaString);
+                            cliente.ListaDeseos.Add(productoApi);
+                        }
+                    }
 
 
                     // comprobamos si el hash de la cuenta recuperada coincide con el hash de la password que me pasan

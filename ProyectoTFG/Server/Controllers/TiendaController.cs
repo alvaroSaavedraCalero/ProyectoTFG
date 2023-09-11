@@ -323,7 +323,6 @@ namespace ProyectoTFG.Server.Controllers
         }
 
         /**
-
         [HttpPost]
         public async Task<RestMessage> RealizarPagoPayPal([FromBody] Dictionary<String, String> datos)
         {
@@ -352,6 +351,8 @@ namespace ProyectoTFG.Server.Controllers
                     else
                     {
                         direccionPaypal = datosPago.DireccionEnvio ?? datosPago.DireccionPrincipal;
+
+                        
 
                     }
 
@@ -385,6 +386,7 @@ namespace ProyectoTFG.Server.Controllers
         }
 
         **/
+        
 
         [HttpPost]
         public async Task<RestMessage> DesearProducto([FromBody] Dictionary<String, String> datos)
