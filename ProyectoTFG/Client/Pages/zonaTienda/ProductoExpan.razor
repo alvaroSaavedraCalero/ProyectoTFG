@@ -97,10 +97,10 @@
             <div class="col-5 bg-info rounded-3 m-1">
                 @for (int i = 0; i < ListaComentarios.Count; i++)
                 {
-                    KeyValuePair<String, String> comentario = ListaComentarios.ElementAt(i);
+                    ComentarioCli comentario = ListaComentarios.ElementAt(i);
                     <div class="rounded-1 bg-secondary bg-opacity-50 m-1">
-                        <h4 class="text-center">@comentario.Key</h4>
-                        <span class="text-center ms-2">@comentario.Value</span>
+                        <h4 class="text-center">@comentario.NombreCliente</h4>
+                        <span class="text-center ms-2">@comentario.Comentario</span>
                     </div>
                 }
             </div>
@@ -125,7 +125,7 @@
 
     public Cliente ClienteLogued { get; set; } = new Cliente();
 
-    private List<KeyValuePair<String, String>> ListaComentarios = new List<KeyValuePair<String, String>>();
+    private List<ComentarioCli> ListaComentarios = new List<ComentarioCli>();
     private String Comentario = "";
     private String ErrorComentario = "";
 
@@ -145,8 +145,7 @@
         this.ProductoSelected = await this.restService.RecuperarProducto(idProducto);
         this.ClienteLogued = this.storageService.RecuperarDatosCliente();
 
-
-
+        ListaComentarios = await this.restService.RecuperarComentariosProd(ProductoSelected);
     }
 
     public async Task AniadirCarrito()
@@ -199,7 +198,13 @@
             switch (respuestaServidor.Codigo)
             {
                 case 0:
-                    ListaComentarios.Add(new KeyValuePair<string, string>(ClienteLogued.cuenta.Login, Comentario));
+                    ListaComentarios.Add(new ComentarioCli
+                    {
+                        Comentario = Comentario,
+                        IdCliente = ClienteLogued.IdCliente,
+                        IdProducto = ProductoSelected.id.ToString(),
+                        NombreCliente = ClienteLogued.cuenta.Login
+                    });
                     break;
 
                 case 1:

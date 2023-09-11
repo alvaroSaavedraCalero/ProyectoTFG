@@ -182,6 +182,10 @@ namespace ProyectoTFG.Client.Models
             return productos;
         }
 
+        /// <summary>
+        /// Realiza uan petición a la API de fakestoreapi para recuperar productos aleatorios.
+        /// </summary>
+        /// <returns>Una lista de productos</returns>
         public async Task<List<ProductoAPI>> RecuperarProductosAleatorios()
         {
             HttpResponseMessage respuesta = await this.clienteHttp.GetAsync("https://fakestoreapi.com/products");
@@ -224,6 +228,13 @@ namespace ProyectoTFG.Client.Models
             return await respuesta.Content.ReadFromJsonAsync<RestMessage>();
         }
 
+        /// <summary>
+        /// Realiza una petición a la API_REST de Tienda para realizar el pago con tarjeta.
+        /// </summary>
+        /// <param name="cliente">Cliente que realiza el pedido</param>
+        /// <param name="datosPago">Objeto con los datos del pago y cliente</param>
+        /// <param name="jwt">JWT del cliente</param>
+        /// <returns>La respuesta del servidor en forma de RestMessage</returns>
         public async Task<RestMessage> RealizarPagoTarjeta(Cliente cliente, DatosPago datosPago, String jwt)
         {
             Dictionary<String, String> datos = new Dictionary<String, String>
@@ -285,7 +296,7 @@ namespace ProyectoTFG.Client.Models
         /// <param name="idCliente">Id del cliente que ha realizado el comentario</param>
         /// <param name="nombreCliente">Nombre del cliente que ha realizado el comentario</param>
         /// <param name="idProducto">Id del producto</param>
-        /// <returns></returns>
+        /// <returns>La respuesta del servidor en forma de RestMessage</returns>
         public async Task<RestMessage> AlmacenarComentario(string jwt, string comentario, string idCliente, string nombreCliente, string idProducto)
         {
             Dictionary<String, String> datos = new Dictionary<String, String>
@@ -299,6 +310,21 @@ namespace ProyectoTFG.Client.Models
 
             HttpResponseMessage respuesta = await this.clienteHttp.PostAsJsonAsync<Dictionary<String, String>>("api/Tienda/AlmacenarComentario", datos);
             return await respuesta.Content.ReadFromJsonAsync<RestMessage>();
+        }
+
+        /// <summary>
+        /// Realiza una peticion a la API_REST de Tienda para recuperar los comentarios de los productos
+        /// </summary>
+        /// <param name="producto">Producto para obtener los comentarios</param>
+        /// <returns>La respuesta del servidor en forma de lista de conjuntos de clave-valor</returns>
+        public async Task<List<ComentarioCli>> RecuperarComentariosProd(ProductoAPI producto)
+        {
+            Dictionary<String, String> datos = new Dictionary<String, String>
+            {
+                {"idProducto", producto.id.ToString() },
+            };
+            HttpResponseMessage respuesta = await this.clienteHttp.PostAsJsonAsync<Dictionary<String, String>>("api/Tienda/RecuperarComentariosProducto", datos);
+            return await respuesta.Content.ReadFromJsonAsync<List<ComentarioCli>>();
         }
 
 

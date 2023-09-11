@@ -574,6 +574,20 @@ namespace ProyectoTFG.Server.Controllers
             }
         }
 
+        [HttpPost]
+        public async Task<List<ComentarioCli>> RecuperarComentariosProducto([FromBody] Dictionary<String, String> datos)
+        {
+            try
+            {
+                List<ComentarioCli> comentarios = await this.accesoBD.RecuperarComentariosProducto(datos["idProducto"]);
+                return comentarios;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
         #endregion
 
 

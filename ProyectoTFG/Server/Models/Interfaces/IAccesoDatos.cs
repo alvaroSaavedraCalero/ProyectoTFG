@@ -21,6 +21,7 @@ namespace ProyectoTFG.Server.Models.Interfaces
         Task<Boolean> DesearProducto(String idProducto, String idCliente);
         Task<Boolean> DesDesearProducto(String idProducto, String idCliente);
         Task<Boolean> SubirComentario(String idCliente, String comentario, String nombreCliente, String idProducto);
+        Task<List<ComentarioCli>> RecuperarComentariosProducto(String idProducto);
 
         #endregion
     }

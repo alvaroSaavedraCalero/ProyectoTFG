@@ -544,6 +544,28 @@ namespace ProyectoTFG.Server.Models
             }
         }
 
+        /// <summary>
+        /// Recupera los comentarios del producto en cuestion
+        /// </summary>
+        /// <param name="idProducto">El id del productos en cuestion</param>
+        /// <returns>Una lista de comentarios</returns>
+        public async Task<List<ComentarioCli>> RecuperarComentariosProducto(string idProducto)
+        {
+            try
+            {
+                FilterDefinition<ComentarioCli> filter = Builders<ComentarioCli>.Filter.Eq((ComentarioCli c) => c.IdProducto, idProducto);
+                List<ComentarioCli> listaComentarios = await this.bdFirebox.GetCollection<ComentarioCli>("comentarios").FindAsync(filter).Result.ToListAsync();
+
+                if (listaComentarios.Count > 0)
+                {return listaComentarios;} 
+                else { return null; }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
         #endregion
 
         #endregion
