@@ -583,7 +583,7 @@ namespace ProyectoTFG.Server.Controllers
             Cliente cliente = await this.accesoBD.ComprobarCredenciales(email, password);
             if (cliente != null && cliente.IdCliente == id)
             {
-                await this.accesoBD.ActivarCuenta(id);
+                Boolean respServer = await this.accesoBD.ActivarCuenta(id);
             }
         }
 
