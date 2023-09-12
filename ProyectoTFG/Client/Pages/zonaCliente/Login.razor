@@ -70,7 +70,6 @@
 
     public async Task LoginCliente()
     {
-        MensajeError = "";
         // hay que mandar el objecto cuanta al servicios REST
         RestMessage respuestaREST = await this.servicioREST.Login(this.NuevaCuenta);
 

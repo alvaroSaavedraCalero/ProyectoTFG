@@ -13,6 +13,8 @@ using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Identity;
+using ProyectoTFG.Server.Models;
 
 namespace ProyectoTFG.Server.Controllers
 {
@@ -27,11 +29,13 @@ namespace ProyectoTFG.Server.Controllers
 
         private IAccesoDatos accesoBD;
         private IConfiguration accesoAppSettings;
+        private IClienteEmail emailService;
 
-        public ClienteController(IAccesoDatos accesoBD, IConfiguration accesoAppSettings)
+        public ClienteController(IAccesoDatos accesoBD, IConfiguration accesoAppSettings, IClienteEmail emailService)
         {
             this.accesoBD = accesoBD;
             this.accesoAppSettings = accesoAppSettings;
+            this.emailService = emailService;
         }
 
         #endregion
@@ -113,6 +117,13 @@ namespace ProyectoTFG.Server.Controllers
 
                 if (registroCorrecto)
                 {
+                    Cliente clienteRecup = await this.accesoBD.ComprobarCredenciales(cliente.cuenta.Email, cliente.cuenta.Password);
+                    String urlMail = Url.RouteUrl("ActivarCuenta", new {id = clienteRecup.IdCliente, email = clienteRecup.cuenta.Email, password = cliente.cuenta.Password}, "https", "localhost:7083");
+                    String mensajeEmail = $@"<h3><strong> Te has registrado correctamente en MegaShop</strong></h3>
+                                            Pulsa el siguiente enlace para <a href={urlMail}>ACTIVAR TU CUENTA </a> de usuario en MegaShop";
+
+                    this.emailService.enviarEmail(clienteRecup.cuenta.Email, "Bienvenido al portal de MegaShop, activa tu cuenta", mensajeEmail, null);
+
                     return new RestMessage
                     {
                         Codigo = 0,
@@ -171,7 +182,7 @@ namespace ProyectoTFG.Server.Controllers
                             Mensaje = "Modificacion del cliente correcta",
                             Error = null,
                             DatosCliente = clienteModificado,
-                            TokenSesion = null,
+                            TokenSesion = jwt,
                             OtrosDatos = null
                         };
                     }
@@ -207,6 +218,71 @@ namespace ProyectoTFG.Server.Controllers
                 {
                     Codigo = 1,
                     Mensaje = "Error en la modificacion del cliente",
+                    Error = ex.Message,
+                    DatosCliente = null,
+                    TokenSesion = null,
+                    OtrosDatos = null
+                };
+            }
+        }
+
+        [HttpPost]
+        public async Task<RestMessage> ModificarImagen([FromBody] Dictionary<String, String> datos)
+        {
+            try
+            {
+                Cliente cliente = JsonSerializer.Deserialize<Cliente>(datos["cliente"]);
+                String imagen = datos["jwt"];
+                String jwt = datos["jwt"];
+
+                if (validarJWT(jwt))
+                {
+                    Boolean modCorrecta = await this.accesoBD.ModificarImagen(cliente, imagen);
+
+                    if (modCorrecta)
+                    {
+                        return new RestMessage
+                        {
+                            Codigo = 0,
+                            Mensaje = "Modificacion de la imagen correcta",
+                            Error = null,
+                            DatosCliente = null,
+                            TokenSesion = datos["jwt"],
+                            OtrosDatos = null
+                        };
+                    }
+                    else
+                    {
+                        return new RestMessage
+                        {
+                            Codigo = 2,
+                            Mensaje = "Modificacion de la imagen fallida, intentelo mas tarde",
+                            Error = null,
+                            DatosCliente = null,
+                            TokenSesion = null,
+                            OtrosDatos = null
+                        };
+                    }
+                }
+                else
+                {
+                    return new RestMessage
+                    {
+                        Codigo = 5,
+                        Mensaje = "Tiempo de expiracion excedido, vuelva a realizar login",
+                        Error = null,
+                        DatosCliente = null,
+                        TokenSesion = null,
+                        OtrosDatos = null
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new RestMessage
+                {
+                    Codigo = 1,
+                    Mensaje = "Error en la modificacion de la imagen.",
                     Error = ex.Message,
                     DatosCliente = null,
                     TokenSesion = null,
@@ -499,6 +575,16 @@ namespace ProyectoTFG.Server.Controllers
             String idGoogleSession = userinfo.Id; //"615616";
 
             return Redirect($"https://localhost:7088/Cliente/PanelCliente?idgooglesesion{idGoogleSession}");
+        }
+
+        [HttpGet(Name = "ActivarCuenta")]
+        public async Task ActivarCuenta([FromQuery] String id, [FromQuery] String email, [FromQuery] String password)
+        {
+            Cliente cliente = await this.accesoBD.ComprobarCredenciales(email, password);
+            if (cliente != null && cliente.IdCliente == id)
+            {
+                await this.accesoBD.ActivarCuenta(id);
+            }
         }
 
         /*************************************************************************/

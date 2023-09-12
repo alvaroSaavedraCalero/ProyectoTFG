@@ -7,9 +7,11 @@ namespace ProyectoTFG.Server.Models.Interfaces
         #region metodos Cliente
 
         Task<Cliente> ComprobarCredenciales(String email, String password);
+        Task<Boolean> ActivarCuenta(String idCliente);
         Task<Boolean> RegistrarCliente(Cliente cliente);
         Task<Boolean> RegistrarDireccion(Direccion direccion, String idCliente);
         Task<Cliente> ModificarCliente(Cliente cliente, Boolean cambioPass);
+        Task<Boolean> ModificarImagen(Cliente cliente, String imagen);
         Task<Direccion> ModificarDireccion(Direccion direcccion, String idCliente);
         Task<Boolean> EliminarDireccion(Direccion direcccion, String idCliente);
 

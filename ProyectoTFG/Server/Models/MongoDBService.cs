@@ -168,6 +168,31 @@ namespace ProyectoTFG.Server.Models
         }
 
         /// <summary>
+        /// Activa la cuenta del cliente
+        /// </summary>
+        /// <param name="idCliente">id del cliente</param>
+        /// <returns>True en caso de que no haya ningun error, false en caso contrario</returns>
+        public async Task<bool> ActivarCuenta(string idCliente)
+        {
+            try
+            {
+                UpdateDefinition<Cliente> update = Builders<Cliente>.Update.Set("cuenta.cuentaActiva", true);
+                UpdateResult resultadoUpdate = await this.bdFirebox.GetCollection<Cliente>("clientes")
+                    .UpdateOneAsync<Cliente>(c => c.IdCliente == idCliente, update);
+
+                if (resultadoUpdate.ModifiedCount > 0)
+                {
+                    return true;
+                } else { return false; }
+                    
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Introduce un Cliente en la coleccion "clientes", con su respectiva Cuenta
         /// </summary>
         /// <param name="cliente"></param>
@@ -304,6 +329,30 @@ namespace ProyectoTFG.Server.Models
             catch (Exception ex)
             {
                 return null;
+            }
+        }
+
+        /// <summary>
+        /// Modifica la imagen del cliente, de la coleccion "clientes"
+        /// </summary>
+        /// <param name="cliente">Cliente para modificar</param>
+        /// <param name="imagen">Imagen nueva</param>
+        /// <returns>True en caso de que la operacion salga correctamente, false en caso contrario</returns>
+        public async Task<bool> ModificarImagen(Cliente cliente, string imagen)
+        {
+            try
+            {
+                UpdateDefinition<Cliente> update = Builders<Cliente>.Update.Set(c => c.cuenta.ImagenAvatarBASE64, imagen);
+                UpdateResult resultadoUpdate = await this.bdFirebox.GetCollection<Cliente>("clientes")
+                    .UpdateOneAsync<Cliente>(c => c.IdCliente == cliente.IdCliente, update);
+                if (resultadoUpdate.ModifiedCount > 0)
+                {
+                    return true;
+                } else { return false; }
+            }
+            catch (Exception ex)
+            {
+                return false;
             }
         }
 
@@ -565,6 +614,8 @@ namespace ProyectoTFG.Server.Models
                 return null;
             }
         }
+
+
 
         #endregion
 

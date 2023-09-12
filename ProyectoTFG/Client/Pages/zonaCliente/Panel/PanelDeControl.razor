@@ -1,9 +1,24 @@
 ﻿@inject NavigationManager navigate
 @inject IStorageService storageService
+@inject IRestService servicioRest
 
 <div class="container">
 
     <div class="row mt-3 mb-3 text-center">
+        <div class="col">
+            <EditForm Model="@ClienteActual" OnValidSubmit="@SubirImagen">
+                @if (String.IsNullOrEmpty(ClienteActual.cuenta.ImagenAvatarBASE64))
+                {
+                    <img src="images/imagenAvatar.jpg" class="img-thumbnail m-3" alt="ImagenPerfil1" height="200" width="200"/>
+                }
+                else
+                {
+                    <img src="@ClienteActual.cuenta.ImagenAvatarBASE64" class="img-thumbnail m-3" alt="ImagenPerfil2" height="200" width="200"/>
+                }
+                <InputFile OnChange="@CambiarImagen"></InputFile>
+                <button type="submit" class="btn btn-dark m-3">Guardar imagen</button>
+            </EditForm>
+        </div>
         <div class="col">
             <h2 class="text-black">Información de Contacto</h2>
             <span>@ClienteActual.Nombre @ClienteActual.Apellidos /</span>
@@ -83,6 +98,10 @@
     private Direccion? direcPago = new Direccion();
     private Direccion? direcEnvio = new Direccion();
 
+    private String MensajeError = "";
+
+    private String imagenBASE64 = "data:image/png;base64";
+
 
     protected override void OnInitialized()
     {
@@ -94,6 +113,58 @@
             direcEnvio = ClienteActual.MisDirecciones.FirstOrDefault((Direccion d) => d.EsFaturacion == true) ?? new Direccion();
         }
 
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        this.ClienteActual = this.storageService.RecuperarDatosCliente();
+    }
+
+    private void CambiarImagen(InputFileChangeEventArgs e)
+    {
+        IBrowserFile archivo = e.File;
+
+        // Abrimos el flujo de lectura
+        using (Stream stream = archivo.OpenReadStream())
+        {
+            // Creamos el buffer y leemos el archivo
+            byte[] bytes = new byte[stream.Length];
+            stream.Read(bytes, 0, (int)stream.Length);
+
+            imagenBASE64 += Convert.ToBase64String(bytes);
+        }
+
+    }
+
+    public async Task SubirImagen()
+    {
+        String jwt = this.storageService.RecuperarJWT();
+        RestMessage respuestaServer = await this.servicioRest.ModificarImagenCliente(ClienteActual, imagenBASE64, jwt);
+
+        switch(respuestaServer.Codigo)
+        {
+            case 0:
+                ClienteActual.cuenta.ImagenAvatarBASE64 = imagenBASE64;
+                this.storageService.AlmacenarDatosCliente(ClienteActual);
+                OnParametersSet();
+                StateHasChanged();
+                break;
+
+            case 1:
+                MensajeError = respuestaServer.Mensaje;
+                StateHasChanged();
+                break;
+
+            case 2:
+                MensajeError = respuestaServer.Mensaje;
+                StateHasChanged();
+                break;
+
+            case 5:
+                this.navigate.NavigateTo("/Cliente/Login");
+                break;
+        }
     }
 
 }

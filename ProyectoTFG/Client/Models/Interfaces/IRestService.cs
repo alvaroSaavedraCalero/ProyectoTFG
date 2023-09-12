@@ -9,6 +9,7 @@ namespace ProyectoTFG.Client.Models.Interfaces
         Task<RestMessage> Login(Cuenta cuenta);
         Task<RestMessage> Registro(Cliente cliente);
         Task<RestMessage> ModificarCliente(Cliente cliente, Boolean cambioPass, String jwt);
+        Task<RestMessage> ModificarImagenCliente(Cliente cliente, String imagenB64, String jwt);
         Task<RestMessage> IntroducirDireccion(Direccion direc, Cliente cliente, String jwt);
         Task<List<Provincia>> RecuperarProvincias();
         Task<List<Municipio>> RecuperarMunicipios(String codprov);

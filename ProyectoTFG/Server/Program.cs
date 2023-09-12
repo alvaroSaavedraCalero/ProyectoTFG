@@ -4,12 +4,14 @@ using ProyectoTFG.Server.Models;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-// Inyectamos mongoDb
+// Inyectamos mongoDb y mailjet
+builder.Services.AddScoped<IClienteEmail, EmailServiceMailJet>();
 builder.Services.AddScoped<IAccesoDatos, MongoDBService>();
 
 byte[] _bytesFirma = System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JWT:firmaJWT"]);
@@ -38,6 +40,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                             options.ClientSecret = builder.Configuration["Google:client_secret"];
                         }
                  );
+
+
+
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();

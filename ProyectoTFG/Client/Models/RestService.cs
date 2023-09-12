@@ -124,6 +124,26 @@ namespace ProyectoTFG.Client.Models
         }
 
         /// <summary>
+        /// Realiza una peticion a la API_REST de Cliente para subir la imagen del cliente
+        /// </summary>
+        /// <param name="cliente">Cliente en cuestion</param>
+        /// <param name="imagenB64">Imagen en BASE 64</param>
+        /// <param name="jwt">JWT del cliente</param>
+        /// <returns>La respuesta del servidor en forma de RestMessage</returns>
+        public async Task<RestMessage> ModificarImagenCliente(Cliente cliente, string imagenB64, string jwt)
+        {
+            Dictionary<String, String> datos = new Dictionary<String, String>
+            {
+                {"cliente", JsonSerializer.Serialize<Cliente>(cliente) },
+                {"imagen", imagenB64 },
+                {"jwt", jwt }
+            };
+
+            HttpResponseMessage respuesta = await this.clienteHttp.PostAsJsonAsync<Dictionary<String, String>>("api/Cliente/ModificarImagen", datos);
+            return await respuesta.Content.ReadFromJsonAsync<RestMessage>();
+        }
+
+        /// <summary>
         /// Realiza una petición a la API_REST de Cliente para modificar los datos de una direccion.
         /// </summary>
         /// <param name="direccion">Datos nuevos de la Direccion</param>
