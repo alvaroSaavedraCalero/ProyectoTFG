@@ -24,6 +24,9 @@
             <span>@ClienteActual.Nombre @ClienteActual.Apellidos /</span>
             <sapn>@ClienteActual.Telefono</sapn>
         </div>
+        <div class="col">
+            <span>@MensajeError</span>
+        </div>
     </div>
 
     <hr />
@@ -99,8 +102,7 @@
     private Direccion? direcEnvio = new Direccion();
 
     private String MensajeError = "";
-
-    private String imagenBASE64 = "data:image/png;base64";
+    private String imagenBASE64 = "";
 
 
     protected override void OnInitialized()
@@ -121,33 +123,36 @@
         this.ClienteActual = this.storageService.RecuperarDatosCliente();
     }
 
-    private void CambiarImagen(InputFileChangeEventArgs e)
+    private async Task CambiarImagen(InputFileChangeEventArgs e)
     {
-        IBrowserFile archivo = e.File;
-
-        // Abrimos el flujo de lectura
-        using (Stream stream = archivo.OpenReadStream())
+        try
         {
-            // Creamos el buffer y leemos el archivo
-            byte[] bytes = new byte[stream.Length];
-            stream.Read(bytes, 0, (int)stream.Length);
+            IBrowserFile archivo = e.File;
+            if (!archivo.Name.Equals("imagenAvatar.jpg"))
+            {
+                using Stream stream = archivo.OpenReadStream();
+                MemoryStream memoryStream = new MemoryStream();
 
-            imagenBASE64 += Convert.ToBase64String(bytes);
+                await stream.CopyToAsync(memoryStream);
+                this.imagenBASE64 = $"data:{archivo.ContentType};base64,{Convert.ToBase64String(memoryStream.ToArray())}";
+            }
         }
-
+        catch (Exception ex)
+        {
+            MensajeError = "No se ha podido subir la imagen";
+        }
     }
 
     public async Task SubirImagen()
     {
         String jwt = this.storageService.RecuperarJWT();
-        RestMessage respuestaServer = await this.servicioRest.ModificarImagenCliente(ClienteActual, imagenBASE64, jwt);
+        RestMessage respuestaServer = await this.servicioRest.ModificarImagenCliente(ClienteActual, this.imagenBASE64, jwt);
 
         switch(respuestaServer.Codigo)
         {
             case 0:
-                ClienteActual.cuenta.ImagenAvatarBASE64 = imagenBASE64;
+                ClienteActual.cuenta.ImagenAvatarBASE64 = this.imagenBASE64;
                 this.storageService.AlmacenarDatosCliente(ClienteActual);
-                OnParametersSet();
                 StateHasChanged();
                 break;
 

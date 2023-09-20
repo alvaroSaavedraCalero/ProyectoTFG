@@ -118,7 +118,7 @@ namespace ProyectoTFG.Server.Controllers
                 if (registroCorrecto)
                 {
                     Cliente clienteRecup = await this.accesoBD.ComprobarCredenciales(cliente.cuenta.Email, cliente.cuenta.Password);
-                    String urlMail = Url.RouteUrl("ActivarCuenta", new {id = clienteRecup.IdCliente, email = clienteRecup.cuenta.Email, password = cliente.cuenta.Password}, "https", "localhost:7083");
+                    String urlMail = Url.RouteUrl("ActivarCuenta", new {id = clienteRecup.IdCliente}, "https", "localhost:7083");
                     String mensajeEmail = $@"<h3><strong> Te has registrado correctamente en MegaShop</strong></h3>
                                             Pulsa el siguiente enlace para <a href={urlMail}>ACTIVAR TU CUENTA </a> de usuario en MegaShop";
 
@@ -232,7 +232,7 @@ namespace ProyectoTFG.Server.Controllers
             try
             {
                 Cliente cliente = JsonSerializer.Deserialize<Cliente>(datos["cliente"]);
-                String imagen = datos["jwt"];
+                String imagen = datos["imagen"];
                 String jwt = datos["jwt"];
 
                 if (validarJWT(jwt))
@@ -578,9 +578,9 @@ namespace ProyectoTFG.Server.Controllers
         }
 
         [HttpGet(Name = "ActivarCuenta")]
-        public async Task ActivarCuenta([FromQuery] String id, [FromQuery] String email, [FromQuery] String password)
+        public async Task ActivarCuenta([FromQuery] String id)
         {
-            Cliente cliente = await this.accesoBD.ComprobarCredenciales(email, password);
+            Cliente cliente = await this.accesoBD.ObtenerClienteId(id);
             if (cliente != null && cliente.IdCliente == id)
             {
                 Boolean respServer = await this.accesoBD.ActivarCuenta(id);

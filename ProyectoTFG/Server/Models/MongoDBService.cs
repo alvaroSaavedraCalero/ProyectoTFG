@@ -129,31 +129,27 @@ namespace ProyectoTFG.Server.Models
 
                             // Y las añadimos a las direcciones del cliente
                             cliente.MisDirecciones = listaDirecciones;
-
-
-                            // Recuperamos los pedidos asociados
-                            List<String> listaIdsPedidos = clienteBson.GetElement("pedidos").Value.AsBsonArray.Select(s => s.AsString).ToList() ?? new List<String>();
-
-                            if (listaIdsPedidos != null || listaIdsPedidos.Count != 0)
-                            {
-                                List<Pedido> listaPedidos = new List<Pedido>();
-                                foreach (String s in listaIdsPedidos)
-                                {
-                                    Pedido ped = this.bdFirebox.GetCollection<Pedido>("pedidos").AsQueryable<Pedido>()
-                                        .Where((Pedido p) => p.IdPedido == s).Single<Pedido>();
-                                    if (ped != null)
-                                    {
-                                        listaPedidos.Add(ped);
-                                    }
-                                }
-                                cliente.MisPedidos = listaPedidos;
-
-                                return cliente;
-                            }
-                            else { return null; }
-
                         }
-                        else { return null; }
+
+                        // Recuperamos los pedidos asociados
+                        List<String> listaIdsPedidos = clienteBson.GetElement("pedidos").Value.AsBsonArray.Select(s => s.AsString).ToList() ?? new List<String>();
+
+                        if (listaIdsPedidos != null || listaIdsPedidos.Count != 0)
+                        {
+                            List<Pedido> listaPedidos = new List<Pedido>();
+                            foreach (String s in listaIdsPedidos)
+                            {
+                                Pedido ped = this.bdFirebox.GetCollection<Pedido>("pedidos").AsQueryable<Pedido>()
+                                    .Where((Pedido p) => p.IdPedido == s).Single<Pedido>();
+                                if (ped != null)
+                                {
+                                    listaPedidos.Add(ped);
+                                }
+                            }
+                            cliente.MisPedidos = listaPedidos;
+                        }
+
+                        return cliente;
                     }
                     else { throw new Exception("password invalida"); }
 
@@ -165,6 +161,92 @@ namespace ProyectoTFG.Server.Models
             {
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Recupera un cliente en base a su id
+        /// </summary>
+        /// <param name="id">Id del cliente</param>
+        /// <returns>El cliente recuperado, null en caso de queno lo encuentre</returns>
+        public async Task<Cliente> ObtenerClienteId(String id)
+        {
+            FilterDefinition<BsonDocument> filtro = Builders<BsonDocument>.Filter.Eq("_id", BsonObjectId.Parse(id));
+            BsonDocument clienteBson = this.bdFirebox.GetCollection<BsonDocument>("clientes").Find(filtro).FirstOrDefaultAsync().Result;
+            Cliente cliente = new Cliente();
+
+            if (clienteBson != null)
+            {
+                cliente.IdCliente = clienteBson.GetElement("_id").Value.ToString();
+                cliente.Nombre = clienteBson.GetElement("nombre").Value.ToString();
+                cliente.Apellidos = clienteBson.GetElement("apellidos").Value.ToString();
+                cliente.Telefono = clienteBson.GetElement("telefono").Value.ToString();
+                cliente.FechaNacimiento = System.Convert.ToDateTime(clienteBson.GetElement("fechaNacimiento").Value);
+                cliente.Genero = clienteBson.GetElement("genero").Value.ToString();
+                cliente.NIF = clienteBson.GetElement("nif").Value.ToString();
+                cliente.cuenta = new Cuenta
+                {
+                    Email = clienteBson.GetElement("cuenta").Value.ToBsonDocument().GetElement("email").Value.ToString(),
+                    Login = clienteBson.GetElement("cuenta").Value.ToBsonDocument().GetElement("login").Value.ToString(),
+                    Password = clienteBson.GetElement("cuenta").Value.ToBsonDocument().GetElement("password").Value.ToString(),
+                    CuentaActivada = System.Convert.ToBoolean(clienteBson.GetElement("cuenta").Value.ToBsonDocument().GetElement("cuentaActiva").Value),
+                    ImagenAvatarBASE64 = clienteBson.GetElement("cuenta").Value.ToBsonDocument().GetElement("imagenAvatarBASE64").Value.ToString()
+                };
+
+                List<int> listaProductosDeseados = clienteBson.GetElement("listaDeseos").Value.AsBsonArray.Select(s => s.ToInt32()).ToList() ?? new List<int>();
+                if (listaProductosDeseados.Count > 0)
+                {
+                    HttpClient clienteHttp = new HttpClient();
+                    foreach (int i in listaProductosDeseados)
+                    {
+                        HttpResponseMessage respuesta = await clienteHttp.GetAsync($"https://fakestoreapi.com/products/{i}");
+                        String respuestaString = await respuesta.Content.ReadAsStringAsync();
+                        ProductoAPI productoApi = JsonSerializer.Deserialize<ProductoAPI>(respuestaString);
+                        cliente.ListaDeseos.Add(productoApi);
+                    }
+                }
+
+                // Recupero las direcciones asociadas
+                List<String> listaIdsDirecciones = clienteBson.GetElement("direcciones").Value.AsBsonArray.Select(s => s.AsString).ToList() ?? new List<String>();
+
+                if (listaIdsDirecciones != null || listaIdsDirecciones.Count != 0)
+                {
+                    List<Direccion> listaDirecciones = new List<Direccion>();
+
+                    foreach (String s in listaIdsDirecciones)
+                    {
+                        Direccion dir = this.bdFirebox.GetCollection<Direccion>("direcciones").AsQueryable<Direccion>()
+                            .Where((Direccion d) => d.IdDireccion == s).Single<Direccion>();
+                        if (dir != null)
+                        {
+                            listaDirecciones.Add(dir);
+                        }
+                    }
+
+                    // Y las añadimos a las direcciones del cliente
+                    cliente.MisDirecciones = listaDirecciones;
+                }
+
+                // Recuperamos los pedidos asociados
+                List<String> listaIdsPedidos = clienteBson.GetElement("pedidos").Value.AsBsonArray.Select(s => s.AsString).ToList() ?? new List<String>();
+
+                if (listaIdsPedidos != null || listaIdsPedidos.Count != 0)
+                {
+                    List<Pedido> listaPedidos = new List<Pedido>();
+                    foreach (String s in listaIdsPedidos)
+                    {
+                        Pedido ped = this.bdFirebox.GetCollection<Pedido>("pedidos").AsQueryable<Pedido>()
+                            .Where((Pedido p) => p.IdPedido == s).Single<Pedido>();
+                        if (ped != null)
+                        {
+                            listaPedidos.Add(ped);
+                        }
+                    }
+                    cliente.MisPedidos = listaPedidos;
+                }
+
+                return cliente;
+            } 
+            else { return null; }
         }
 
         /// <summary>
