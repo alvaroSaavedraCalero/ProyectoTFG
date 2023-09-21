@@ -8,6 +8,9 @@ namespace ProyectoTFG.Server.Models.Interfaces
 
         Task<Cliente> ComprobarCredenciales(String email, String password);
         Task<Cliente> ObtenerClienteId(String id);
+        Task<Boolean> GuardarCredencialesGoogle(String idGoogle, String idCliente);
+        Task<Cliente> ObtenerClienteIdGoogle(String idGoogle);
+        Task<Cliente> RegistrarClienteGoogle(Cliente cliente);
         Task<Boolean> ActivarCuenta(String idCliente);
         Task<Boolean> RegistrarCliente(Cliente cliente);
         Task<Boolean> RegistrarDireccion(Direccion direccion, String idCliente);

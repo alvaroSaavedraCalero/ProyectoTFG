@@ -153,6 +153,7 @@
             case 0:
                 ClienteActual.cuenta.ImagenAvatarBASE64 = this.imagenBASE64;
                 this.storageService.AlmacenarDatosCliente(ClienteActual);
+                this.MensajeError = "Los datos se han establecido correctamente";
                 StateHasChanged();
                 break;
 

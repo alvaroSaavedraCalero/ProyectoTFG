@@ -7,6 +7,7 @@ namespace ProyectoTFG.Client.Models.Interfaces
         #region zona Cliente
 
         Task<RestMessage> Login(Cuenta cuenta);
+        Task<RestMessage> ObtenerClienteGoogle(String idGoogle);
         Task<RestMessage> Registro(Cliente cliente);
         Task<RestMessage> ModificarCliente(Cliente cliente, Boolean cambioPass, String jwt);
         Task<RestMessage> ModificarImagenCliente(Cliente cliente, String imagenB64, String jwt);

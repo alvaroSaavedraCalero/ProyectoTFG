@@ -40,6 +40,21 @@ namespace ProyectoTFG.Client.Models
         }
 
         /// <summary>
+        /// Realiza una peticion a la API_REST de Cliente para recuperar un cliente de google de la base de datos
+        /// </summary>
+        /// <param name="idGoogle">Id de google del cliente</param>
+        /// <returns>La respuesta del servidor en forma de RestMessage</returns>
+        public async Task<RestMessage> ObtenerClienteGoogle(string idGoogle)
+        {
+            Dictionary<String, String> datos = new Dictionary<String, String>()
+            {
+                {"idGoogle",idGoogle }
+            };
+            HttpResponseMessage respuesta = await this.clienteHttp.PostAsJsonAsync<Dictionary<String, String>>("api/Cliente/ObtenerClienteGoogle", datos);
+            return await respuesta.Content.ReadFromJsonAsync<RestMessage>();
+        }
+
+        /// <summary>
         /// Realiza una petición a la API_REST de Cliente para introducir un cliente en la base de datos.
         /// </summary>
         /// <param name="cliente">Datos del cliente</param>

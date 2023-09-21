@@ -108,6 +108,52 @@ namespace ProyectoTFG.Server.Controllers
         }
 
         [HttpPost]
+        public async Task<RestMessage> ObtenerClienteGoogle([FromBody] Dictionary<String, String> datos)
+        {
+            try
+            {
+                Cliente cliente = await this.accesoBD.ObtenerClienteIdGoogle(datos["idGoogle"]);
+                if (cliente != null)
+                {
+                    String tokenJWT = this.generarJWT(cliente.Nombre,cliente.Apellidos, cliente.cuenta.Email, cliente.IdCliente);
+                    return new RestMessage
+                    {
+                        Codigo = 0,
+                        Mensaje = "login google correcto",
+                        Error = null,
+                        DatosCliente = cliente,
+                        TokenSesion = tokenJWT,
+                        OtrosDatos = null
+                    };
+                }
+                else
+                {
+                    return new RestMessage
+                    {
+                        Codigo = 2,
+                        Mensaje = "el id google no es correcto son incorrectas",
+                        Error = null,
+                        DatosCliente = null,
+                        TokenSesion = null,
+                        OtrosDatos = null
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new RestMessage
+                {
+                    Codigo = 1,
+                    Mensaje = "Ha ocurrido un error en la obtencion del cliente, vuelve a intentarlo mas tarde",
+                    Error = ex.Message,
+                    DatosCliente = null,
+                    TokenSesion = null,
+                    OtrosDatos = null
+                };
+            }
+        }
+
+        [HttpPost]
         public async Task<RestMessage> Registro([FromBody] Dictionary<String, String> datos)
         {
             try
@@ -509,7 +555,7 @@ namespace ProyectoTFG.Server.Controllers
                 AllowRefresh = true
             };
             return Challenge(propsGoogle, GoogleDefaults.AuthenticationScheme); // redirecciona pero de otra forma
-            */
+            
 
 
             // ¿solucion? generamos url a pelo con los parametro de necesita google
@@ -520,20 +566,28 @@ namespace ProyectoTFG.Server.Controllers
             //            scope = openid profile email &
             //            state = CfDJ8O8V7QK....
 
-            // - redirectURl, client_id, scope, state, accesstype
-            String redirectURL = Url.Action(nameof(LoginCallBackGoogle), "Cliente", null, Request.Scheme);
-            String client_id = this.accesoAppSettings["Google:client_id"];
-            String scope = "openid profile email";  //"https://www.googleapis.com/auth/userinfo.profile";
-            String state = "6gre66v1df6v1a54FBAEBaa8baebAEBAERBAEB"; // codigo aleatorio
-            String accessType = "offline";
+            */
 
-            String urlRedirect = $"https://accounts.google.com/o/oauth2/v2/auth?client_id={client_id}&redirect_uri={redirectURL}&response_type=code&scope={scope}&acces_type={accessType}&state={state}";
-            return urlRedirect;
-            
+            // - redirectURl, client_id, scope, state, accesstype
+
+            try
+            {
+                String redirectURL = Url.Action(nameof(LoginCallBackGoogle), "Cliente", null, Request.Scheme);
+                String client_id = this.accesoAppSettings["Google:client_id"];
+                String scope = "openid profile email";  //"https://www.googleapis.com/auth/userinfo.profile";
+                String state = "6gre66v1df6v1a54FBAEBaa8baebAEBAERBAEB"; // codigo aleatorio
+                String accessType = "offline";
+
+                String urlRedirect = $"https://accounts.google.com/o/oauth2/v2/auth?client_id={client_id}&redirect_uri={redirectURL}&response_type=code&scope={scope}&acces_type={accessType}&state={state}";
+                return urlRedirect;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
         }
 
         #endregion
-
         #region metodos de la clase
 
         [HttpGet]
@@ -545,36 +599,65 @@ namespace ProyectoTFG.Server.Controllers
             // -scope <-- ambito de valide del codigo para solicitar el uso de las google-apis
             // -authuser
             // -prompt
-            String codeGoogle = this.HttpContext.Request.Query["code"];
-            String[] scopes = this.HttpContext.Request.Query["scope"].ToString().Split(" ");
 
-            GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow(
-                    new GoogleAuthorizationCodeFlow.Initializer
-                    {
-                        ClientSecrets = new Google.Apis.Auth.OAuth2.ClientSecrets
+            try
+            {
+                String codeGoogle = this.HttpContext.Request.Query["code"];
+                String[] scopes = this.HttpContext.Request.Query["scope"].ToString().Split(" ");
+
+                GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow(
+                        new GoogleAuthorizationCodeFlow.Initializer
                         {
-                            ClientId = this.accesoAppSettings["Google:client_id"],
-                            ClientSecret = this.accesoAppSettings["Google:client_secret"]
-                        },
-                        Scopes = scopes, // "https://www.googleapis.com/auth/userinfo.profile"
-                        DataStore = new FileDataStore("Google.Apis.Auth")
+                            ClientSecrets = new Google.Apis.Auth.OAuth2.ClientSecrets
+                            {
+                                ClientId = this.accesoAppSettings["Google:client_id"],
+                                ClientSecret = this.accesoAppSettings["Google:client_secret"]
+                            },
+                            Scopes = scopes, // "https://www.googleapis.com/auth/userinfo.profile"
+                            DataStore = new FileDataStore("Google.Apis.Auth")
+                        }
+                    );
+
+                // Generamos el token jwt del cliente
+                TokenResponse tokenResponse = await flow.ExchangeCodeForTokenAsync("user", codeGoogle, "https://localhost:7083/api/Cliente/LoginCallBackGoogle", CancellationToken.None);
+                UserCredential credencialesAPI = new UserCredential(flow, "user", tokenResponse);
+
+                // a obtener info del cliente que ha usado gmail para autentificarse
+                Oauth2Service servAPIS = new Oauth2Service(new Google.Apis.Services.BaseClientService.Initializer { HttpClientInitializer = credencialesAPI });
+                Userinfo userinfo = await servAPIS.Userinfo.Get().ExecuteAsync();
+
+                // Generamos un cliente con los datos del userInfo y lo guardamos en la base de datos.
+                // Por otra parte, guardamos en un objeto el id del userInfo junto al id del cliente guardado
+
+                Cliente nuevoCliente = new Cliente
+                {
+                    Nombre = userinfo.GivenName,
+                    Apellidos = userinfo.FamilyName,
+                    cuenta = new Cuenta
+                    {
+                        CuentaActivada = true,
+                        Email = userinfo.Email,
                     }
-                );
+                };
 
-            // Generamos el token jwt del cliente
-            TokenResponse tokenResponse = await flow.ExchangeCodeForTokenAsync("user", codeGoogle, "https://localhost:7083/api/Cliente/LoginCallBackGoogle", CancellationToken.None);
-            UserCredential credencialesAPI = new UserCredential(flow, "user", tokenResponse);
-
-            // a obtener info del cliente que ha usado gmail para autentificarse
-            Oauth2Service servAPIS = new Oauth2Service(new Google.Apis.Services.BaseClientService.Initializer { HttpClientInitializer = credencialesAPI });
-            Userinfo userinfo = await servAPIS.Userinfo.Get().ExecuteAsync();
-
-            // con este objecto userInfo generas tu propio JWT de la aplicacion
-            // lo almacenas en mongoDB en coleccion googleSession, (y su id lo almacenamos en una variable que pasamos en la url) unicamente de forma temporal
-            // en cuanto se desloguea el cliente, lo eliminamos de la base de datos
-            String idGoogleSession = userinfo.Id; //"615616";
-
-            return Redirect($"https://localhost:7088/Cliente/PanelCliente?idgooglesesion{idGoogleSession}");
+                // Antes de registrar y redirigir, tenemos que comprobar si el cliente esta registrado
+                Cliente clienteRecup = await this.accesoBD.ObtenerClienteIdGoogle(userinfo.Id);
+                if (clienteRecup == null)
+                {
+                    // El cliente es nuevo
+                    Cliente clienteRegistrado = await this.accesoBD.RegistrarClienteGoogle(nuevoCliente);
+                    Boolean registroCredsGoogle = await this.accesoBD.GuardarCredencialesGoogle(userinfo.Id, clienteRegistrado.IdCliente);
+                    return Redirect($"https://localhost:7083/Cliente/PanelCliente?idgooglesesion={userinfo.Id}");
+                }
+                else
+                {
+                    return Redirect($"https://localhost:7083/Cliente/PanelCliente?idgooglesesion={userinfo.Id}");
+                }
+            }
+            catch (Exception ex)
+            {
+                return Redirect($"https://localhost:7083/Cliente/Login");
+            }
         }
 
         [HttpGet(Name = "ActivarCuenta")]

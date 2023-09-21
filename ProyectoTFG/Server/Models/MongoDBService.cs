@@ -34,7 +34,7 @@ namespace ProyectoTFG.Server.Models
         /// <param name="email"></param>
         /// <param name="password"></param>
         /// <returns>El cliente encontrado en la base de datos, null en caso contrario</returns>
-        public async Task<Cliente> ComprobarCredenciales(string email, string password)
+        public async Task<Cliente> ComprobarCredenciales(String email, String password)
         {
             try
             {
@@ -247,6 +247,83 @@ namespace ProyectoTFG.Server.Models
                 return cliente;
             } 
             else { return null; }
+        }
+
+        /// <summary>
+        /// Obtiene un cliente de la base de datos en base al id de google
+        /// </summary>
+        /// <param name="idGoogle">Id de google</param>
+        /// <returns>El cliente recuperado, null en caso contrario</returns>
+        public async Task<Cliente> ObtenerClienteIdGoogle(string idGoogle)
+        {
+            try
+            {
+                FilterDefinition<BsonDocument> filtro = Builders<BsonDocument>.Filter.Eq("idGoogle", idGoogle);
+                BsonDocument clienteBson = this.bdFirebox.GetCollection<BsonDocument>("googleSesions").Find(filtro).FirstOrDefaultAsync().Result;
+
+                if (clienteBson != null)
+                {
+                    String idCliente = clienteBson.GetElement("idCliente").Value.ToString();
+                    Cliente cliente = await this.ObtenerClienteId(idCliente);
+                    
+                    if (cliente != null)
+                    {
+                        return cliente;
+                    }
+                    else { return null; }
+                }
+                else { return null; }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Guardado de credenciales de google
+        /// </summary>
+        /// <param name="idGoogle">El id del user de google</param>
+        /// <param name="idCliente">Id del cliente</param>
+        /// <returns>True en caso de que el guardado sea satisfactorio, false en caso contrario</returns>
+        public async Task<bool> GuardarCredencialesGoogle(String idGoogle, String idCliente)
+        {
+            try
+            {
+                BsonDocument docBson = new BsonDocument 
+                {
+                    {"idGoogle", idGoogle},
+                    {"idCliente", idCliente }
+                };
+
+                await this.bdFirebox.GetCollection<BsonDocument>("googleSesions").InsertOneAsync(docBson);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Registra un cliente que se ha logueado a traves de google
+        /// </summary>
+        /// <param name="cliente">El cliente de google</param>
+        /// <returns>El cliente introducido en la base de datos</returns>
+        public async Task<Cliente> RegistrarClienteGoogle(Cliente cliente)
+        {
+            try
+            {
+                await this.bdFirebox.GetCollection<Cliente>("clientes").InsertOneAsync(cliente);
+                Cliente clienteAlmac = this.bdFirebox.GetCollection<Cliente>("clientes").AsQueryable<Cliente>()
+                    .Where((Cliente c) => c.cuenta.Email == cliente.cuenta.Email && c.cuenta.CuentaActivada == true).Single<Cliente>();
+
+                if (clienteAlmac != null) { return clienteAlmac; } else { return null; }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
         }
 
         /// <summary>
@@ -596,7 +673,7 @@ namespace ProyectoTFG.Server.Models
         /// <param name="idProducto">El id del prodcuto a añadir</param>
         /// <param name="idCliente">El id del cliente para su lista de deseos</param>
         /// <returns>True en caso de que el producto se haya añadido correctamente, False en caso contrario</returns>
-        public async Task<bool> DesearProducto(string idProducto, string idCliente)
+        public async Task<bool> DesearProducto(String idProducto, String idCliente)
         {
             try
             {
@@ -625,7 +702,7 @@ namespace ProyectoTFG.Server.Models
         /// <param name="idProducto">Id del prodcuto a eliminar</param>
         /// <param name="idCliente">Id del cliente</param>
         /// <returns>True en caso de que la eliminacion haya sido satisfactoria, False en caso contrario</returns>
-        public async Task<bool> DesDesearProducto(string idProducto, string idCliente)
+        public async Task<bool> DesDesearProducto(String idProducto, String idCliente)
         {
             try
             {
@@ -655,7 +732,7 @@ namespace ProyectoTFG.Server.Models
         /// <param name="comentario">Comentario del cliente</param>
         /// <param name="nombreCliente">Nombre del cliente</param>
         /// <returns>True en caso de que el comentario de suba correctamente, False en caso contrario</returns>
-        public async Task<bool> SubirComentario(string idCliente, string comentario, string nombreCliente, string idProducto)
+        public async Task<bool> SubirComentario(String idCliente, String comentario, String nombreCliente, String idProducto)
         {
             try
             {
@@ -680,7 +757,7 @@ namespace ProyectoTFG.Server.Models
         /// </summary>
         /// <param name="idProducto">El id del productos en cuestion</param>
         /// <returns>Una lista de comentarios</returns>
-        public async Task<List<ComentarioCli>> RecuperarComentariosProducto(string idProducto)
+        public async Task<List<ComentarioCli>> RecuperarComentariosProducto(String idProducto)
         {
             try
             {
@@ -696,8 +773,6 @@ namespace ProyectoTFG.Server.Models
                 return null;
             }
         }
-
-
 
         #endregion
 
