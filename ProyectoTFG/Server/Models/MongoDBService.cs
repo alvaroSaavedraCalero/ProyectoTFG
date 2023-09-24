@@ -763,10 +763,7 @@ namespace ProyectoTFG.Server.Models
             {
                 FilterDefinition<ComentarioCli> filter = Builders<ComentarioCli>.Filter.Eq((ComentarioCli c) => c.IdProducto, idProducto);
                 List<ComentarioCli> listaComentarios = await this.bdFirebox.GetCollection<ComentarioCli>("comentarios").FindAsync(filter).Result.ToListAsync();
-
-                if (listaComentarios.Count > 0)
-                {return listaComentarios;} 
-                else { return null; }
+                return listaComentarios;
             }
             catch (Exception ex)
             {

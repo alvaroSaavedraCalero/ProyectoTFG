@@ -50,12 +50,12 @@ else
                                 <div class="row">
                                     <div class="form-check ms-5">
                                         <input class="form-check-input" type="radio" name="flexRadioDefault" id="pagoTarjeta" @onchange="@(e => {
-                            this.jsService.InvokeVoidAsync("console.log", e);
-                            if (e.Value.ToString().Equals("on")) {
-                                ClasePagoTarjeta = DisplayBlock;
-                                ClasePagoPayPal = DisplayNone;
-                            }
-                        })">
+                                            this.jsService.InvokeVoidAsync("console.log", e);
+                                            if (e.Value.ToString().Equals("on")) {
+                                                ClasePagoTarjeta = DisplayBlock;
+                                                ClasePagoPayPal = DisplayNone;
+                                            }
+                                        })">
                                         <label class="form-check-label" for="pagoTarjeta">Tarjeta de crédito: Visa, Mastercard</label>
                                         <i class="fa-brands fa-cc-visa float-end me-xxl-5"></i>
                                         <div class="@ClasePagoTarjeta">
@@ -190,56 +190,6 @@ else
                 </div>
             </div>
         </div>
-
-        <!-- footer -->
-        <div class="row mt-5">
-            <div class="row">
-                <!-- primera columna -->
-                <div class="col">
-                    <div class="">
-                        <img src="images/logo.png" width="189" height="64" alt="logo" />
-                    </div>
-                    <div class="flex">
-                        <img src="images/logoFacebook.png" width="30" height="30" alt="facebook" />
-                        <img src="images/logoPinterest.png" width="30" height="30" alt="pinterest" />
-                        <img src="images/logoInstagram.png" width="30" height="30" alt="instagram" />
-                    </div>
-                </div>
-
-                <!-- Segunda columna -->
-                <div class="col">
-                    <span class=""><b>Tienes dudas</b></span>
-                    <div class="">
-                        <a class="list-group-item ">Servicio Cliente</a>
-                        <a class="list-group-item ">Metodos de Pago</a>
-                        <a class="list-group-item ">Gastos de envio</a>
-                        <a class="list-group-item ">Dónde esta mi paquete</a>
-                        <a class="list-group-item ">Reenvíos y Devoluciones</a>
-                        <a class="list-group-item ">Aquí puedes encontrar nuestras Preguntas Frecuentes (FAQ) y las Respuestas</a>
-                    </div>
-                </div>
-
-                <div class="col">
-                    <span class=""><b>Qué es FIREBOX</b></span>
-                    <div class="">
-                        <a class="list-group-item ">Quiénes somos</a>
-                        <a class="list-group-item ">Politica de Cookies</a>
-                    </div>
-                </div>
-
-                <div class="col">
-                    <span class=""><b>Información de socios</b></span>
-                    <div class="">
-                        <a class="list-group-item ">Prensa</a>
-                        <a class="list-group-item ">Consultas B2B</a>
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="row">
-            </div>
-        </div>
     </div>
 }
 
@@ -336,7 +286,7 @@ else
                     break;
 
                 case 7:
-                // hay que hacer que se vaya a la parte de direcciones y guardar una direccion
+                    // hay que hacer que se vaya a la parte de direcciones y guardar una direccion
                     this.MensajeError = respuestaServidor.Mensaje;
                     StateHasChanged();
                     break;
