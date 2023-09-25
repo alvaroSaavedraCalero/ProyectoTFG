@@ -1,5 +1,6 @@
 ﻿@page "/Tienda/PedidoRealizadoOK"
 @inject IStorageService storageService
+@inject IRestService restService
 
 <div class="container">
     <div class="row">
@@ -35,15 +36,21 @@
 
 @code {
 
-    public Cliente ClienteLogueado { get; set; } = new Cliente();
+    private Cliente ClienteLogueado = new Cliente();
     private Pedido PedidoRealizado = new Pedido();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         this.ClienteLogueado = this.storageService.RecuperarDatosCliente();
-        this.PedidoRealizado = ClienteLogueado.PedidoActual;
-        ClienteLogueado.PedidoActual = new Pedido();
-        this.storageService.AlmacenarDatosCliente(ClienteLogueado);
+        String jwt = this.storageService.RecuperarJWT();
+
+        RestMessage respuestaServer = await this.restService.AlmacenarPedido(ClienteLogueado.PedidoActual, ClienteLogueado, jwt);
+        if (respuestaServer.Codigo == 0)
+        {
+            this.PedidoRealizado = respuestaServer.DatosCliente.PedidoActual;
+            ClienteLogueado.PedidoActual = new Pedido();
+            this.storageService.AlmacenarDatosCliente(ClienteLogueado);
+        }
     }
 
 }

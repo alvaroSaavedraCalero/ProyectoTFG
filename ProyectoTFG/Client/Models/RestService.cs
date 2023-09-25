@@ -2,6 +2,7 @@
 using ProyectoTFG.Shared;
 using System.Net.Http.Json;
 using System.Text.Json;
+using ZstdSharp.Unsafe;
 
 namespace ProyectoTFG.Client.Models
 {
@@ -362,6 +363,24 @@ namespace ProyectoTFG.Client.Models
             return await respuesta.Content.ReadFromJsonAsync<List<ComentarioCli>>();
         }
 
+        /// <summary>
+        /// Realiza una peticion a la API_REST de Tienda para realizar el pago con Paypal
+        /// </summary>
+        /// <param name="cliente">Datos del cliente</param>
+        /// <param name="datosPago">Datos del pago</param>
+        /// <param name="jwt">Json Web Token</param>
+        /// <returns>Un String o un null en caso de fallo, redirecciona en caso de que todo funcione correctamente</returns>
+        public async Task<String> RealizarPagoPayPal(Cliente cliente, DatosPago datosPago, String jwt)
+        {
+            Dictionary<String, String> datos = new Dictionary<String, String>
+            {
+                {"cliente", JsonSerializer.Serialize<Cliente>(cliente) },
+                {"datosPago", JsonSerializer.Serialize<DatosPago>(datosPago) },
+                {"jwt", jwt},
+            };
+            HttpResponseMessage respuesta = await this.clienteHttp.PostAsJsonAsync<Dictionary<String, String>>("api/Tienda/RealizarPagoPayPal", datos);
+            return await respuesta.Content.ReadAsStringAsync();
+        }
 
         #endregion
 

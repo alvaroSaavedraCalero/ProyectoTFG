@@ -673,7 +673,7 @@ namespace ProyectoTFG.Server.Models
         /// <param name="idProducto">El id del prodcuto a añadir</param>
         /// <param name="idCliente">El id del cliente para su lista de deseos</param>
         /// <returns>True en caso de que el producto se haya añadido correctamente, False en caso contrario</returns>
-        public async Task<bool> DesearProducto(String idProducto, String idCliente)
+        public async Task<Boolean> DesearProducto(String idProducto, String idCliente)
         {
             try
             {
@@ -702,7 +702,7 @@ namespace ProyectoTFG.Server.Models
         /// <param name="idProducto">Id del prodcuto a eliminar</param>
         /// <param name="idCliente">Id del cliente</param>
         /// <returns>True en caso de que la eliminacion haya sido satisfactoria, False en caso contrario</returns>
-        public async Task<bool> DesDesearProducto(String idProducto, String idCliente)
+        public async Task<Boolean> DesDesearProducto(String idProducto, String idCliente)
         {
             try
             {
@@ -732,7 +732,7 @@ namespace ProyectoTFG.Server.Models
         /// <param name="comentario">Comentario del cliente</param>
         /// <param name="nombreCliente">Nombre del cliente</param>
         /// <returns>True en caso de que el comentario de suba correctamente, False en caso contrario</returns>
-        public async Task<bool> SubirComentario(String idCliente, String comentario, String nombreCliente, String idProducto)
+        public async Task<Boolean> SubirComentario(String idCliente, String comentario, String nombreCliente, String idProducto)
         {
             try
             {
@@ -764,6 +764,47 @@ namespace ProyectoTFG.Server.Models
                 FilterDefinition<ComentarioCli> filter = Builders<ComentarioCli>.Filter.Eq((ComentarioCli c) => c.IdProducto, idProducto);
                 List<ComentarioCli> listaComentarios = await this.bdFirebox.GetCollection<ComentarioCli>("comentarios").FindAsync(filter).Result.ToListAsync();
                 return listaComentarios;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Sube a la base de datos los datos del pedido pagado con paypal
+        /// </summary>
+        /// <param name="datosPedido">Datos del pedido paypal</param>
+        /// <returns>True en caso de que la subida de datos sea correcta, false en caso contrario</returns>
+        public async Task<Boolean> IntroducirDatosPayPal(PaypalPedidoInfo datosPedido)
+        {
+            try
+            {
+                await this.bdFirebox.GetCollection<PaypalPedidoInfo>("paypalTemp").InsertOneAsync(datosPedido);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Recupera los datos del pedido de paypal y los elimina de la base de datos
+        /// </summary>
+        /// <param name="idPedido">Id del pedido para localizarlos en la base de datos</param>
+        /// <returns>La informacion en forma de PaypalPedidoInfo, null en caso contrario</returns>
+        public async Task<PaypalPedidoInfo> RecuperarDatosPayPal(String idPedido)
+        {
+            try
+            {
+                FilterDefinition<PaypalPedidoInfo> filtro = Builders<PaypalPedidoInfo>.Filter.Eq((PaypalPedidoInfo p) => p.IdPedido, idPedido);
+                PaypalPedidoInfo recup = await this.bdFirebox.GetCollection<PaypalPedidoInfo>("paypalTemp").Find(filtro).FirstOrDefaultAsync();
+                if (recup == null) { return null; } else 
+                { 
+                    DeleteResult resultado = await this.bdFirebox.GetCollection<PaypalPedidoInfo>("paypalTemp").DeleteOneAsync(filtro);
+                    if (resultado.DeletedCount > 0) { return recup; } else { return null; }
+                }
             }
             catch (Exception ex)
             {

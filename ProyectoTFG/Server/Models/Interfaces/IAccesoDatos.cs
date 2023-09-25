@@ -24,6 +24,8 @@ namespace ProyectoTFG.Server.Models.Interfaces
         #region metodos Tienda
 
         Task<Pedido> RegistrarPedido(Pedido pedido, Cliente cliente);
+        Task<Boolean> IntroducirDatosPayPal(PaypalPedidoInfo datosPedido);
+        Task<PaypalPedidoInfo> RecuperarDatosPayPal(String idPedido);
         Task<Boolean> DesearProducto(String idProducto, String idCliente);
         Task<Boolean> DesDesearProducto(String idProducto, String idCliente);
         Task<Boolean> SubirComentario(String idCliente, String comentario, String nombreCliente, String idProducto);

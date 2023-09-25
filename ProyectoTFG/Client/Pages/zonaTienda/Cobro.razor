@@ -14,8 +14,8 @@ else
 {
     <div class="container">
         <div class="row">
-            <div class="row text-center mb-3">
-                <div class="col"><img src="images/MegaShopLogo.png" width="250" height="75" alt="logo" class="mx-auto my-auto" /></div>
+            <div class="col text-center mb-3">
+                <div class="col"><img src="images/MegaShopLogo.png" width="189" height="189" alt="logo" class="mx-auto my-auto rounded rounded-circle" /></div>
             </div>
             <div class="row">
                 <div class="col">
@@ -28,11 +28,10 @@ else
                     <!-- direccion de envio -->
                     <div class="border rounded">
                         <div class="row text-center">
-                            <div class="flex d-flex justify-content-between">
+                            <div class="flex d-flex justify-content-center">
                                 <h3 class="text-black mt-2"><b>Dirección de Envío</b></h3>
-                                <a class="mt-3">Editar</a>
                             </div>
-                            <span class="mt-5">@direcEnvio.NombreContacto @direcEnvio.ApellidosContacto</span>
+                            <span class="mt-3">@direcEnvio.NombreContacto @direcEnvio.ApellidosContacto</span>
                             <span>@direcEnvio.Calle @direcEnvio.Numero</span>
                             <span>@direcEnvio.CP @direcEnvio.MuniDirecc.DMUN50</span>
                             <span>@ClienteLogueado.cuenta.Email</span>
@@ -87,20 +86,20 @@ else
                                     <hr class="w-75 ms-xl-5" />
                                     <div class="form-check ms-5">
                                         <input class="form-check-input" type="radio" name="flexRadioDefault" id="pagoPayPal" @onchange="@(e => {
-                            this.jsService.InvokeVoidAsync("console.log", e);
-                            if (e.Value.ToString().Equals("on")) {
-                                ClasePagoPayPal = DisplayBlock;
-                                ClasePagoTarjeta = DisplayNone;
-                            }
-                        })">
+                                            this.jsService.InvokeVoidAsync("console.log", e);
+                                            if (e.Value.ToString().Equals("on")) {
+                                                ClasePagoPayPal = DisplayBlock;
+                                                ClasePagoTarjeta = DisplayNone;
+                                            }
+                                        })">
                                         <label class="form-check-label" for="pagoPayPal">PayPal</label>
                                         <i class="fa-brands fa-cc-paypal float-end me-xxl-5 "></i>
                                     </div>
 
 
-                                    <div class="@ClasePagoPayPal ms-4">
+                                    <div class="@ClasePagoPayPal ms-5">
                                         <i class="fa-solid fa-shield"></i>
-                                        <span>Redirigiéndote a la página de Paypal para completar tu compra de forma segura</span>
+                                        <span>Cuando presione el boton se redirigira a la pasarela de pago.</span>
                                     </div>
 
                                 </div>
@@ -114,7 +113,7 @@ else
                         <div class="col">
                             <div class="border rounded mt-4">
                                 <div class="form-check ms-5">
-                                    <input class="form-check-input" type="radio" name="flexRadioDefault1" id="Envio" checked="checked">
+                                    <input class="form-check-input mt-3" type="radio" name="flexRadioDefault1" id="Envio" checked="checked">
                                     <label class="form-check-label" for="Envio">
                                         <b>DHL estándar</b>    2 €<br />
                                         Tiempo estandar de entrega 5-7 días laborables. Gratis a partir de 100 €.
@@ -230,12 +229,22 @@ else
 
     public async Task RealizarPedido()
     {
-        // Tenemos que comprobar el metodo de pago que ha elegido el cliente
-
         // En caso de que el cliente haya elegido el pago con paypal
         if (ClasePagoPayPal.Equals(DisplayBlock))
         {
+            DatosPago datosPago = new DatosPago
+                {
+                    DireccionPrincipal = direcFact,
+                    DireccionEnvio = direcEnvio,
+                    NombreDestinatario = ClienteLogueado.Nombre,
+                    ApellidosDestinatario = ClienteLogueado.Apellidos,
+                    TelefonoDestinatario = ClienteLogueado.Telefono,
+                    EmailDestinatario = ClienteLogueado.cuenta.Email,
+                };
+            String jwt = this.storageService.RecuperarJWT();
 
+            String url = await this.restService.RealizarPagoPayPal(ClienteLogueado, datosPago, jwt);
+            await this.jsService.InvokeVoidAsync("window.location.assign", url);
         }
         // En caso de que el cliente haya elegido el pago con tarjeta
         else if (ClasePagoTarjeta.Equals(DisplayBlock))
@@ -259,15 +268,7 @@ else
             switch (respuestaServidor.Codigo)
             {
                 case 0:
-                    RestMessage respuestaServerBD = await this.restService.AlmacenarPedido(this.ClienteLogueado.PedidoActual, this.ClienteLogueado, jwt);
-
-                    // Hay que modificar esto
-                    if (respuestaServerBD.Codigo == 0)
-                    {
-                        this.storageService.AlmacenarDatosCliente(respuestaServerBD.DatosCliente);
-                        this.navigate.NavigateTo("/Tienda/PedidoRealizadoOK");
-                    }
-
+                    this.navigate.NavigateTo("/Tienda/PedidoRealizadoOK");
                     break;
 
                 case 1:
@@ -300,29 +301,5 @@ else
         }
     }
 
-    public async Task IntroducirPedidoBD()
-    {
-        String jwt = this.storageService.RecuperarJWT();
-        RestMessage respuestaServer = await this.restService.AlmacenarPedido(ClienteLogueado.PedidoActual, ClienteLogueado, jwt);
-
-        switch (respuestaServer.Codigo)
-        {
-            case 0:
-                // guardamos el pedido realizado correctamente en los peduidos del cliente del storage
-                ClienteLogueado = respuestaServer.DatosCliente;
-
-                this.storageService.AlmacenarDatosCliente(ClienteLogueado);
-
-                this.navigate.NavigateTo("/Tienda/PedidoRealizadoOK");
-                break;
-
-            case 5:
-                this.navigate.NavigateTo("/Cliente/Login");
-                break;
-
-            default:
-                this.MensajeError = respuestaServer.Mensaje;
-                break;
-        }
-    }
+   
 } 

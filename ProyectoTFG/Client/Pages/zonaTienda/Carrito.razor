@@ -181,20 +181,25 @@
 
     public async Task IrAlCobro()
     {
-        Direccion direcEnvio = ClienteLogued.MisDirecciones.Find((Direccion d) => d.EsPrincipal == true);
-        Direccion direcFact = ClienteLogued.MisDirecciones.Find((Direccion d) => d.EsFaturacion == true);
-        if (direcEnvio != null)
+        Direccion direcEnvio = ClienteLogued.MisDirecciones.Find((Direccion d) => d.EsPrincipal == true) ?? new Direccion();
+        Direccion direcFact = ClienteLogued.MisDirecciones.Find((Direccion d) => d.EsFaturacion == true) ?? new Direccion();
+
+        if (direcEnvio != null || direcFact != null)
         {
+            ClienteLogued.PedidoActual.DireccionFacturacion = direcFact;
             ClienteLogued.PedidoActual.DireccionEnvio = direcEnvio;
-            if (direcFact != null)
-            {
-                ClienteLogued.PedidoActual.DireccionFacturacion = direcFact;
-            }
+
+            ClienteLogued.PedidoActual.Total = Total;
+            ClienteLogued.PedidoActual.SubTotal = SubTotal;
+            this.storageService.AlmacenarDatosCliente(ClienteLogued);
+            this.navigate.NavigateTo("Tienda/Cobro");
         }
-        ClienteLogued.PedidoActual.Total = Total;
-        ClienteLogued.PedidoActual.SubTotal = SubTotal;
-        this.storageService.AlmacenarDatosCliente(ClienteLogued);
-        this.navigate.NavigateTo("Tienda/Cobro");
+        else
+        {
+            if (direcEnvio == null) MensajeError = "Debe establecer una direccion de envio, ingrese en su cuenta para establecerla.";
+            if (direcFact == null) MensajeError = "Debe establecer una direccion de facturación, ingrese en su cuenta para establecerla.";
+            StateHasChanged();
+        }
     }
 
 }

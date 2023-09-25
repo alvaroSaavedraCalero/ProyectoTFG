@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
+using PayPal.Api;
+using ProyectoTFG.Server.Models;
 using ProyectoTFG.Server.Models.Interfaces;
 using ProyectoTFG.Shared;
 using Stripe;
@@ -322,14 +325,15 @@ namespace ProyectoTFG.Server.Controllers
             }
         }
 
-        /**
         [HttpPost]
-        public async Task<RestMessage> RealizarPagoPayPal([FromBody] Dictionary<String, String> datos)
+        public async Task<String> RealizarPagoPayPal([FromBody] Dictionary<String, String> datos)
         {
             try
             {
                 Cliente cliente = JsonSerializer.Deserialize<Cliente>(datos["cliente"]);
                 DatosPago datosPago = JsonSerializer.Deserialize<DatosPago>(datos["datosPago"]);
+                Pedido pedido = cliente.PedidoActual;
+                pedido.IdPedido = ObjectId.GenerateNewId().ToString();
                 String jwt = datos["jwt"];
 
                 if (validarJWT(jwt))
@@ -338,56 +342,103 @@ namespace ProyectoTFG.Server.Controllers
 
                     if (datosPago.DireccionEnvio == null && datosPago.DireccionPrincipal == null)
                     {
-                        return new RestMessage
-                        {
-                            Codigo = 7,
-                            DatosCliente = cliente,
-                            Error = "No hay una direccion asignada",
-                            Mensaje = "No hay una direccion asignada, vaya a su perfil y configure una direccion",
-                            OtrosDatos = null,
-                            TokenSesion = jwt
-                        };
+                        return null;
                     }
                     else
                     {
                         direccionPaypal = datosPago.DireccionEnvio ?? datosPago.DireccionPrincipal;
 
+                        // Creamos el contexto para trabajar con la api de PayPal
                         
+                        // Token de Acceso
+                        OAuthTokenCredential tokenAccesoCredential = new OAuthTokenCredential(
+                            this.accesoAppSettings["PayPal:ClientId"],
+                            this.accesoAppSettings["PayPal:SecretKey"],
+                            new Dictionary<String, String>
+                            {
+                                {"mode", this.accesoAppSettings["PayPal:mode"] },
+                                {"business", this.accesoAppSettings["PayPal:bussinessDandboxAccount"] }
+                            }
+                            );
+                        APIContext apiContext = new APIContext(tokenAccesoCredential.GetAccessToken());
+                        apiContext.Config = PayPal.Api.ConfigManager.Instance.GetProperties();
 
+                        // Creamos el cargo de paypal con las urls para redireccionar al cliente al 
+                        // pago y la recepcion del servidor
+                        ItemList itemsPaypal = new ItemList
+                        {
+                            items = new List<Item>()
+                        };
+
+                        List<Item> listaItemsPayPal = pedido.ItemsPedido.Select(
+                            (ItemPedido item) => new Item
+                            {
+                                name = item.ProductoItem.title,
+                                price = item.ProductoItem.price.ToString().Replace(",", "."),
+                                currency = "EUR",
+                                quantity = item.CatidadItem.ToString(),
+                                sku = item.ProductoItem.id.ToString()
+                            }
+                            ).ToList<Item>();
+                        itemsPaypal.items = listaItemsPayPal;
+
+                        // url del pago de paypal
+                        String redirectURL = $"https://localhost:7083/api/Tienda/PayPalCallBack?idPedido={pedido.IdPedido}&idCliente={cliente.IdCliente}";
+
+                        Payment cargoCuenta = new Payment()
+                        {
+                            intent = "sale",
+                            payer = new Payer { payment_method = "paypal"},
+                            transactions = new List<Transaction>()
+                            {
+                                new Transaction()
+                                {
+                                    description = $"Pedido MegaShop con Id:{pedido.IdPedido} en fecha : {pedido.FechaPedido}",
+                                    invoice_number = pedido.IdPedido.ToString(),
+                                    item_list = itemsPaypal,
+                                    amount = new Amount()
+                                    {
+                                        currency = "EUR",
+                                        details = new Details()
+                                        {
+                                            tax = "0",
+                                            shipping = pedido.GastosEnvio.ToString().Replace(",", "."),
+                                            subtotal = pedido.SubTotal.ToString().Replace(",", ".")
+                                        },
+                                        total = pedido.Total.ToString().Replace(",", ".")
+                                    }
+                                }
+                            },
+                            redirect_urls = new RedirectUrls
+                            {
+                                cancel_url = redirectURL + "&Cancel=true",
+                                return_url = redirectURL + "&Cancel=false"
+                            }
+                        }.Create(apiContext);
+
+                        // Guardamos datos en la base de datos para recuperar en el CallBack
+                        Boolean introduccionDatos = await this.accesoBD.IntroducirDatosPayPal(new Models.PaypalPedidoInfo
+                        {
+                            IdCargo = cargoCuenta.id,
+                            IdCliente = cliente.IdCliente,
+                            IdPedido = pedido.IdPedido,
+                            PayPalContextClient = JsonSerializer.Serialize<APIContext>(apiContext)
+                        });
+
+                        if (introduccionDatos)
+                        {
+                            String urlPasarelaPaypal = cargoCuenta.links.Where((Links linksPaypal) => linksPaypal.rel.ToLower().Trim()
+                            .Equals("approval_url")).Select((Links linkspaypal) => linkspaypal.href).Single<String>();
+                            return urlPasarelaPaypal;
+                        }
+                        else { return null; }
                     }
-
-
                 }
-                else
-                {
-                    return new RestMessage
-                    {
-                        Codigo = 5,
-                        Mensaje = "Tiempo de expiracion excedido, vuelva a realizar login",
-                        Error = null,
-                        DatosCliente = null,
-                        TokenSesion = null,
-                        OtrosDatos = null
-                    };
-                }
+                else { return null; }
             }
-            catch (Exception ex)
-            {
-                return new RestMessage
-                {
-                    Codigo = 1,
-                    Mensaje = "error en el cobro con PayPal",
-                    Error = ex.Message,
-                    DatosCliente = null,
-                    TokenSesion = null,
-                    OtrosDatos = null
-                };
-            }
+            catch (Exception ex) { return null; }
         }
-
-        **/
         
-
         [HttpPost]
         public async Task<RestMessage> DesearProducto([FromBody] Dictionary<String, String> datos)
         {
@@ -592,6 +643,38 @@ namespace ProyectoTFG.Server.Controllers
 
 
         #region metodos de la clase
+
+        [HttpGet]
+        public async Task<IActionResult> PayPalCallBack([FromQuery] String PayerId, [FromQuery] String idPedido, [FromQuery] String idCliente, [FromQuery] String Cancel = "false")
+        {
+            // Recuperamos el contexto del cliente
+            PaypalPedidoInfo datosPed = await this.accesoBD.RecuperarDatosPayPal(idPedido);
+
+            if (datosPed == null) { return Redirect("https://localhost:7083/Tienda/Cobro"); } else
+            {
+                APIContext apiContext = JsonSerializer.Deserialize<APIContext>(datosPed.PayPalContextClient);
+                if (Convert.ToBoolean(Cancel))
+                {
+                    return Redirect("https://localhost:7083/Tienda/Carrito");
+                }
+
+                // Ejecutamos el pago
+                Payment cargoCuenta = new Payment() { id = datosPed.IdCargo }.Execute(apiContext, new PaymentExecution { payer_id = PayerId });
+
+                switch(cargoCuenta.state)
+                {
+                    case "approved":
+                        return Redirect($"https://localhost:7083/Tienda/PedidoRealizadoOK");
+                        break;
+
+                    case "failed":
+                        return Redirect("https://localhost:7083/Tienda/Carrito");
+                        break;
+
+                }
+                return Redirect("https://localhost:7083/Tienda/Carrito");
+            }
+        }
 
         private Boolean validarJWT(String jwt)
         {
