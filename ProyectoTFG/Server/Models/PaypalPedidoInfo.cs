@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using ProyectoTFG.Shared;
 
 namespace ProyectoTFG.Server.Models
 {
@@ -18,7 +19,7 @@ namespace ProyectoTFG.Server.Models
         [BsonElement("paypalContextClient")]
         public String PayPalContextClient { get; set; }
 
-        [BsonElement("idPedido")]
-        public String IdPedido { get; set; }
+        [BsonElement("pedido")]
+        public Pedido Pedido { get; set; }
     }
 }

@@ -4,53 +4,12 @@
 
 <div class="container">
     <div class="row">
-        <h3>El pedido se ha realizado correctamente</h3>
-        <div class="col">
-            <div class="row border m-2">
-                <div class="col-6 bg-success bg-gradient d-flex justify-content-center align-items-center">
-                    <div class="">
-                        <h3 class="text-black"><b>Id Pedido: @PedidoRealizado.IdPedido.Substring(0, 7)</b></h3>
-                        <h5 class="text-black">Precio pedido: @PedidoRealizado.Total</h5>
-                        <h5 class="text-black">Fecha: @PedidoRealizado.FechaPedido.Date</h5>
-                    </div>
-                </div>
-                <div class="col-6">
-                    @foreach (ItemPedido itemP in PedidoRealizado.ItemsPedido)
-                    {
-                        <div class="row text-center border">
-                            <div class="m-3">
-                                <img src="@itemP.ProductoItem.image" width="75" height="75" />
-                                <h5>@itemP.ProductoItem.title</h5>
-                                <span class="text-info">@itemP.ProductoItem.price €</span>
-                                <br />
-                                <span><b>Uds.:</b> @itemP.CatidadItem</span>
-                            </div>
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
+        <h3>El pedido se ha realizado correctamente. En su apartado de perfil puede comprobar el pedido realizado</h3>
     </div>
 </div>
 
 
 @code {
-
-    private Cliente ClienteLogueado = new Cliente();
-    private Pedido PedidoRealizado = new Pedido();
-
-    protected override async Task OnInitializedAsync()
-    {
-        this.ClienteLogueado = this.storageService.RecuperarDatosCliente();
-        String jwt = this.storageService.RecuperarJWT();
-
-        RestMessage respuestaServer = await this.restService.AlmacenarPedido(ClienteLogueado.PedidoActual, ClienteLogueado, jwt);
-        if (respuestaServer.Codigo == 0)
-        {
-            this.PedidoRealizado = respuestaServer.DatosCliente.PedidoActual;
-            ClienteLogueado.PedidoActual = new Pedido();
-            this.storageService.AlmacenarDatosCliente(ClienteLogueado);
-        }
-    }
+   
 
 }

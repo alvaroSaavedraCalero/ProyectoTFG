@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MongoDB.Bson;
 using PayPal.Api;
 using ProyectoTFG.Server.Models;
 using ProyectoTFG.Server.Models.Interfaces;
@@ -333,7 +332,6 @@ namespace ProyectoTFG.Server.Controllers
                 Cliente cliente = JsonSerializer.Deserialize<Cliente>(datos["cliente"]);
                 DatosPago datosPago = JsonSerializer.Deserialize<DatosPago>(datos["datosPago"]);
                 Pedido pedido = cliente.PedidoActual;
-                pedido.IdPedido = ObjectId.GenerateNewId().ToString();
                 String jwt = datos["jwt"];
 
                 if (validarJWT(jwt))
@@ -421,7 +419,7 @@ namespace ProyectoTFG.Server.Controllers
                         {
                             IdCargo = cargoCuenta.id,
                             IdCliente = cliente.IdCliente,
-                            IdPedido = pedido.IdPedido,
+                            Pedido = pedido,
                             PayPalContextClient = JsonSerializer.Serialize<APIContext>(apiContext)
                         });
 
@@ -660,19 +658,20 @@ namespace ProyectoTFG.Server.Controllers
 
                 // Ejecutamos el pago
                 Payment cargoCuenta = new Payment() { id = datosPed.IdCargo }.Execute(apiContext, new PaymentExecution { payer_id = PayerId });
-
+                String redirect = "https://localhost:7083/Cliente/PanelCliente";
                 switch(cargoCuenta.state)
                 {
                     case "approved":
-                        return Redirect($"https://localhost:7083/Tienda/PedidoRealizadoOK");
+                        Cliente cli = await this.accesoBD.ObtenerClienteId(idCliente);
+                        Pedido pedidoRegist = await this.accesoBD.RegistrarPedido(datosPed.Pedido, cli);
+                        redirect = "https://localhost:7083/Tienda/PedidoRealizadoOK";
                         break;
 
                     case "failed":
-                        return Redirect("https://localhost:7083/Tienda/Carrito");
+                        redirect = "https://localhost:7083/Tienda/Carrito";
                         break;
-
                 }
-                return Redirect("https://localhost:7083/Tienda/Carrito");
+                return Redirect(redirect);
             }
         }
 

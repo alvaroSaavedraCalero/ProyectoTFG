@@ -6,6 +6,8 @@
 @inject IRestService restService
 @inject NavigationManager navigate
 
+@using MongoDB.Bson
+
 @if (String.IsNullOrEmpty(ClienteLogueado.Nombre))
 {
     this.navigate.NavigateTo("/Cliente/Login");
@@ -215,7 +217,7 @@ else
     private int CVC;
 
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         ClienteLogueado = this.storageService.RecuperarDatosCliente();
 
@@ -232,6 +234,7 @@ else
         // En caso de que el cliente haya elegido el pago con paypal
         if (ClasePagoPayPal.Equals(DisplayBlock))
         {
+            ClienteLogueado.PedidoActual.IdPedido = ObjectId.GenerateNewId().ToString();
             DatosPago datosPago = new DatosPago
                 {
                     DireccionPrincipal = direcFact,
@@ -241,10 +244,11 @@ else
                     TelefonoDestinatario = ClienteLogueado.Telefono,
                     EmailDestinatario = ClienteLogueado.cuenta.Email,
                 };
-            String jwt = this.storageService.RecuperarJWT();
 
+            String jwt = this.storageService.RecuperarJWT();
+            this.storageService.AlmacenarDatosCliente(ClienteLogueado);
             String url = await this.restService.RealizarPagoPayPal(ClienteLogueado, datosPago, jwt);
-            await this.jsService.InvokeVoidAsync("window.location.assign", url);
+            this.navigate.NavigateTo(url);
         }
         // En caso de que el cliente haya elegido el pago con tarjeta
         else if (ClasePagoTarjeta.Equals(DisplayBlock))
@@ -262,13 +266,20 @@ else
                     AnioCaducidad = Anio,
                     CVV = CVC
                 };
+
             String jwt = this.storageService.RecuperarJWT();
             RestMessage respuestaServidor = await this.restService.RealizarPagoTarjeta(ClienteLogueado, datosPago, jwt);
 
             switch (respuestaServidor.Codigo)
             {
                 case 0:
-                    this.navigate.NavigateTo("/Tienda/PedidoRealizadoOK");
+                    RestMessage respuestaServer = await this.restService.AlmacenarPedido(ClienteLogueado.PedidoActual, ClienteLogueado, jwt);
+                    if (respuestaServer.Codigo == 0)
+                    {
+                        ClienteLogueado.PedidoActual = new Pedido();
+                        this.storageService.AlmacenarDatosCliente(ClienteLogueado);
+                        this.navigate.NavigateTo("/Tienda/PedidoRealizadoOK");
+                    }
                     break;
 
                 case 1:

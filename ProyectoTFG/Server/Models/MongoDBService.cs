@@ -798,7 +798,7 @@ namespace ProyectoTFG.Server.Models
         {
             try
             {
-                FilterDefinition<PaypalPedidoInfo> filtro = Builders<PaypalPedidoInfo>.Filter.Eq((PaypalPedidoInfo p) => p.IdPedido, idPedido);
+                FilterDefinition<PaypalPedidoInfo> filtro = Builders<PaypalPedidoInfo>.Filter.Eq((PaypalPedidoInfo p) => p.Pedido.IdPedido, idPedido);
                 PaypalPedidoInfo recup = await this.bdFirebox.GetCollection<PaypalPedidoInfo>("paypalTemp").Find(filtro).FirstOrDefaultAsync();
                 if (recup == null) { return null; } else 
                 { 
