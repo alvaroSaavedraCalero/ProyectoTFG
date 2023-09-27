@@ -1,15 +1,89 @@
 ﻿@page "/Tienda/PedidoRealizadoOK"
+
 @inject IStorageService storageService
 @inject IRestService restService
+@inject IJSRuntime jsService
+@inject NavigationManager navigate
+
+@using Microsoft.Extensions.Primitives
+@using Microsoft.AspNetCore.WebUtilities
+
 
 <div class="container">
     <div class="row">
         <h3>El pedido se ha realizado correctamente. En su apartado de perfil puede comprobar el pedido realizado</h3>
+        <div class="col">
+            <div class="row border m-2">
+                <div class="col-6 bg-success bg-gradient d-flex justify-content-center align-items-center">
+                    <div class="">
+                        <h3 class="text-black"><b>Id Pedido: @this.pedido.IdPedido.Substring(0, 7)</b></h3>
+                        <h5 class="text-black">Precio pedido: @this.pedido.Total</h5>
+                        <h5 class="text-black">Fecha: @this.pedido.FechaPedido.Date</h5>
+                    </div>
+                </div>
+                <div class="col-6">
+                    @foreach (ItemPedido itemP in this.pedido.ItemsPedido)
+                    {
+                        <div class="row text-center border">
+                            <div class="m-3">
+                                <img src="@itemP.ProductoItem.image" width="75" height="75" />
+                                <h5>@itemP.ProductoItem.title</h5>
+                                <span class="text-info">@itemP.ProductoItem.price €</span>
+                                <br />
+                                <span><b>Uds.:</b> @itemP.CatidadItem</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 
 @code {
-   
+    private Cliente cliente = new Cliente();
+    private Pedido pedido = new Pedido();
+
+    protected override async Task OnInitializedAsync()
+    {
+        UriBuilder uri = new UriBuilder(navigate.Uri);
+        Dictionary<String, StringValues> queryString = QueryHelpers.ParseQuery(uri.Query);
+
+        if (queryString.Count == 0)
+        {
+            // Entonces el pago se ha realizado con tarjeta y 
+            // SUPONGO que los subjets funcionan correctamente
+
+            this.cliente = this.storageService.RecuperarDatosCliente();
+            this.pedido = this.cliente.PedidoActual;
+            this.cliente.PedidoActual = new Pedido();
+            this.storageService.AlmacenarDatosCliente(this.cliente);
+        }
+        else
+        {
+            // En este caso, el pago se ha hecho con paypal
+            // por lo que el subject no funciona por que cambiamos la 
+            // ventana a traves de Javascript.
+            // Obtengo el cliente a traves del id cliente y el pedido 
+            // con el id pedido para poder usar los datos en la vista
+
+            String idCliente = queryString["idCliente"];
+            String idPedido = queryString["idPedido"];
+
+            RestMessage respuestaServer = await this.restService.ObtenerClienteId(idCliente);
+            if (respuestaServer.Codigo == 0)
+            {
+                this.cliente = respuestaServer.DatosCliente;
+                this.pedido = this.cliente.MisPedidos.Find((Pedido p) => p.IdPedido == idPedido);
+                this.storageService.AlmacenarDatosCliente(respuestaServer.DatosCliente);
+                this.storageService.AlmacenarJWT(respuestaServer.TokenSesion);
+
+                queryString.Remove("idCliente");
+                queryString.Remove("idPedido");
+                uri.Query = queryString.ToString();
+            }
+        }
+    }
 
 }

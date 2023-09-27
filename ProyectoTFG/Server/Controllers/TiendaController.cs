@@ -655,23 +655,25 @@ namespace ProyectoTFG.Server.Controllers
                 {
                     return Redirect("https://localhost:7083/Tienda/Carrito");
                 }
-
-                // Ejecutamos el pago
-                Payment cargoCuenta = new Payment() { id = datosPed.IdCargo }.Execute(apiContext, new PaymentExecution { payer_id = PayerId });
-                String redirect = "https://localhost:7083/Cliente/PanelCliente";
-                switch(cargoCuenta.state)
+                else
                 {
-                    case "approved":
-                        Cliente cli = await this.accesoBD.ObtenerClienteId(idCliente);
-                        Pedido pedidoRegist = await this.accesoBD.RegistrarPedido(datosPed.Pedido, cli);
-                        redirect = "https://localhost:7083/Tienda/PedidoRealizadoOK";
-                        break;
+                    // Ejecutamos el pago
+                    Payment cargoCuenta = new Payment() { id = datosPed.IdCargo }.Execute(apiContext, new PaymentExecution { payer_id = PayerId });
+                    String redirect = "https://localhost:7083/Cliente/PanelCliente";
+                    switch (cargoCuenta.state)
+                    {
+                        case "approved":
+                            Cliente cli = await this.accesoBD.ObtenerClienteId(idCliente);
+                            Pedido pedidoRegist = await this.accesoBD.RegistrarPedido(datosPed.Pedido, cli);
+                            redirect = $"https://localhost:7083/Tienda/PedidoRealizadoOK?idPedido={datosPed.Pedido.IdPedido}&idCliente={idCliente}";
+                            break;
 
-                    case "failed":
-                        redirect = "https://localhost:7083/Tienda/Carrito";
-                        break;
-                }
-                return Redirect(redirect);
+                        case "failed":
+                            redirect = "https://localhost:7083/Tienda/Carrito";
+                            break;
+                    }
+                    return Redirect(redirect);
+                } 
             }
         }
 

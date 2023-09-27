@@ -56,6 +56,21 @@ namespace ProyectoTFG.Client.Models
         }
 
         /// <summary>
+        /// Realiza una peticioón a la API_REST de Cliente para recupera el cliente de la base de datos
+        /// </summary>
+        /// <param name="idCliente">Id del cliente a recuperar</param>
+        /// <returns>El cliente dentro de un objeto RestMessage</returns>
+        public async Task<RestMessage> ObtenerClienteId(string idCliente)
+        {
+            Dictionary<String, String> datos = new Dictionary<String, String>()
+            {
+                {"idCliente", idCliente }
+            };
+            HttpResponseMessage respuesta = await this.clienteHttp.PostAsJsonAsync<Dictionary<String, String>>("api/Cliente/ObtenerClienteId", datos);
+            return await respuesta.Content.ReadFromJsonAsync<RestMessage>();
+        }
+
+        /// <summary>
         /// Realiza una petición a la API_REST de Cliente para introducir un cliente en la base de datos.
         /// </summary>
         /// <param name="cliente">Datos del cliente</param>
@@ -401,7 +416,6 @@ namespace ProyectoTFG.Client.Models
 
             return lista;
         }
-
 
         #endregion
 

@@ -119,7 +119,7 @@ namespace ProyectoTFG.Server.Controllers
                     return new RestMessage
                     {
                         Codigo = 0,
-                        Mensaje = "login google correcto",
+                        Mensaje = "Login google correcto",
                         Error = null,
                         DatosCliente = cliente,
                         TokenSesion = tokenJWT,
@@ -131,7 +131,53 @@ namespace ProyectoTFG.Server.Controllers
                     return new RestMessage
                     {
                         Codigo = 2,
-                        Mensaje = "el id google no es correcto son incorrectas",
+                        Mensaje = "El id google no es correcto.",
+                        Error = null,
+                        DatosCliente = null,
+                        TokenSesion = null,
+                        OtrosDatos = null
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new RestMessage
+                {
+                    Codigo = 1,
+                    Mensaje = "Ha ocurrido un error en la obtencion del cliente, vuelve a intentarlo mas tarde",
+                    Error = ex.Message,
+                    DatosCliente = null,
+                    TokenSesion = null,
+                    OtrosDatos = null
+                };
+            }
+        }
+
+        [HttpPost]
+        public async Task<RestMessage> ObtenerClienteId([FromBody] Dictionary<String, String> datos)
+        {
+            try
+            {
+                Cliente cliente = await this.accesoBD.ObtenerClienteId(datos["idCliente"]);
+                if (cliente != null)
+                {
+                    String jwt = generarJWT(cliente.Nombre, cliente.Apellidos, cliente.cuenta.Email, cliente.IdCliente);
+                    return new RestMessage
+                    {
+                        Codigo = 0,
+                        Mensaje = "Obtencion correcta",
+                        Error = null,
+                        DatosCliente = cliente,
+                        TokenSesion = jwt,
+                        OtrosDatos = null
+                    };
+                }
+                else
+                {
+                    return new RestMessage
+                    {
+                        Codigo = 2,
+                        Mensaje = "El id google no es correcto.",
                         Error = null,
                         DatosCliente = null,
                         TokenSesion = null,
