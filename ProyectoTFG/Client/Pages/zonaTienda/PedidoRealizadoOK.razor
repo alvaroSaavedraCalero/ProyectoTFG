@@ -16,7 +16,7 @@
             <div class="row border m-2">
                 <div class="col-6 bg-success bg-gradient d-flex justify-content-center align-items-center">
                     <div class="">
-                        <h3 class="text-black"><b>Num Pedido: @this.pedido.IdPedido</b></h3>
+                        <h3 class="text-black"><b>Num Pedido: @this.pedido.IdPedido.Substring(0, 8)</b></h3>
                         <h5 class="text-black">Precio pedido: @this.pedido.Total</h5>
                         <h5 class="text-black">Fecha: @this.pedido.FechaPedido.Date</h5>
                     </div>

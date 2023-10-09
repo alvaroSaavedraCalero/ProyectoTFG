@@ -5,49 +5,52 @@
 @inject IStorageService storageService
 
 
-<div class="container text-center">
-    <EditForm Model="NuevaCuenta" OnValidSubmit="LoginCliente" >
-        <DataAnnotationsValidator></DataAnnotationsValidator>
+<div class="container text-center" >
+    <div class="border border-dark border-1 rounded-4 d-inline-flex" style="background-color: darkgrey">
+        <EditForm Model="NuevaCuenta" OnValidSubmit="LoginCliente">
+            <DataAnnotationsValidator></DataAnnotationsValidator>
 
-        <div class="row m-md-1"><h1 class="text-black">Acceso del cliente</h1></div>
+            <div class="row mt-3 m-2"><h1 class="text-black">Acceso del cliente</h1></div>
 
-        <div class="row m-md-1"><h3 class="text-black">Registrarse / Acceder</h3></div>
-
-        <div class="row m-md-1">
-            <ValidationMessage For="@(()=>NuevaCuenta.Email)"></ValidationMessage>
-            <input type="email" class="form-control" id="email" @bind-value="@NuevaCuenta.Email">
-            <label for="email" class="form-label">Dirección E-Mail</label>
-        </div>
-
-        <div class="row m-md-1">
-            <ValidationMessage For="@(()=>NuevaCuenta.Password)"></ValidationMessage>
-            <input type="password" class="form-control" id="password" @bind-value="@NuevaCuenta.Password">
-            <label for="password" class="form-label">Contraseña</label>
-        </div>
-
-        <div class="row m-md-1">
-            <label class="text-danger">@MensajeError</label>
-        </div>
-
-        <div class="row m-md-1 w-100 h-50 ">
-            <div class="col">
-                <button type="submit" @onclick="@LoginCliente" class="btn btn-outline-secondary mt-5">Continuar</button>
+            <div class="row w-50 mx-auto my-4">
+                <ValidationMessage For="@(()=>NuevaCuenta.Email)"></ValidationMessage>
+                <input type="email" class="form-control" id="email" @bind-value="@NuevaCuenta.Email">
+                <label for="email" class="form-label">Dirección E-Mail</label>
             </div>
-        </div>
 
-        <div class="row m-md-1">
-            <div class="col">
-                <button class="btn btn-outline-info mt-2" @onclick="@LoginGoogle">Login con Google <i class="fa-brands fa-google"></i></button>
+            <div class="row w-50 mx-auto my-4">
+                <ValidationMessage For="@(()=>NuevaCuenta.Password)"></ValidationMessage>
+                <input type="password" class="form-control" id="password" @bind-value="@NuevaCuenta.Password">
+                <label for="password" class="form-label">Contraseña</label>
             </div>
-        </div>
 
-        <div class="row m-md-1 w-100 h-50 ">
-            <div class="col">
-                <button type="button" class="btn btn-dark mt-2" @onclick="@(()=>this.navigate.NavigateTo("/Cliente/Registro"))">Registrarse</button>
+            @if (!String.IsNullOrEmpty(MensajeError))
+            {
+                <div class="row">
+                    <label class="text-danger">@MensajeError</label>
+                </div>
+            }
+
+            <div class="row">
+                <div class="col">
+                    <button type="submit" @onclick="@LoginCliente" class="btn btn-outline-info mt-5">Continuar</button>
+                </div>
             </div>
-        </div>
 
-    </EditForm>
+            <div class="row">
+                <div class="col">
+                    <button class="btn btn-outline-primary mt-2" @onclick="@LoginGoogle">Login con Google <i class="fa-brands fa-google"></i></button>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col">
+                    <button type="button" class="btn btn-dark mt-2" @onclick="@(()=>this.navigate.NavigateTo("/Cliente/Registro"))">Registrarse</button>
+                </div>
+            </div>
+
+        </EditForm>
+    </div>
 </div>
 
 
