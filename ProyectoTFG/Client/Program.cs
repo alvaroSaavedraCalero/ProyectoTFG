@@ -4,7 +4,6 @@ using ProyectoTFG.Client;
 using ProyectoTFG.Client.Models.Interfaces;
 using ProyectoTFG.Client.Models;
 
-
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
@@ -13,7 +12,6 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 
 // Inyeccion de servicios
 builder.Services.AddScoped<IRestService, RestService>();
-
 builder.Services.AddScoped<IStorageService, SubjectStorageService>();
 
 await builder.Build().RunAsync();

@@ -13,6 +13,7 @@
 
         <div class="row m-md-1"><h2>Crear una cuenta cliente</h2></div>
         <div class="row m-md-1"><h4>Información Personal</h4></div>
+
         <div class="row m-md-1">
             <ValidationMessage For="@(()=>NuevoCliente.Nombre)"></ValidationMessage>
             <input class="form-control" type="text" id="nombre" @bind-value="@NuevoCliente.Nombre"></input>
@@ -23,19 +24,15 @@
             <input class="form-control" type="text" id="apellidos" @bind-value="@NuevoCliente.Apellidos"></input>
             <label for="apellidos" class="form-label">Apellidos</label>
         </div>
-        <div class="row m-md-1">
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-                <label class="form-check-label" for="flexCheckDefault">
-                    Regístrate para recibir nuestra newsletter
-                </label>
-            </div>
-        </div>
+        
         <div class="row m-md-1"><h4>Información de registro</h4></div>
         <div class="row m-md-1">
             <ValidationMessage For="@(()=>NuevoCliente.cuenta.Email)"></ValidationMessage>
             <input type="email" class="form-control" id="email" @bind-value="@NuevoCliente.cuenta.Email">
             <label for="email" class="form-label">Dirección E-Mail</label>
+        </div>
+        <div class="row m-sm-1">
+            <p class="text-gray-200">* Para una contraseña segura deberías tener como mínimo 2 tipos de caracteres diferentes (Mayúsculas, Minúsculas, números y caracteres especiales)</p>
         </div>
         <div class="row m-sm-1">
             <ValidationMessage For="@(()=>NuevoCliente.cuenta.Password)"></ValidationMessage>
@@ -44,15 +41,14 @@
             <label for="actualPassword" class="form-label">Contraseña</label>
         </div>
         <div class="row m-sm-1">
-            <p class="text-gray-200">* Para una contraseña segura deberías tener como mínimo 2 tipos de caracteres diferentes (Mayúsculas, Minúsculas, números y caracteres especiales)</p>
-        </div>
-        <div class="row m-sm-1">
             <input type="password" id="confirmNewPassword" class="form-control" aria-labelledby="passwordHelpBlock">
             <label for="confirmNewPassword" class="form-label">Confirmar contraseña</label>
         </div>
+
         <div class="row m-md-1">
             <label class="text-danger">@MensajeError</label>
         </div>
+
         <div class="row m-sm-1">
             <div class="flex justify-between">
                 <button type="submit" class="btn btn-outline-secondary" @onclick="@(() => RegistrarCliente(context))">Crear una cuenta cliente</button>

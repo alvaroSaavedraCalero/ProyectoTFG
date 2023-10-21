@@ -3,7 +3,8 @@
 @inject IJSRuntime jsService
 @inject NavigationManager navigate
 
-<EditForm Model="DireccionEdit" Context="formContext">
+
+<EditForm Model="DireccionEdit" Context="formContext" class="m-4">
 
     @if (!String.IsNullOrEmpty(MensajeError))
     {
@@ -17,52 +18,49 @@
 
         <div class="col-md-6">
             <div class="row m-md-1">
-                <div class="col-4">
-                    <input class="form-control" id="nombre" rows="1" placeholder="@DireccionEdit.NombreContacto" @bind-value="@DireccionEdit.NombreContacto"></input>
-                    <label for="nombre" class="form-label">Nombre</label>
-                </div>
+                <input class="form-control text-center" id="nombre" rows="1" placeholder="@DireccionEdit.NombreContacto" @bind-value="@DireccionEdit.NombreContacto"></input>
+                <label for="nombre" class="form-label">Nombre</label>
             </div>
             <div class="row m-md-1">
-                <div class="flex justify-between">
-                    <div class="col-4">
-                        <input class="form-control" id="apellidos" rows="1" placeholder="@DireccionEdit.ApellidosContacto" @bind-value="@DireccionEdit.ApellidosContacto"></input>
-                        <label for="apellidos" class="form-label">Apellidos</label>
-                    </div>
-                    <div class="col-4">
-                        <input class="form-control" id="empresa" rows="1" @bind-value="@DireccionEdit.NombreEmpresa"></input>
-                        <label for="empresa" class="form-label">Empresa</label>
-                    </div>
-                </div>
+                <input class="form-control text-center" id="apellidos" rows="1" placeholder="@DireccionEdit.ApellidosContacto" @bind-value="@DireccionEdit.ApellidosContacto"></input>
+                <label for="apellidos" class="form-label">Apellidos</label>
+            </div>
+
+            <div class="row m-md-1">
+                <input class="form-control text-center" id="empresa" rows="1" @bind-value="@DireccionEdit.NombreEmpresa"></input>
+                <label for="empresa" class="form-label">Empresa</label>
             </div>
             <div class="row m-md-1">
-                <div class="col-4">
-                    <input class="form-control" id="movil" rows="1" @bind-value="@DireccionEdit.TelefonoContacto"></input>
-                    <label for="movil" class="form-label">Teléfono móvil</label>
+                <input class="form-control text-center" id="movil" rows="1" @bind-value="@DireccionEdit.TelefonoContacto"></input>
+                <label for="movil" class="form-label">Teléfono móvil</label>
+            </div>
+            <div class="row m-ms-1 mt-3">
+               <div class="col-md-6">
+                    <input type="checkbox" class="form-check-input" @bind-value="@this.DireccionEdit.EsPrincipal" checked></input>
+                    <label class="form-label">Dirección Envío</label>
+                </div>
+                <div class="col-md-6">
+                    <input type="checkbox" class="form-check-input" @bind-value="@this.DireccionEdit.EsFaturacion" checked></input>
+                    <label class="form-label">Dirección Facturación</label> 
                 </div>
             </div>
         </div>
 
         <div class="col-md-6">
             <div class="row m-md-1">
-                <div class="flex justify-between">
-                    <div class="col-4">
-                        <input class="form-control" id="calle" rows="1" @bind-value="@DireccionEdit.Calle"></input>
-                        <label for="calle" class="form-label">Domicilio (Calle)</label>
-                    </div>
-                    <div class="col-4">
-                        <input class="form-control" id="numero" rows="1" @bind-value="@DireccionEdit.Numero"></input>
-                        <label for="numero" class="form-label">Número</label>
-                    </div>
-                </div>
+                <input class="form-control text-center" id="calle" rows="1" @bind-value="@DireccionEdit.Calle"></input>
+                 <label for="calle" class="form-label">Domicilio (Calle)</label>    
             </div>
             <div class="row m-md-1">
-                <div class="col-4">
-                    <input class="form-control" id="cp" rows="1" @bind-value="@DireccionEdit.CP"></input>
-                    <label for="cp" class="form-label">C.P.</label>
-                </div>
+                <input class="form-control text-center" id="numero" rows="1" @bind-value="@DireccionEdit.Numero"></input>
+                <label for="numero" class="form-label">Número</label>
             </div>
             <div class="row m-md-1">
-                <InputSelect id="inputProvincia" class="form-select" @bind-Value="this.provincia" @oninput="@this.RecuperaMunicipios">
+                <input class="form-control text-center" id="cp" rows="1" @bind-value="@DireccionEdit.CP"></input>
+                <label for="cp" class="form-label">C.P.</label>
+            </div>
+            <div class="row m-md-1">
+                <InputSelect id="inputProvincia" class="form-select text-center" @bind-Value="this.provincia" @oninput="@this.RecuperaMunicipios">
                     <option value="0" selected> - Seleccionar Provincia - </option>
                     @{
                         foreach (Provincia unaprov in this.listaProvincias)
@@ -74,7 +72,7 @@
                 <label for="inputMunicipio" class="form-label">Provincia</label>
             </div>
             <div class="row m-md-1">
-                <InputSelect id="inputMunicipio" class="form-select" @bind-Value="@this.municipio" disabled="@this.disabledMunis">
+                <InputSelect id="inputMunicipio" class="form-select text-center" @bind-Value="@this.municipio" disabled="@this.disabledMunis">
                     <option value="0" selected> - Selecciona un Municipio -</option>
                     @foreach (Municipio muni in this.listaMunicipios)
                     {
@@ -86,34 +84,18 @@
             </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-6">
-            <input type="checkbox" class="form-check-input" @bind-value="@this.DireccionEdit.EsPrincipal"></input>
-            <label class="form-label">Dirección Envío</label>
-        </div>
-        <div class="col-md-6">
-            <input type="checkbox" class="form-check-input" @bind-value="@this.DireccionEdit.EsFaturacion"></input>
-            <label class="form-label">Dirección Facturación</label>
-        </div>
-    </div>
+
     <div class="row text-center">
         <div class="col">
             @if (Funcion.Equals("guardar"))
             {
-                <div class="col">
-                    <button type="submit" class="btn rounded-pill btn-dark text-white" @onclick="(() => FormularioDireccionEdit(formContext))">Guardar</button>
-                </div>
+                <button type="submit" class="btn btn-dark text-white" @onclick="(() => FormularioDireccionEdit(formContext))">Guardar</button>
             }
             else
             {
-                <div class="col">
-                    <button type="submit" class="btn rounded-pill btn-dark text-white" @onclick="(() => FormularioDireccionEdit(formContext))">Modificar</button>
-                </div>
+                <button type="submit" class="btn btn-dark text-white" @onclick="(() => FormularioDireccionEdit(formContext))">Modificar</button>
             }
-        </div>
-
-        <div class="col">
-            <a class="btn btn-danger" @onclick="@(() => this.navigate.NavigateTo(this.navigate.BaseUri))"><span>Atras</span></a>
+            <a class="btn btn-danger ms-5" @onclick="@(() => this.navigate.NavigateTo(this.navigate.BaseUri))"><span>Atras</span></a>
         </div>
 
     </div>
@@ -127,7 +109,6 @@
     [Parameter]
     public String Funcion { get; set; } = "guardar";
 
-    [Parameter]
     public Cliente ClienteDir { get; set; } = new Cliente();
 
     private String MensajeError = "";
@@ -142,6 +123,11 @@
     {
         this.listaProvincias = await this.restService.RecuperarProvincias();
 
+    }
+
+    protected override void OnInitialized()
+    {
+        this.ClienteDir = this.storageService.RecuperarDatosCliente();
     }
 
     protected async Task RecuperaMunicipios(ChangeEventArgs ev)

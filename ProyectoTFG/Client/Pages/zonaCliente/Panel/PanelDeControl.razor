@@ -2,30 +2,30 @@
 @inject IStorageService storageService
 @inject IRestService servicioRest
 
-<div class="container">
+<div class="container border border-2 rounded-2">
 
     <div class="row mt-3 mb-3 text-center">
-        <div class="col">
+        <div class="col-6 mx-auto my-auto">
             <EditForm Model="@ClienteActual" OnValidSubmit="@SubirImagen">
                 @if (String.IsNullOrEmpty(ClienteActual.cuenta.ImagenAvatarBASE64))
                 {
-                    <img src="images/imagenAvatar.jpg" class="img-thumbnail m-3" alt="ImagenPerfil1" height="200" width="200"/>
+                    <img src="images/imagenAvatar.jpg" class="img-thumbnail m-3" alt="ImagenPerfil1" height="200" width="200" />
                 }
                 else
                 {
-                    <img src="@ClienteActual.cuenta.ImagenAvatarBASE64" class="img-thumbnail m-3" alt="ImagenPerfil2" height="200" width="200"/>
+                    <img src="@ClienteActual.cuenta.ImagenAvatarBASE64" class="img-thumbnail m-3" alt="ImagenPerfil2" height="200" width="200" />
                 }
                 <InputFile OnChange="@CambiarImagen"></InputFile>
                 <button type="submit" class="btn btn-dark m-3">Guardar imagen</button>
             </EditForm>
         </div>
-        <div class="col">
+        <div class="col-6 mx-auto my-auto">
             <h2 class="text-black">Información de Contacto</h2>
             <span>@ClienteActual.Nombre @ClienteActual.Apellidos /</span>
             <sapn>@ClienteActual.Telefono</sapn>
         </div>
         <div class="col">
-            <span>@MensajeError</span>
+            <span class="@ClaseMensajeServer">@MensajeError</span>
         </div>
     </div>
 
@@ -36,31 +36,54 @@
             <h2 class="text-black ">Libreta de Direcciones</h2>
         </div>
     </div>
-    <div class="row mt-3">
+    <div class="row mt-3 m-3">
         <div class="col-md-6">
             <div class="w-100 h-100">
                 <h2 class="text-black"><b>Dirección de pago predeterminada</b></h2>
                 @if (!String.IsNullOrEmpty(direcPago.MuniDirecc.DMUN50))
                 {
-                    <div class="">
-                        <span class="d-block">@direcPago.NombreContacto @direcPago.ApellidosContacto</span>
+                    <table class="table table-bordered">
+                        <tr>
+                            <td class="text-right pr-3">Nombre:</td>
+                            <td>@direcPago.NombreContacto @direcPago.ApellidosContacto</td>
+                        </tr>
                         @if (!String.IsNullOrEmpty(direcPago.NombreEmpresa))
                         {
-                            <span>@direcPago.NombreEmpresa</span>
+                            <tr>
+                                <td class="text-right pr-3">Nombre de la Empresa:</td>
+                                <td>@direcPago.NombreEmpresa</td>
+                            </tr>
                         }
-                        <span class="d-block">@direcPago.Calle</span>
-                        <span class="d-block">@direcPago.Numero</span>
-                        <span class="d-block">@direcPago.MuniDirecc.DMUN50</span>
-                        <span class="d-block">@direcPago.CP</span>
-                        <span class="d-block">@direcPago.Pais</span>
-                        <span class="d-block">T: @direcPago.TelefonoContacto</span>
-                    </div>
+                        <tr>
+                            <td class="text-right pr-3">Calle:</td>
+                            <td>@direcPago.Calle</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right pr-3">Número:</td>
+                            <td>@direcPago.Numero</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right pr-3">Ciudad:</td>
+                            <td>@direcPago.MuniDirecc.DMUN50</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right pr-3">Código Postal:</td>
+                            <td>@direcPago.CP</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right pr-3">País:</td>
+                            <td>@direcPago.Pais</td>
+                        </tr>
+                        <tr>
+                            <td class="text-right pr-3">Teléfono:</td>
+                            <td>T: @direcPago.TelefonoContacto</td>
+                        </tr>
+                    </table>
                 }
                 else
                 {
                     <span>No ha establecido una dirección de facturación predeterminada.</span>
                 }
-
             </div>
         </div>
         <div class="col-md-6">
@@ -68,19 +91,43 @@
                 <h2 class="text-black"><b>Dirección de envío predeterminada</b></h2>
                 @if (!String.IsNullOrEmpty(direcEnvio.MuniDirecc.DMUN50))
                 {
-                    <div class="">
-                        <span class="d-block">@direcEnvio.NombreContacto @direcEnvio.ApellidosContacto</span>
+                    <table class="table table-bordered">
+                        <tr>
+                            <th class="text-right pr-3">Nombre:</th>
+                            <td class="text-left">@direcEnvio.NombreContacto @direcEnvio.ApellidosContacto</td>
+                        </tr>
                         @if (!String.IsNullOrEmpty(direcEnvio.NombreEmpresa))
                         {
-                            <span>@direcEnvio.NombreEmpresa</span>
+                            <tr>
+                                <th class="text-right pr-3">Nombre de la Empresa:</th>
+                                <td>@direcEnvio.NombreEmpresa</td>
+                            </tr>
                         }
-                        <span class="d-block">@direcEnvio.Calle</span>
-                        <span class="d-block">@direcEnvio.Numero</span>
-                        <span class="d-block">@direcEnvio.MuniDirecc.DMUN50</span>
-                        <span class="d-block">@direcEnvio.CP</span>
-                        <span class="d-block">@direcEnvio.Pais</span>
-                        <span class="d-block">T: @direcEnvio.TelefonoContacto</span>
-                    </div>
+                        <tr>
+                            <th class="text-right pr-3">Calle:</th>
+                            <td>@direcEnvio.Calle</td>
+                        </tr>
+                        <tr>
+                            <th class="text-right pr-3">Número:</th>
+                            <td>@direcEnvio.Numero</td>
+                        </tr>
+                        <tr>
+                            <th class="text-right pr-3">Ciudad:</th>
+                            <td>@direcEnvio.MuniDirecc.DMUN50</td>
+                        </tr>
+                        <tr>
+                            <th class="text-right pr-3">Código Postal:</th>
+                            <td>@direcEnvio.CP</td>
+                        </tr>
+                        <tr>
+                            <th class="text-right pr-3">País:</th>
+                            <td>@direcEnvio.Pais</td>
+                        </tr>
+                        <tr>
+                            <th class="text-right pr-3">Teléfono:</th>
+                            <td>T: @direcEnvio.TelefonoContacto</td>
+                        </tr>
+                    </table>
                 }
                 else
                 {
@@ -88,20 +135,19 @@
                 }
             </div>
         </div>
-
     </div>
 </div>
 
 
 
 @code {
-    [Parameter]
     public Cliente ClienteActual { get; set; } = new Cliente();
 
     private Direccion? direcPago = new Direccion();
     private Direccion? direcEnvio = new Direccion();
 
     private String MensajeError = "";
+    private String ClaseMensajeServer = "";
     private String imagenBASE64 = "";
 
 
@@ -148,21 +194,24 @@
         String jwt = this.storageService.RecuperarJWT();
         RestMessage respuestaServer = await this.servicioRest.ModificarImagenCliente(ClienteActual, this.imagenBASE64, jwt);
 
-        switch(respuestaServer.Codigo)
+        switch (respuestaServer.Codigo)
         {
             case 0:
                 ClienteActual.cuenta.ImagenAvatarBASE64 = this.imagenBASE64;
                 this.storageService.AlmacenarDatosCliente(ClienteActual);
+                this.ClaseMensajeServer = "text-success";
                 this.MensajeError = "Los datos se han establecido correctamente";
                 StateHasChanged();
                 break;
 
             case 1:
+                this.ClaseMensajeServer = "text-danger";
                 MensajeError = respuestaServer.Mensaje;
                 StateHasChanged();
                 break;
 
             case 2:
+                this.ClaseMensajeServer = "text-danger";
                 MensajeError = respuestaServer.Mensaje;
                 StateHasChanged();
                 break;

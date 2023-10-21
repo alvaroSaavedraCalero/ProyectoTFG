@@ -3,16 +3,16 @@
 @inject IStorageService storageService
 @inject IJSRuntime jsService
 
-<div class="container">
+<div class="container border border-2 rounded-2">
     @if (MostrarCompMod)
     {
-        <ComponenteDireccion ClienteDir="@ClienteActual" DireccionEdit="@Direc" Funcion="@FuncionCompoDirec" />
+        <ComponenteDireccion DireccionEdit="@Direc" Funcion="@FuncionCompoDirec" />
     }
     else
     {
         @if (ClienteActual.MisDirecciones.Count == 0)
         {
-            <ComponenteDireccion DireccionEdit="@Direc" Funcion="guardar" ClienteDir="@ClienteActual" />
+            <ComponenteDireccion DireccionEdit="@Direc" Funcion="guardar" />
         }
         else
         {
@@ -133,7 +133,6 @@
 </div>
 
 @code {
-    [Parameter]
     public Cliente ClienteActual { get; set; }
 
     private String MensajeServidor = "";

@@ -5,15 +5,9 @@
 @inject IStorageService storageService
 @inject IJSRuntime jsService
 
-<div class="container">
+<div class="container border border-2 rounded-2">
     <EditForm Model="ClienteActual" Context="formContext">
         <DataAnnotationsValidator></DataAnnotationsValidator>
-
-        <div class="row m-md-1">
-            <div class="col">
-                <span class="text-danger">@MensajeError</span>
-            </div>
-        </div>
 
         <div class="row m-md-1"><h1><b>Información de la cuenta</b></h1></div>
 
@@ -38,39 +32,9 @@
             </div>
 
             <div class="col">
-                <div class="row m-md-1 text-muted">Fecha de nacimiento</div>
                 <div class="row m-md-1">
-                    <div class="col-sm-4">
-                        <select name="dia" id="dia" class="form-select" @bind="@this.dia">
-                            <option value="0">Elige día</option>
-                            @for (int i = 1; i <= 31; i++)
-                            {
-                                <option value="@i" selected="@(this.ClienteActual.FechaNacimiento.Day==@i)">@i</option>
-                            }
-                        </select>
-                    </div>
-                    <div class="col-sm-4">
-                        <select name="mes" id="mes" class="form-select" @bind="@this.mes">
-                            <option value="-1">Elige mes</option>
-                            @{
-                                int cont = 1;
-                                foreach (KeyValuePair<int, String> item in this.meses)
-                                {
-                                    <option value="@item.Key"
-                                            selected=@(this.ClienteActual.FechaNacimiento.Month==cont ? true : false)>@item.Value</option>
-                                }
-                            }
-                        </select>
-                    </div>
-                    <div class="col-sm-4">
-                        <select name="anio" id="anio" class="form-select" @bind="@this.anio">
-                            <option value="-1" selected="">Elige año</option>
-                            @for (int anio = 1920; anio <= DateTime.Now.Year; anio++)
-                            {
-                                <option value="@anio" selected=@(this.ClienteActual.FechaNacimiento.Year==anio ? true : false)>@anio</option>
-                            }
-                        </select>
-                    </div>
+                    <input class="form-control" type="date" id="fechaNacimiento" rows="1" placeholder="@ClienteActual.FechaNacimiento" @bind-value="@ClienteActual.FechaNacimiento"></input>
+                    <label for="fechaNacimiento" class="form-label">Fecha de nacimiento</label>
                 </div>
                 <div class="row m-md-1">
                     <input class="form-control" type="text" id="nif" rows="1" placeholder="@ClienteActual.NIF" @bind-value="@ClienteActual.NIF"></input>
@@ -94,7 +58,7 @@
         </div>
 
         <p>
-            <a class="form-check-input" data-bs-toggle="collapse" href="#collapseExample" role="radio" aria-expanded="false" aria-controls="collapseExample">
+            <a class="form-check-input text-decoration-none" data-bs-toggle="collapse" href="#collapseExample" role="radio" aria-expanded="false" aria-controls="collapseExample">
                 Cambiar Contraseña
             </a>
         </p>
@@ -116,6 +80,13 @@
             </div>
         </div>
 
+        @if (!String.IsNullOrEmpty(MensajeError))
+        {
+            <div class="row">
+                <label class="@ClaseMensajeServer">@MensajeError</label>
+            </div>
+        }
+
         <div class="row">
             <div class="col text-center">
                 <div class="flex justify-between">
@@ -129,24 +100,14 @@
 </div>
 
 @code {
-    [Parameter]
     public Cliente ClienteActual { get; set; }
 
     private String MensajeError = "";
+    private String ClaseMensajeServer = "";
     private String NuevaPassword = "";
-    private int dia;
-    private int mes;
-    private int anio;
-    private Dictionary<int, String> meses = new Dictionary<int, String> { { 1, "Enero" }, { 2, "Febrero" }, { 3, "Marzo" },
-    { 4, "Abril" }, { 5, "Mayo" }, { 6, "Junio" }, { 7, "Julio" }, { 8, "Agosto" }, { 9, "Septiembre" }, { 10, "Octubre" },
-    { 11, "Noviembre" }, { 12, "Diciembre" } };
 
     protected override void OnInitialized()
     {
-        this.dia = ClienteActual.FechaNacimiento.Day;
-        this.mes = ClienteActual.FechaNacimiento.Month;
-        this.anio = ClienteActual.FechaNacimiento.Year;
-
         this.ClienteActual = this.storageService.RecuperarDatosCliente();
     }
 
@@ -154,8 +115,6 @@
     {
         if (!String.IsNullOrEmpty(NuevaPassword))
         {
-            ClienteActual.FechaNacimiento = new DateTime(anio, mes, dia, DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second);
-
             String jwt = this.storageService.RecuperarJWT();
 
             ClienteActual.cuenta.Password = NuevaPassword;
@@ -167,6 +126,8 @@
                     ClienteActual = respuestaREST.DatosCliente;
                     ClienteActual.cuenta.Password = "";
                     this.storageService.AlmacenarDatosCliente(respuestaREST.DatosCliente);
+                    this.ClaseMensajeServer = "text-success";
+                    this.MensajeError = respuestaREST.Mensaje;
                     StateHasChanged();
                     break;
 
@@ -174,7 +135,14 @@
                     this.navigate.NavigateTo("/Cliente/Login");
                     break;
 
-                default:
+                case 2:
+                    this.ClaseMensajeServer = "text-danger";
+                    MensajeError = respuestaREST.Mensaje;
+                    StateHasChanged();
+                    break;
+
+                case 1:
+                    this.ClaseMensajeServer = "text-danger";
                     MensajeError = respuestaREST.Mensaje;
                     StateHasChanged();
                     break;
@@ -184,8 +152,6 @@
         }
         else
         {
-            ClienteActual.FechaNacimiento = new DateTime(anio, mes, dia, DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second);
-
             String jwt = this.storageService.RecuperarJWT();
 
             RestMessage respuestaREST = await this.restService.ModificarCliente(ClienteActual, false, jwt);
@@ -195,6 +161,8 @@
                 case 0:
                     ClienteActual = respuestaREST.DatosCliente;
                     this.storageService.AlmacenarDatosCliente(respuestaREST.DatosCliente);
+                    this.ClaseMensajeServer = "text-success";
+                    this.MensajeError = respuestaREST.Mensaje;
                     StateHasChanged();
                     break;
 
@@ -202,7 +170,14 @@
                     this.navigate.NavigateTo("/Cliente/Login");
                     break;
 
-                default:
+                case 2:
+                    this.ClaseMensajeServer = "text-danger";
+                    MensajeError = respuestaREST.Mensaje;
+                    StateHasChanged();
+                    break;
+
+                case 1:
+                    this.ClaseMensajeServer = "text-danger";
                     MensajeError = respuestaREST.Mensaje;
                     StateHasChanged();
                     break;

@@ -271,7 +271,7 @@ namespace ProyectoTFG.Server.Controllers
                         return new RestMessage
                         {
                             Codigo = 0,
-                            Mensaje = "Modificacion del cliente correcta",
+                            Mensaje = "Modificacion del cliente correcta.",
                             Error = null,
                             DatosCliente = clienteModificado,
                             TokenSesion = jwt,
