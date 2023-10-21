@@ -1,16 +1,18 @@
 ﻿@page "/Cliente/Login"
+
 @inject NavigationManager navigate
 @inject IRestService servicioREST
 @inject IJSRuntime jsService
 @inject IStorageService storageService
 
 
-<div class="container text-center" >
+
+<div class="container text-center" onload="window">
     <div class="border border-dark border-1 rounded-4 d-inline-flex" style="background-color: darkgrey">
         <EditForm Model="NuevaCuenta" OnValidSubmit="LoginCliente">
             <DataAnnotationsValidator></DataAnnotationsValidator>
 
-            <div class="row mt-3 m-2"><h1 class="text-black">Acceso del cliente</h1></div>
+            <div class="row mt-3 m-2"><h1 id="texto" class="text-black">Acceso del cliente</h1></div>
 
             <div class="row w-50 mx-auto my-4">
                 <ValidationMessage For="@(()=>NuevaCuenta.Email)"></ValidationMessage>
@@ -51,11 +53,46 @@
 
         </EditForm>
     </div>
+
+    <div>
+        <canvas id="chart"></canvas>
+    </div>
+
 </div>
 
 
 
 
+<!--
+
+ <div class="container text-center">
+    <MudPaper Height="400px" Width="100%">
+        <MudContainer MaxWidth="MaxWidth.Small">
+            <MudGrid>
+                <MudItem xs="12" sm="7">
+                    <EditForm Model="@NuevaCuenta" OnValidSubmit="LoginCliente">
+                        <DataAnnotationsValidator></DataAnnotationsValidator>
+                        <MudPaper Class="pa-4">
+                            <MudTextField T="String" Label="Email" Required="true" RequiredError="Email obligatorio." @bind-Value="NuevaCuenta.Email"
+                                          Validation="@(() => NuevaCuenta.Email)" />
+                            <MudTextField T="string" Label="Password" @bind-Value="NuevaCuenta.Password"
+                                          InputType="InputType.Password"
+                                          Validation="@(() => NuevaCuenta.Password)" Required="true"
+                                          RequiredError="Contraseña obligatoria." />
+                        </MudPaper>
+                        <MudPaper Class="pa-4 mt-4">
+                            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => LoginCliente())">Iniciar sesion</MudButton>
+                            <MudIconButton Icon="@Icons.Custom.Brands.Google" Color="Color.Primary" aria-label="google" OnClick="@(() => LoginGoogle())"></MudIconButton>
+                        </MudPaper>
+
+                    </EditForm>
+                </MudItem>
+            </MudGrid>
+        </MudContainer>
+    </MudPaper>
+ </div>
+
+-->
 @code {
     public Cuenta NuevaCuenta { get; set; } = new Cuenta();
     private String MensajeError = "";
@@ -92,3 +129,4 @@
     }
 
 }
+
