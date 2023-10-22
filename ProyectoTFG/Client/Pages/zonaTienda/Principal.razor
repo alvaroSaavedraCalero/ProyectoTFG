@@ -5,11 +5,8 @@
 @inject NavigationManager navigate
 @inject IJSRuntime jsService
 
-<!-- Arregla esto que se ve horrible -->
 
-<div class="container mt-5 mb-5">
-
-
+<div class="container mt-5 mb-5 fondoBlanco">
     <div class="row m-2">
         <div class="row">
             @if (items.Count >= 4)
@@ -17,14 +14,13 @@
                 @for (int i = 0; i < 4; i++)
                 {
                     ProductoAPI p = items[i];
-                    <div class="col-sm-3 ">
+                    <div class="col mx-auto my-auto">
                         <MiniProducto ProductoActual="p" ClienteLogued="ClienteLogueado"></MiniProducto>
                     </div>
                 }
             }
         </div>
     </div>
-
 </div>
 
 

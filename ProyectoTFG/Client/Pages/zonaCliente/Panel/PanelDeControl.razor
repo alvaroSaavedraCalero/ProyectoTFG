@@ -2,8 +2,7 @@
 @inject IStorageService storageService
 @inject IRestService servicioRest
 
-<div class="container border border-2 rounded-2">
-
+<div class="container border border-2 rounded-2 bg-light">
     <div class="row mt-3 mb-3 text-center">
         <div class="col-6 mx-auto my-auto">
             <EditForm Model="@ClienteActual" OnValidSubmit="@SubirImagen">
@@ -39,43 +38,43 @@
     <div class="row mt-3 m-3">
         <div class="col-md-6">
             <div class="w-100 h-100">
-                <h2 class="text-black"><b>Dirección de pago predeterminada</b></h2>
+                <h2 class="text-black"><b>Dirección de facturación predeterminada</b></h2>
                 @if (!String.IsNullOrEmpty(direcPago.MuniDirecc.DMUN50))
                 {
                     <table class="table table-bordered">
                         <tr>
-                            <td class="text-right pr-3">Nombre:</td>
+                            <th class="text-right pr-3">Nombre:</th>
                             <td>@direcPago.NombreContacto @direcPago.ApellidosContacto</td>
                         </tr>
                         @if (!String.IsNullOrEmpty(direcPago.NombreEmpresa))
                         {
                             <tr>
-                                <td class="text-right pr-3">Nombre de la Empresa:</td>
+                                <th class="text-right pr-3">Nombre de la Empresa:</th>
                                 <td>@direcPago.NombreEmpresa</td>
                             </tr>
                         }
                         <tr>
-                            <td class="text-right pr-3">Calle:</td>
+                            <th class="text-right pr-3">Calle:</th>
                             <td>@direcPago.Calle</td>
                         </tr>
                         <tr>
-                            <td class="text-right pr-3">Número:</td>
+                            <th class="text-right pr-3">Número:</th>
                             <td>@direcPago.Numero</td>
                         </tr>
                         <tr>
-                            <td class="text-right pr-3">Ciudad:</td>
+                            <th class="text-right pr-3">Ciudad:</th>
                             <td>@direcPago.MuniDirecc.DMUN50</td>
                         </tr>
                         <tr>
-                            <td class="text-right pr-3">Código Postal:</td>
+                            <th class="text-right pr-3">Código Postal:</th>
                             <td>@direcPago.CP</td>
                         </tr>
                         <tr>
-                            <td class="text-right pr-3">País:</td>
+                            <th class="text-right pr-3">País:</th>
                             <td>@direcPago.Pais</td>
                         </tr>
                         <tr>
-                            <td class="text-right pr-3">Teléfono:</td>
+                            <th class="text-right pr-3">Teléfono:</th>
                             <td>T: @direcPago.TelefonoContacto</td>
                         </tr>
                     </table>
@@ -94,7 +93,7 @@
                     <table class="table table-bordered">
                         <tr>
                             <th class="text-right pr-3">Nombre:</th>
-                            <td class="text-left">@direcEnvio.NombreContacto @direcEnvio.ApellidosContacto</td>
+                            <td>@direcEnvio.NombreContacto @direcEnvio.ApellidosContacto</td>
                         </tr>
                         @if (!String.IsNullOrEmpty(direcEnvio.NombreEmpresa))
                         {

@@ -5,11 +5,11 @@
 @inject IStorageService storageService
 @inject IJSRuntime jsService
 
-<div class="container border border-2 rounded-2">
-    <EditForm Model="ClienteActual" Context="formContext">
+<div class="container border border-2 rounded-2 bg-light">
+    <EditForm Model="ClienteActual" Context="formContext" class="mx-auto my-auto">
         <DataAnnotationsValidator></DataAnnotationsValidator>
 
-        <div class="row m-md-1"><h1><b>Información de la cuenta</b></h1></div>
+        <div class="row m-md-1 text-center "><h1><b>Información de la cuenta</b></h1></div>
 
         <div class="row">
             <div class="col">
@@ -40,14 +40,13 @@
                     <input class="form-control" type="text" id="nif" rows="1" placeholder="@ClienteActual.NIF" @bind-value="@ClienteActual.NIF"></input>
                     <label for="nif" class="form-label">NIF</label>
                 </div>
-                <div class="row m-md-1 text-muted">Genero</div>
                 <div class="row m-md-1">
-                    <select class="form-select" aria-label="Elige genero" @bind="@this.ClienteActual.Genero">
+                    <select class="form-select" aria-label="Elige genero" id="genero" @bind="@this.ClienteActual.Genero">
                         <option value="0" selected>Elige genero</option>
-
                         <option value="Hombre">Hombre</option>
                         <option value="Mujer">Mujer</option>
                     </select>
+                    <label for="genero" class="form-label">Género</label>
                 </div>
                 <div class="row m-md-1">
                     <input class="form-control" type="text" id="telefono" rows="1" placeholder="@ClienteActual.Telefono" @bind-value="@ClienteActual.Telefono"></input>
@@ -57,8 +56,8 @@
 
         </div>
 
-        <p>
-            <a class="form-check-input text-decoration-none" data-bs-toggle="collapse" href="#collapseExample" role="radio" aria-expanded="false" aria-controls="collapseExample">
+        <p class="text-decoration-none">
+            <a class="btn btn-danger" data-bs-toggle="collapse" href="#collapseExample" role="radio" aria-expanded="false" aria-controls="collapseExample">
                 Cambiar Contraseña
             </a>
         </p>
@@ -90,8 +89,7 @@
         <div class="row">
             <div class="col text-center">
                 <div class="flex justify-between">
-                    <a class="m-2 text-decoration-nonez" @onclick="@(() =>this.navigate.NavigateTo("/"))">Volver</a>
-                    <button type="submit" class="btn btn-outline-secondary m-2" @onclick="(() => FormularioInfoCuenta(formContext))">Guardar</button>
+                    <button type="submit" class="btn btn-dark m-2" @onclick="(() => FormularioInfoCuenta(formContext))">Guardar</button>
                 </div>
             </div>
         </div>

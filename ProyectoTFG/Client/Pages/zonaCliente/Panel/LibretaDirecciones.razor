@@ -3,7 +3,7 @@
 @inject IStorageService storageService
 @inject IJSRuntime jsService
 
-<div class="container border border-2 rounded-2">
+<div class="container border border-2 rounded-2 bg-light">
     @if (MostrarCompMod)
     {
         <ComponenteDireccion DireccionEdit="@Direc" Funcion="@FuncionCompoDirec" />
@@ -23,13 +23,13 @@
                 <h2 class="text-black"><b>Direcciones (predeterminado)</b></h2>
             </div>
             <div class="row m-xl-2">
-                <div class="col-sm-5 border border-2">
-                    <h4 class="text-black"><b>Dirección de facturación predeterminada</b></h4>
+                <div class="col-sm-5 border border-2 rounded-2 m-3" style="background-color: lightslategray">
+                    <h4 class="text-black m-4"><b>Dirección de facturación predeterminada</b></h4>
 
                     @if (direcPago != null)
                     {
                         <div class="row">
-                            <div class="col-7">
+                            <div class="col-5 m-3">
                                 <span class="d-block">@direcPago.NombreContacto @direcPago.ApellidosContacto</span>
                                 @if (!String.IsNullOrEmpty(direcPago.NombreEmpresa))
                                 {
@@ -57,12 +57,12 @@
                         <span>No ha establecido una dirección de facturación predeterminada.</span>
                     }
                 </div>
-                <div class="col-sm-5 border border-2 ms-2">
-                    <h4 class="text-black"><b>Dirección de envío predeterminada</b></h4>
+                <div class="col-sm-5 border border-2 rounded-2 m-3" style="background-color: lightslategray">
+                    <h4 class="text-black m-4"><b>Dirección de envío predeterminada</b></h4>
                     @if (direcEnvio != null)
                     {
                         <div class="row">
-                            <div class="col-7">
+                            <div class="col-5 m-3">
                                 <span class="d-block">@direcEnvio.NombreContacto @direcEnvio.ApellidosContacto</span>
                                 @if (!String.IsNullOrEmpty(direcEnvio.NombreEmpresa))
                                 {

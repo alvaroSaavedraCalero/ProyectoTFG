@@ -95,7 +95,7 @@
             {
                 <button type="submit" class="btn btn-dark text-white" @onclick="(() => FormularioDireccionEdit(formContext))">Modificar</button>
             }
-            <a class="btn btn-danger ms-5" @onclick="@(() => this.navigate.NavigateTo(this.navigate.BaseUri))"><span>Atras</span></a>
+            <a class="btn btn-danger ms-5" @onclick="@(() => this.navigate.NavigateTo("/"))"><span>Atras</span></a>
         </div>
 
     </div>
@@ -128,6 +128,8 @@
     protected override void OnInitialized()
     {
         this.ClienteDir = this.storageService.RecuperarDatosCliente();
+        this.provincia = this.DireccionEdit.ProvDirec.CPRO + "-" + this.DireccionEdit.ProvDirec.PRO;
+        this.municipio = this.DireccionEdit.MuniDirecc.CMUM + "-" + this.DireccionEdit.MuniDirecc.DMUN50;
     }
 
     protected async Task RecuperaMunicipios(ChangeEventArgs ev)
@@ -139,7 +141,6 @@
 
     public async Task FormularioDireccionEdit(EditContext formContext)
     {
-
         this.DireccionEdit.ProvDirec = new Provincia
             {
                 CCOM = "",

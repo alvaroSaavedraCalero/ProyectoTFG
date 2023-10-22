@@ -4,11 +4,11 @@
 
 
 
-<div class="container">
+<div class="container border border-2 rounded-2 bg-light">
     <!-- Imagen -->
     <div class="row">
         <div class="col m-1">
-            <div>
+            <div class="text-center m-2">
                 <a @onclick="@(() => {
                     if (this.ClienteLogued != null) {
                         this.navigate.NavigateTo($"/Tienda/ProductoExpan?idProd={ProductoActual.id}");
@@ -19,7 +19,7 @@
                     <img src="@this.ProductoActual.image" width="200" height="200" />
                 </a>
             </div>
-            <button class="btn" @onclick="@DesearProducto">
+            <button class="btn " @onclick="@DesearProducto">
                 @if (CorazonRojo)
                 {
                     <i class="fa-solid fa-heart"></i>
@@ -32,17 +32,19 @@
         </div>
     </div>
 
+    <hr class="" />
+
     <!-- Nombre -->
     <div class="row">
         <div class="col">
-            <h3><b class="text-black">@ProductoActual.title</b></h3>
+            <h5><b class="text-black">@ProductoActual.title</b></h5>
         </div>
     </div>
 
     <!-- Precio -->
     <div class="row">
         <div class="col">
-            <h4><b class="text-secondary">@ProductoActual.price €</b></h4>
+            <h6><b class="text-secondary">@ProductoActual.price €</b></h6>
         </div>
     </div>
 </div>
@@ -66,6 +68,10 @@
             {
                 CorazonRojo = true;
             }
+        }
+        if (ProductoActual.title.Length > 18)
+        {
+            ProductoActual.title = ProductoActual.title.Substring(0, 18);
         }
     }
 

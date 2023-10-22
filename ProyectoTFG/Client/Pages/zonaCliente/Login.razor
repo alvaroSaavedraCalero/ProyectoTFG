@@ -5,10 +5,10 @@
 @inject IJSRuntime jsService
 @inject IStorageService storageService
 
- 
 
-<div class="container text-center">
-    <div class="border border-dark border-1 rounded-4 w-75 mx-auto" style="background-color: darkgrey">
+
+<div class="container text-center mx-auto my-auto mt-3 mb-3">
+    <div class="rounded-4 w-75 mx-auto bg-light">
         <EditForm Model="NuevaCuenta" OnValidSubmit="LoginCliente">
             <DataAnnotationsValidator></DataAnnotationsValidator>
 
@@ -45,7 +45,7 @@
                 </div>
             </div>
 
-            <div class="row mb-3">
+            <div class="row mb-2">
                 <div class="col">
                     <button type="button" class="btn btn-dark mt-2" @onclick="@(()=>this.navigate.NavigateTo("/Cliente/Registro"))">Registrarse</button>
                 </div>
