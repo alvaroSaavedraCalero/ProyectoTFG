@@ -732,17 +732,18 @@ namespace ProyectoTFG.Server.Models
         /// <param name="comentario">Comentario del cliente</param>
         /// <param name="nombreCliente">Nombre del cliente</param>
         /// <returns>True en caso de que el comentario de suba correctamente, False en caso contrario</returns>
-        public async Task<Boolean> SubirComentario(String idCliente, String comentario, String nombreCliente, String idProducto)
+        public async Task<Boolean> SubirComentario(String idCliente, String comentario, String nombreCliente, String idProducto, String imagenCliente)
         {
             try
             {
-                await this.bdFirebox.GetCollection<BsonDocument>("comentarios").InsertOneAsync(
-                    new BsonDocument
+                await this.bdFirebox.GetCollection<ComentarioCli>("comentarios").InsertOneAsync(
+                    new ComentarioCli
                     {
-                        {"idCliente", idCliente },
-                        {"comentario", comentario },
-                        {"nombreCliente", nombreCliente },
-                        {"idProducto", idProducto }
+                        Comentario = comentario,
+                        IdCliente = idCliente,
+                        NombreCliente = nombreCliente,
+                        IdProducto = idProducto,
+                        ImagenCliente = imagenCliente
                     });
                 return true;
             }

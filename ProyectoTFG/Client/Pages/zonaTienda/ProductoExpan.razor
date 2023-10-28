@@ -99,8 +99,8 @@
             @foreach (ComentarioCli coment in ListaComentarios)
             {
                 <div class="list-group">
-                    <a href="#" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
-                        <!-- <img src="https://github.com/twbs.png" alt="twbs" width="32" height="32" class="rounded-circle flex-shrink-0"> -->
+                    <a class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+                        <img src="@coment.ImagenCliente" width="32" height="32" class="rounded-circle flex-shrink-0">
                         <div class="d-flex gap-2 w-100 justify-content-between">
                             <div>
                                 <h6 class="mb-0">@coment.NombreCliente</h6>
@@ -204,7 +204,7 @@
         {
             String jwt = this.storageService.RecuperarJWT();
             RestMessage respuestaServidor = await this.restService.AlmacenarComentario(jwt, Comentario, ClienteLogued.IdCliente,
-                ClienteLogued.cuenta.Login, ProductoSelected.id.ToString());
+                ClienteLogued.cuenta.Login, ProductoSelected.id.ToString(), ClienteLogued.cuenta.ImagenAvatarBASE64);
 
             switch (respuestaServidor.Codigo)
             {
@@ -214,7 +214,8 @@
                             Comentario = Comentario,
                             IdCliente = ClienteLogued.IdCliente,
                             IdProducto = ProductoSelected.id.ToString(),
-                            NombreCliente = ClienteLogued.cuenta.Login
+                            NombreCliente = ClienteLogued.cuenta.Login,
+                            ImagenCliente = ClienteLogued.cuenta.ImagenAvatarBASE64
                         });
                     Comentario = "";
                     break;

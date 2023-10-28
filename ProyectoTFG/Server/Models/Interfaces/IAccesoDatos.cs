@@ -28,7 +28,7 @@ namespace ProyectoTFG.Server.Models.Interfaces
         Task<PaypalPedidoInfo> RecuperarDatosPayPal(String idPedido);
         Task<Boolean> DesearProducto(String idProducto, String idCliente);
         Task<Boolean> DesDesearProducto(String idProducto, String idCliente);
-        Task<Boolean> SubirComentario(String idCliente, String comentario, String nombreCliente, String idProducto);
+        Task<Boolean> SubirComentario(String idCliente, String comentario, String nombreCliente, String idProducto, String imagenCliente);
         Task<List<ComentarioCli>> RecuperarComentariosProducto(String idProducto);
 
         #endregion

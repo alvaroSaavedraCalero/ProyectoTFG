@@ -9,8 +9,8 @@
 <div class="row">
     @foreach (ProductoAPI p in listaProductos)
     {
-        <div class="col-sm-3 ">
-            <MiniProducto ProductoActual="p" ClienteLogued="ClienteLogueado"></MiniProducto>
+        <div class="col-sm-3 mt-3">
+            <MiniProducto ProductoActual="p"></MiniProducto>
         </div>
     }
 </div>
@@ -24,7 +24,7 @@
     public String Categoria { get; set; }
 
     private List<ProductoAPI> listaProductos = new List<ProductoAPI>();
-    private Cliente ClienteLogueado;
+    private Cliente ClienteLogueado = new Cliente();
 
     protected override async Task OnInitializedAsync()
     {

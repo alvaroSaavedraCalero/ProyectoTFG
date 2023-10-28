@@ -54,21 +54,28 @@
     [Parameter]
     public ProductoAPI ProductoActual { get; set; } = new ProductoAPI();
 
-    [Parameter]
     public Cliente ClienteLogued { get; set; } = new Cliente();
 
     private Boolean CorazonRojo = false;
 
     protected override void OnInitialized()
     {
-        if (ClienteLogued.ListaDeseos.Count != 0)
+        this.ClienteLogued = this.storageService.RecuperarDatosCliente();
+
+        if (!String.IsNullOrEmpty(this.ClienteLogued.cuenta.Email))
         {
-            ProductoAPI? p = ClienteLogued.ListaDeseos.Find((ProductoAPI p) => p.id == ProductoActual.id);
-            if (p != null)
+            if (ClienteLogued.ListaDeseos.Count != 0)
             {
-                CorazonRojo = true;
+                ProductoAPI? p = ClienteLogued.ListaDeseos.Find((ProductoAPI p) => p.id == ProductoActual.id);
+                if (p != null)
+                {
+                    CorazonRojo = true;
+                }
             }
         }
+
+
+        
         if (ProductoActual.title.Length > 18)
         {
             ProductoActual.title = ProductoActual.title.Substring(0, 18);

@@ -25,5 +25,8 @@ namespace ProyectoTFG.Shared
 
         [BsonElement("idProducto")]
         public String IdProducto { get; set; } = "";
+
+        [BsonElement("imagenCliente")]
+        public String ImagenCliente { get; set; } = "";
     }
 }

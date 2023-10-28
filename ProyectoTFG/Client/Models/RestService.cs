@@ -348,7 +348,7 @@ namespace ProyectoTFG.Client.Models
         /// <param name="nombreCliente">Nombre del cliente que ha realizado el comentario</param>
         /// <param name="idProducto">Id del producto</param>
         /// <returns>La respuesta del servidor en forma de RestMessage</returns>
-        public async Task<RestMessage> AlmacenarComentario(string jwt, string comentario, string idCliente, string nombreCliente, string idProducto)
+        public async Task<RestMessage> AlmacenarComentario(string jwt, string comentario, string idCliente, string nombreCliente, string idProducto, string imagenCliente)
         {
             Dictionary<String, String> datos = new Dictionary<String, String>
             {
@@ -356,7 +356,8 @@ namespace ProyectoTFG.Client.Models
                 {"comentario", comentario},
                 {"idCliente", idCliente},
                 {"nombreCliente", nombreCliente },
-                {"idProducto", idProducto }
+                {"idProducto", idProducto },
+                {"imagenCliente", imagenCliente}
             };
 
             HttpResponseMessage respuesta = await this.clienteHttp.PostAsJsonAsync<Dictionary<String, String>>("api/Tienda/AlmacenarComentario", datos);

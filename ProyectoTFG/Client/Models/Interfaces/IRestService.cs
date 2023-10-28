@@ -31,7 +31,7 @@ namespace ProyectoTFG.Client.Models.Interfaces
         Task<String> RealizarPagoPayPal(Cliente cliente, DatosPago datosPago, String jwt);
         Task<RestMessage> DesearProducto(Cliente clienteActual, ProductoAPI producto, String jwt);
         Task<RestMessage> DesDesearProd(Cliente clienteActual, ProductoAPI producto, String jwt);
-        Task<RestMessage> AlmacenarComentario(String jwt, String comentario, String idCliente, String nombreCliente, String idProducto);
+        Task<RestMessage> AlmacenarComentario(String jwt, String comentario, String idCliente, String nombreCliente, String idProducto, String imagenCliente);
         Task<List<ComentarioCli>> RecuperarComentariosProd(ProductoAPI producto);
 
         #endregion

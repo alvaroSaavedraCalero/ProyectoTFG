@@ -567,10 +567,10 @@ namespace ProyectoTFG.Server.Controllers
             try
             {
                 String comentario = datos["comentario"], jwt = datos["jwt"], idCliente = datos["idCliente"],
-                    nombreCliente = datos["nombreCliente"], idProducto = datos["idProducto"];
+                    nombreCliente = datos["nombreCliente"], idProducto = datos["idProducto"], imagenCliente = datos["imagenCliente"];
                 if (validarJWT(jwt))
                 {
-                    Boolean comentarioSubido = await this.accesoBD.SubirComentario(idCliente, comentario, nombreCliente, idProducto);
+                    Boolean comentarioSubido = await this.accesoBD.SubirComentario(idCliente, comentario, nombreCliente, idProducto, imagenCliente);
                     if (comentarioSubido)
                     {
                         return new RestMessage
