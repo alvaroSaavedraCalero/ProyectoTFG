@@ -3,7 +3,7 @@
 @inject IStorageService storageService
 @inject IJSRuntime jsService
 
-<div class="container border border-2 rounded-2 bg-light">
+<div class="container border border-2 rounded-2 bg-light text-center">
     @if (MostrarCompMod)
     {
         <ComponenteDireccion DireccionEdit="@Direc" Funcion="@FuncionCompoDirec" />
@@ -19,30 +19,27 @@
             <div class="row m-md-2">
                 <span class="text-info">@MensajeServidor</span>
             </div>
-            <div class="row m-xl-2">
-                <h2 class="text-black"><b>Direcciones (predeterminado)</b></h2>
-            </div>
-            <div class="row m-xl-2">
+            <div class="row m-xl-2 text-cente d-flex justify-content-center align-items-center">
+                <!-- Direccion de facturacion -->
                 <div class="col-sm-5 border border-2 rounded-2 m-3" style="background-color: lightslategray">
-                    <h4 class="text-black m-4"><b>Dirección de facturación predeterminada</b></h4>
+                    <h4 class="text-black m-4"><b>Dirección de factur. predeterminada</b></h4>
 
                     @if (direcPago != null)
                     {
                         <div class="row">
-                            <div class="col-5 m-3">
+                            <div class="col-6 m-2">
                                 <span class="d-block">@direcPago.NombreContacto @direcPago.ApellidosContacto</span>
                                 @if (!String.IsNullOrEmpty(direcPago.NombreEmpresa))
                                 {
                                     <span>@direcPago.NombreEmpresa</span>
                                 }
-                                <span class="d-block">@direcPago.Calle</span>
-                                <span class="d-block">@direcPago.Numero</span>
+                                <span class="d-block">@direcPago.Calle, @direcPago.Numero</span>
                                 <span class="d-block">@direcPago.MuniDirecc.DMUN50</span>
                                 <span class="d-block">@direcPago.CP</span>
                                 <span class="d-block">@direcPago.Pais</span>
                                 <span class="d-block">T: @direcPago.TelefonoContacto</span>
                             </div>
-                            <div class="col-4">
+                            <div class="col-5">
                                 <div class="mt-3">
                                     <button class="btn btn-dark" @onclick="@(() => ActivarComponente(direcPago, "modificar"))">Modificar</button>
                                 </div>
@@ -54,28 +51,30 @@
                     }
                     else
                     {
-                        <span>No ha establecido una dirección de facturación predeterminada.</span>
+                        <div class="m-3">
+                            <span>No ha establecido una dirección de facturación predeterminada.</span>
+                        </div>
                     }
                 </div>
+                <!-- Direccion de envio -->
                 <div class="col-sm-5 border border-2 rounded-2 m-3" style="background-color: lightslategray">
                     <h4 class="text-black m-4"><b>Dirección de envío predeterminada</b></h4>
                     @if (direcEnvio != null)
                     {
                         <div class="row">
-                            <div class="col-5 m-3">
+                            <div class="col-6 m-2">
                                 <span class="d-block">@direcEnvio.NombreContacto @direcEnvio.ApellidosContacto</span>
                                 @if (!String.IsNullOrEmpty(direcEnvio.NombreEmpresa))
                                 {
                                     <span>@direcEnvio.NombreEmpresa</span>
                                 }
-                                <span class="d-block">@direcEnvio.Calle</span>
-                                <span class="d-block">@direcEnvio.Numero</span>
+                                <span class="d-block">@direcEnvio.Calle, @direcEnvio.Numero</span>
                                 <span class="d-block">@direcEnvio.MuniDirecc.DMUN50</span>
                                 <span class="d-block">@direcEnvio.CP</span>
                                 <span class="d-block">@direcEnvio.Pais</span>
                                 <span class="d-block">T: @direcEnvio.TelefonoContacto</span>
                             </div>
-                            <div class="col-4">
+                            <div class="col-5">
                                 <div class="mt-3">
                                     <button class="btn btn-dark" @onclick="@(() => ActivarComponente(direcEnvio, "modificar"))">Modificar</button>
                                 </div>
@@ -87,17 +86,18 @@
                     }
                     else
                     {
-                        <span>No ha establecido una dirección de envío predeterminada.</span>
+                        <div class="m-3">
+                            <span>No ha establecido una dirección de envío predeterminada.</span>
+                        </div>
                     }
                 </div>
             </div>
             <div class="row m-xl-2"><h3 class="text-black"><b>Libreta de Direcciones</b></h3></div>
-            @if (ClienteActual.MisDirecciones.Count > 2) 
+            @if (ClienteActual.MisDirecciones.Count > 2 || ClienteActual.MisDirecciones.Any((Direccion d) => d.EsFaturacion == false || d.EsPrincipal == false)) 
             {
-                @for (int i = 2; i < ClienteActual.MisDirecciones.Count; i++)
+                @foreach (Direccion d in ClienteActual.MisDirecciones)
                 {
-                    Direccion d = ClienteActual.MisDirecciones.ElementAt(i);
-                    <div class="row border bg-info rounded-3 mt-2">
+                    <div class="row border bg-info rounded-3 m-5">
                         <div class="col-8">
                             <h4 class="text-black"><b>Id Direccion: @d.IdDireccion.Substring(0, 5)</b></h4>
                             <span>@d.Calle, @d.Numero, @d.CP</span>
@@ -133,16 +133,16 @@
 </div>
 
 @code {
-    public Cliente ClienteActual { get; set; }
+    public Cliente? ClienteActual { get; set; }
 
-    private String MensajeServidor = "";
+    private String? MensajeServidor = "";
     private Boolean MostrarCompMod = false;
 
     private Direccion Direc = new Direccion();
     private String FuncionCompoDirec = "";
 
-    private Direccion direcPago = new Direccion();
-    private Direccion direcEnvio = new Direccion();
+    private Direccion? direcPago = new Direccion();
+    private Direccion? direcEnvio = new Direccion();
 
 
     protected override void OnInitialized()

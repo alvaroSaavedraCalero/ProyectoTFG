@@ -133,15 +133,12 @@
 
 @code {
     public ProductoAPI ProductoSelected { get; set; } = new ProductoAPI();
-
     public Cliente ClienteLogued { get; set; } = new Cliente();
-
+    public List<ProductoAPI> listaDeseos { get; set; } = new List<ProductoAPI>();
     private List<ComentarioCli> ListaComentarios = new List<ComentarioCli>();
     private String Comentario = "";
     private String ErrorComentario = "";
-
     private Boolean CorazonRojo = false;
-
     private int i = 0;
     private Boolean MostrarMasCantidad = false;
     private int CantidaItemProdActu = 1;
@@ -155,6 +152,7 @@
 
         this.ProductoSelected = await this.restService.RecuperarProducto(idProducto);
         this.ClienteLogued = this.storageService.RecuperarDatosCliente();
+        this.listaDeseos = this.storageService.RecuperarListaDeseos();
 
         ListaComentarios = await this.restService.RecuperarComentariosProd(ProductoSelected);
     }
@@ -248,6 +246,8 @@
 
             if (respuestaREST.Codigo == 0)
             {
+                this.listaDeseos.Remove(ProductoSelected);
+                this.storageService.AlmacenarListaDeseos(this.listaDeseos);
                 ClienteLogued.ListaDeseos.Remove(ProductoSelected);
                 this.storageService.AlmacenarDatosCliente(ClienteLogued);
                 CorazonRojo = false;
@@ -265,6 +265,8 @@
 
             if (respuestaREST.Codigo == 0)
             {
+                this.listaDeseos.Add(ProductoSelected);
+                this.storageService.AlmacenarListaDeseos(this.listaDeseos);
                 ClienteLogued.ListaDeseos.Add(ProductoSelected);
                 this.storageService.AlmacenarDatosCliente(ClienteLogued);
                 CorazonRojo = true;

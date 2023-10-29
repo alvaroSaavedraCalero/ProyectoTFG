@@ -36,11 +36,11 @@
             </div>
             <div class="row m-ms-1 mt-3">
                <div class="col-md-6">
-                    <input type="checkbox" class="form-check-input" @bind-value="@this.DireccionEdit.EsPrincipal" checked></input>
+                    <input type="checkbox" class="form-check-input" @bind-value="@this.DireccionEdit.EsPrincipal"></input>
                     <label class="form-label">Dirección Envío</label>
                 </div>
                 <div class="col-md-6">
-                    <input type="checkbox" class="form-check-input" @bind-value="@this.DireccionEdit.EsFaturacion" checked></input>
+                    <input type="checkbox" class="form-check-input" @bind-value="@this.DireccionEdit.EsFaturacion"></input>
                     <label class="form-label">Dirección Facturación</label> 
                 </div>
             </div>
@@ -77,7 +77,6 @@
                     @foreach (Municipio muni in this.listaMunicipios)
                     {
                         <option value="@muni.CMUM-@muni.DMUN50">@muni.DMUN50</option>
-
                     }
                 </InputSelect>
                 <label for="inputMunicipio" class="form-label">Municipio</label>
@@ -122,7 +121,6 @@
     protected override async Task OnInitializedAsync()
     {
         this.listaProvincias = await this.restService.RecuperarProvincias();
-
     }
 
     protected override void OnInitialized()

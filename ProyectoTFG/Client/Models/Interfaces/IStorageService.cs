@@ -8,8 +8,10 @@ namespace ProyectoTFG.Client.Models.Interfaces
 
         String RecuperarJWT();
         Cliente RecuperarDatosCliente();
+        List<ProductoAPI> RecuperarListaDeseos();
         void AlmacenarJWT(String jwt);
         void AlmacenarDatosCliente(Cliente datosCliente);
+        void AlmacenarListaDeseos(List<ProductoAPI> listaDeseos);
 
         #endregion
 
@@ -18,8 +20,10 @@ namespace ProyectoTFG.Client.Models.Interfaces
 
         Task<String> RecuperarJWTAsync();
         Task<Cliente> RecuperarDatosClienteAsync();
+        Task<List<ProductoAPI>> RecuperarListaDeseosAsync();
         Task AlmacenarJWTAsync(String jwt);
         Task AlmacenarDatosClienteAsync(Cliente datosCliente);
+        Task AlmacenarListaDeseosAsync(List<ProductoAPI> listaDeseos);
 
         #endregion
     }

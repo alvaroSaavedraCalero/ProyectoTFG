@@ -36,15 +36,15 @@
 
     <!-- Nombre -->
     <div class="row">
-        <div class="col">
+        <div class="col text-center">
             <h5><b class="text-black">@ProductoActual.title</b></h5>
         </div>
     </div>
 
     <!-- Precio -->
     <div class="row">
-        <div class="col">
-            <h6><b class="text-secondary">@ProductoActual.price €</b></h6>
+        <div class="col text-center">
+            <h6><b class="" style="color: purple;">@ProductoActual.price €</b></h6>
         </div>
     </div>
 </div>
@@ -55,18 +55,20 @@
     public ProductoAPI ProductoActual { get; set; } = new ProductoAPI();
 
     public Cliente ClienteLogued { get; set; } = new Cliente();
+    public List<ProductoAPI> listaDeseos { get; set; } = new List<ProductoAPI>();
 
     private Boolean CorazonRojo = false;
 
     protected override void OnInitialized()
     {
         this.ClienteLogued = this.storageService.RecuperarDatosCliente();
+        this.listaDeseos = this.storageService.RecuperarListaDeseos();
 
         if (!String.IsNullOrEmpty(this.ClienteLogued.cuenta.Email))
         {
-            if (ClienteLogued.ListaDeseos.Count != 0)
+            if (listaDeseos.Count != 0)
             {
-                ProductoAPI? p = ClienteLogued.ListaDeseos.Find((ProductoAPI p) => p.id == ProductoActual.id);
+                ProductoAPI? p = listaDeseos.Find((ProductoAPI p) => p.id == ProductoActual.id);
                 if (p != null)
                 {
                     CorazonRojo = true;
@@ -94,6 +96,8 @@
 
             if (respuestaREST.Codigo == 0)
             {
+                this.listaDeseos.Remove(ProductoActual);
+                this.storageService.AlmacenarListaDeseos(this.listaDeseos);
                 ClienteLogued.ListaDeseos.Remove(ProductoActual);
                 this.storageService.AlmacenarDatosCliente(ClienteLogued);
                 CorazonRojo = false;
@@ -111,6 +115,8 @@
 
             if (respuestaREST.Codigo == 0)
             {
+                this.listaDeseos.Add(ProductoActual);
+                this.storageService.AlmacenarListaDeseos(this.listaDeseos);
                 ClienteLogued.ListaDeseos.Add(ProductoActual);
                 this.storageService.AlmacenarDatosCliente(ClienteLogued);
                 CorazonRojo = true;

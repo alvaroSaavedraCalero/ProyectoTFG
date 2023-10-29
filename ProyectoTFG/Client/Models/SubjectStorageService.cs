@@ -10,14 +10,17 @@ namespace ProyectoTFG.Client.Models
 
         private BehaviorSubject<String> jwtSubject = new BehaviorSubject<String>("");
         private BehaviorSubject<Cliente> datosClienteSubject = new BehaviorSubject<Cliente>(new Cliente());
+        private BehaviorSubject<List<ProductoAPI>> listaDeseosSubject = new BehaviorSubject<List<ProductoAPI>>(new List<ProductoAPI>());
 
         private String jwt;
         private Cliente datosCliente;
+        private List<ProductoAPI> listaDeseos;
 
         public SubjectStorageService()
         {
             jwtSubject.Subscribe<String>((String jwt) => this.jwt = jwt);
             datosClienteSubject.Subscribe<Cliente>((Cliente c) => this.datosCliente = c);
+            listaDeseosSubject.Subscribe<List<ProductoAPI>>((List<ProductoAPI> l) => this.listaDeseos = l);
         }
 
         #endregion
@@ -61,6 +64,24 @@ namespace ProyectoTFG.Client.Models
             return this.jwt;
         }
 
+        /// <summary>
+        /// Recupera la lista de deseos del subject
+        /// </summary>
+        /// <returns>La lista de deseos recuperada</returns>
+        public List<ProductoAPI> RecuperarListaDeseos()
+        {
+            return this.listaDeseos;
+        }
+
+        /// <summary>
+        /// Almacena la lista de deseos en el subject
+        /// </summary>
+        /// <param name="listaDeseos">Lista de deseos</param>
+        public void AlmacenarListaDeseos(List<ProductoAPI> listaDeseos)
+        {
+            this.listaDeseosSubject.OnNext(listaDeseos);
+        }
+
         #endregion
 
 
@@ -82,6 +103,16 @@ namespace ProyectoTFG.Client.Models
         }
 
         public Task<string> RecuperarJWTAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<ProductoAPI>> RecuperarListaDeseosAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task AlmacenarListaDeseosAsync(List<ProductoAPI> listaDeseos)
         {
             throw new NotImplementedException();
         }

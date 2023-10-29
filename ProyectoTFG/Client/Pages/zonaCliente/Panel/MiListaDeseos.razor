@@ -9,12 +9,12 @@
 }
 else
 {
-    @if (ClienteActual.ListaDeseos.Count == 0)
+    @if (listaDeseos.Count == 0)
     {
         <div class="container">
             <div class="row">
-                <div class="col">
-                    <h2 class=" text-black">No hay ningún producto en la lista de deseos</h2>
+                <div class="col text-center">
+                    <h2 class="text-black mt-5">No hay ningún producto en la lista de deseos</h2>
                 </div>
             </div>
         </div>
@@ -23,7 +23,7 @@ else
     {
         <div class="container">
             <div class="row">
-                @foreach (ProductoAPI p in ClienteActual.ListaDeseos)
+                @foreach (ProductoAPI p in listaDeseos)
                 {
                     <div class="col-sm-3"><MiniProducto ProductoActual="@p" /></div>
                 }
@@ -33,12 +33,13 @@ else
 }
 
 @code {
-
-    public Cliente ClienteActual { get; set; }
+    public Cliente ClienteActual { get; set; } = new Cliente();
+    public List<ProductoAPI> listaDeseos { get; set; } = new List<ProductoAPI>();
 
     protected override void OnInitialized()
     {
         this.ClienteActual = this.storageService.RecuperarDatosCliente();
+        this.listaDeseos = this.storageService.RecuperarListaDeseos();
     }
 
 }

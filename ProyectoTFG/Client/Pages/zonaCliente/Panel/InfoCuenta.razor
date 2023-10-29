@@ -12,7 +12,7 @@
         <div class="row m-md-1 text-center "><h1><b>Información de la cuenta</b></h1></div>
 
         <div class="row">
-            <div class="col">
+            <div class="col m-4">
                 <div class="row m-md-1">
                     <input class="form-control" type="text" id="usuario" rows="1" placeholder="@ClienteActual.cuenta.Login" @bind-value="@ClienteActual.cuenta.Login"></input>
                     <label for="usuario" class="form-label">Usuario</label>
@@ -31,7 +31,7 @@
                 </div>
             </div>
 
-            <div class="col">
+            <div class="col m-4">
                 <div class="row m-md-1">
                     <input class="form-control" type="date" id="fechaNacimiento" rows="1" placeholder="@ClienteActual.FechaNacimiento" @bind-value="@ClienteActual.FechaNacimiento"></input>
                     <label for="fechaNacimiento" class="form-label">Fecha de nacimiento</label>
@@ -56,12 +56,12 @@
 
         </div>
 
-        <p class="text-decoration-none">
+        <p class="text-decoration-none m-4">
             <a class="btn btn-danger" data-bs-toggle="collapse" href="#collapseExample" role="radio" aria-expanded="false" aria-controls="collapseExample">
                 Cambiar Contraseña
             </a>
         </p>
-        <div class="collapse" id="collapseExample">
+        <div class="collapse m-4" id="collapseExample">
             <div class="row m-sm-1">
                 <input type="password" id="actualPassword" class="form-control" aria-labelledby="passwordHelpBlock">
                 <label for="actualPassword" class="form-label">Contraseña actual</label>
@@ -71,7 +71,7 @@
                 <label for="newPassword" class="form-label">Nueva contraseña*</label>
             </div>
             <div class="row m-sm-1">
-                <p class="text-gray-200">* Para una contraseña segura deberías tener como mínimo 2 tipos de caracteres diferentes (Mayúsculas, Minúsculas, números y caracteres especiales)</p>
+                <p class="" style="color: purple;">* Para una contraseña segura deberías tener como mínimo 2 tipos de caracteres diferentes (Mayúsculas, Minúsculas, números y caracteres especiales)</p>
             </div>
             <div class="row m-sm-1">
                 <input type="password" id="confirmNewPassword" class="form-control" aria-labelledby="passwordHelpBlock">
@@ -81,15 +81,15 @@
 
         @if (!String.IsNullOrEmpty(MensajeError))
         {
-            <div class="row">
-                <label class="@ClaseMensajeServer">@MensajeError</label>
+            <div class="row text-center">
+                <label class="mt-3 mb-4 @ClaseMensajeServer">@MensajeError</label>
             </div>
         }
 
         <div class="row">
             <div class="col text-center">
                 <div class="flex justify-between">
-                    <button type="submit" class="btn btn-dark m-2" @onclick="(() => FormularioInfoCuenta(formContext))">Guardar</button>
+                    <button type="submit" class="btn btn-dark m-2 mb-3" @onclick="(() => FormularioInfoCuenta(formContext))">Guardar</button>
                 </div>
             </div>
         </div>
