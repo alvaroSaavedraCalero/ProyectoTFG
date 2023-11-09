@@ -88,4 +88,10 @@ main {
     background-color: darkgray;
 }
 
+.esAdmin {
+    background-color: yellowgreen;
+}
 
+.esCliente {
+    background-color: blueviolet;
+}

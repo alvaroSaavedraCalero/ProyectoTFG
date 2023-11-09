@@ -5,7 +5,9 @@
 @inject IJSRuntime jsService
 @inject NavigationManager navigate
 
+
 <div class="container">
+
     <div class="row-cols-1, d-sm-inline-flex" style="padding-bottom:20px">
         <div class="col-2">
             <input class="form-control" style="margin-left:5px" type="search" placeholder="Por nombre..." @oninput="@(e => FiltradoClientes(e, "nombre"))" />
@@ -46,7 +48,15 @@
                         @foreach (Cliente cli in this.listaClientesFiltrados)
                         {
                             <tr>
-                                <td><img src="@cli.cuenta.ImagenAvatarBASE64" width="40" height="40" alt="imagenPerfil" class="rounded-circle flex-shrink-0" @onclick="() => MostrarCliente(cli.IdCliente)" /></td>
+                                <td><a @onclick="@( async () => {
+                                        if (!String.IsNullOrEmpty(this.ClienteLogued.IdCliente)){
+                                            await jsService.InvokeVoidAsync("open", $"Administracion/FichaCliente?idCliente={cli.IdCliente}", "_blank");
+                                        } else {
+                                            this.navigate.NavigateTo("/Cliente/Login");
+                                        }
+                                    })">
+                                    <img src="@cli.cuenta.ImagenAvatarBASE64" width="40" height="40" alt="imagenPerfil" class="rounded-circle flex-shrink-0"/>
+                                </a></td>
                                 <td>@cli.Nombre</td>
                                 <td>@cli.Apellidos</td>
                                 <td>@cli.Telefono</td>
@@ -63,11 +73,15 @@
 </div>
 
 @code {
+    // @(ClienteLogued.IdCliente == cli.IdCliente ? "esAdmin" : "esCliente")
+
     public List<Cliente> listaClientes { get; set; } = new List<Cliente>();
     public List<Cliente> listaClientesFiltrados { get; set; } = new List<Cliente>();
+    public Cliente ClienteLogued { get; set; } = new Cliente();
 
     protected async override Task OnInitializedAsync()
     {
+        this.ClienteLogued = this.storageService.RecuperarDatosCliente();
         String jwt = this.storageService.RecuperarJWT();
 
         this.listaClientes = await this.restService.GetClientes(jwt);
@@ -97,11 +111,5 @@
                 break;
         }
     }
-
-    
-
-    public async void MostrarCliente(String idCliente)
-    {
-        await jsService.InvokeVoidAsync("open", $"Administracion/FichaCliente/{idCliente}", "_blank");
-    }   
+  
 }

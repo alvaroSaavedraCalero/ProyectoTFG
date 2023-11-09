@@ -1,4 +1,6 @@
-﻿@inject NavigationManager navigate
+﻿
+
+@inject NavigationManager navigate
 @inject IRestService restService
 @inject IStorageService storageService
 
@@ -10,7 +12,7 @@
         <div class="col m-1">
             <div class="text-center m-2">
                 <a @onclick="@(() => {
-                    if (this.ClienteLogued != null) {
+                    if (!String.IsNullOrEmpty(this.ClienteLogued.IdCliente)) {
                         this.navigate.NavigateTo($"/Tienda/ProductoExpan?idProd={ProductoActual.id}");
                     } else {
                         this.navigate.NavigateTo("/Cliente/Login");

@@ -1,45 +1,48 @@
-﻿@page "/Administracion/FichaCliente/{idCliente}"
+﻿@page "/Administracion/FichaCliente"
+
+@using Microsoft.Extensions.Primitives
+@using Microsoft.AspNetCore.WebUtilities
 
 @inject IStorageService storageService
 @inject NavigationManager navigate
 @inject IRestService restService
 
 <div class="container border border-2 rounded-2 bg-light">
-    <EditForm Model="Cliente" Context="formContext" class="mx-auto my-auto">
+    <EditForm Model="clienteFicha" Context="formContext" class="mx-auto my-auto">
         <DataAnnotationsValidator></DataAnnotationsValidator>
         <div class="row m-md-1 text-center"><h2><b>Información de la cuenta</b></h2></div>
 
         <div class="row">
             <div class="col m-4">
                 <div class="row m-md-1">
-                    <input class="form-control" type="text" id="usuario" rows="1" placeholder="@Cliente.cuenta.Login" @bind-value="@Cliente.cuenta.Login"></input>
+                    <input class="form-control" type="text" id="usuario" rows="1" placeholder="@clienteFicha.cuenta.Login" @bind-value="@clienteFicha.cuenta.Login"></input>
                     <label for="usuario" class="form-label">Usuario</label>
                 </div>
                 <div class="row m-md-1">
-                    <input class="form-control" type="text" id="nombre" rows="1" placeholder="@Cliente.Nombre" @bind-value="@Cliente.Nombre"></input>
+                    <input class="form-control" type="text" id="nombre" rows="1" placeholder="@clienteFicha.Nombre" @bind-value="@clienteFicha.Nombre"></input>
                     <label for="nombre" class="form-label">Nombre</label>
                 </div>
                 <div class="row m-md-1">
-                    <input class="form-control" type="text" id="apellidos" rows="1" placeholder="@Cliente.Apellidos" @bind-value="@Cliente.Apellidos"></input>
+                    <input class="form-control" type="text" id="apellidos" rows="1" placeholder="@clienteFicha.Apellidos" @bind-value="@clienteFicha.Apellidos"></input>
                     <label for="apellidos" class="form-label">Apellidos</label>
                 </div>
                 <div class="row m-md-1">
-                    <input type="email" disabled class="form-control" id="email" placeholder="@Cliente.cuenta.Email" @bind-value="@Cliente.cuenta.Email">
+                    <input type="email" disabled class="form-control" id="email" placeholder="@clienteFicha.cuenta.Email" @bind-value="@clienteFicha.cuenta.Email">
                     <label for="email" class="form-label">Dirección E-Mail</label>
                 </div>
             </div>
 
             <div class="col m-4">
                 <div class="row m-md-1">
-                    <input class="form-control" type="date" id="fechaNacimiento" rows="1" placeholder="@Cliente.FechaNacimiento" @bind-value="@Cliente.FechaNacimiento"></input>
+                    <input class="form-control" type="date" id="fechaNacimiento" rows="1" placeholder="@clienteFicha.FechaNacimiento" @bind-value="@clienteFicha.FechaNacimiento"></input>
                     <label for="fechaNacimiento" class="form-label">Fecha de nacimiento</label>
                 </div>
                 <div class="row m-md-1">
-                    <input class="form-control" type="text" id="nif" rows="1" placeholder="@Cliente.NIF" @bind-value="@Cliente.NIF"></input>
+                    <input class="form-control" type="text" id="nif" rows="1" placeholder="@clienteFicha.NIF" @bind-value="@clienteFicha.NIF"></input>
                     <label for="nif" class="form-label">NIF</label>
                 </div>
                 <div class="row m-md-1">
-                    <select class="form-select" aria-label="Elige genero" id="genero" @bind="@this.Cliente.Genero">
+                    <select class="form-select" aria-label="Elige genero" id="genero" @bind="@this.clienteFicha.Genero">
                         <option value="0" selected>Elige genero</option>
                         <option value="Hombre">Hombre</option>
                         <option value="Mujer">Mujer</option>
@@ -47,34 +50,11 @@
                     <label for="genero" class="form-label">Género</label>
                 </div>
                 <div class="row m-md-1">
-                    <input class="form-control" type="text" id="telefono" rows="1" placeholder="@Cliente.Telefono" @bind-value="@Cliente.Telefono"></input>
+                    <input class="form-control" type="text" id="telefono" rows="1" placeholder="@clienteFicha.Telefono" @bind-value="@clienteFicha.Telefono"></input>
                     <label for="nif" class="form-label">Telefono</label>
                 </div>
             </div>
 
-        </div>
-
-        <p class="text-decoration-none m-4">
-            <a class="btn btn-danger" data-bs-toggle="collapse" href="#collapseExample" role="radio" aria-expanded="false" aria-controls="collapseExample">
-                Cambiar Contraseña
-            </a>
-        </p>
-        <div class="collapse m-4" id="collapseExample">
-            <div class="row m-sm-1">
-                <input type="password" id="actualPassword" class="form-control" aria-labelledby="passwordHelpBlock">
-                <label for="actualPassword" class="form-label">Contraseña actual</label>
-            </div>
-            <div class="row m-sm-1">
-                <input type="password" id="newPassword" class="form-control" aria-labelledby="passwordHelpBlock" @bind-value="@NuevaPassword">
-                <label for="newPassword" class="form-label">Nueva contraseña*</label>
-            </div>
-            <div class="row m-sm-1">
-                <p class="" style="color: purple;">* Para una contraseña segura deberías tener como mínimo 2 tipos de caracteres diferentes (Mayúsculas, Minúsculas, números y caracteres especiales)</p>
-            </div>
-            <div class="row m-sm-1">
-                <input type="password" id="confirmNewPassword" class="form-control" aria-labelledby="passwordHelpBlock">
-                <label for="confirmNewPassword" class="form-label">Confirmar contraseña nueva</label>
-            </div>
         </div>
 
         @if (!String.IsNullOrEmpty(MensajeError))
@@ -96,88 +76,52 @@
 </div>
 
 @code {
-    [Parameter]
-    public String idCliente { get; set; } = "";
+    public Cliente ClienteLogued { get; set; } = new Cliente();
 
-    public Cliente Cliente { get; set; } = new Cliente();
-
-    private String MensajeError = "";
+    private String? MensajeError = "";
     private String ClaseMensajeServer = "";
-    private String NuevaPassword = "";
+    private Cliente? clienteFicha = new Cliente();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Uri uri = new Uri(this.navigate.Uri);
+        Dictionary<String, StringValues> queryString = QueryHelpers.ParseQuery(uri.Query);
+        String idCliente = queryString["idCliente"];
+
+        this.ClienteLogued = this.storageService.RecuperarDatosCliente();
+        RestMessage respuesta = await this.restService.ObtenerClienteId(idCliente);
+        if (respuesta.Codigo == 0) { this.clienteFicha = respuesta.DatosCliente; } else { MensajeError = "No se ha podido recuperar el cliente solicitado"; }
+    }
 
     public async Task FormularioInfoCuenta(EditContext formContext)
     {
-        if (!String.IsNullOrEmpty(NuevaPassword))
+
+        String jwt = this.storageService.RecuperarJWT();
+        RestMessage respuestaREST = await this.restService.ModificarCliente(this.clienteFicha, true, jwt);
+        switch (respuestaREST.Codigo)
         {
-            String jwt = this.storageService.RecuperarJWT();
-
-            Cliente.cuenta.Password = NuevaPassword;
-            RestMessage respuestaREST = await this.restService.ModificarCliente(Cliente, true, jwt);
-
-            switch (respuestaREST.Codigo)
-            {
-                case 0:
-                    Cliente = respuestaREST.DatosCliente;
-                    Cliente.cuenta.Password = "";
-                    this.storageService.AlmacenarDatosCliente(respuestaREST.DatosCliente);
-                    this.ClaseMensajeServer = "text-success";
-                    this.MensajeError = respuestaREST.Mensaje;
-                    StateHasChanged();
-                    break;
-
-                case 5:
-                    this.navigate.NavigateTo("/Cliente/Login");
-                    break;
-
-                case 2:
-                    this.ClaseMensajeServer = "text-danger";
-                    MensajeError = respuestaREST.Mensaje;
-                    StateHasChanged();
-                    break;
-
-                case 1:
-                    this.ClaseMensajeServer = "text-danger";
-                    MensajeError = respuestaREST.Mensaje;
-                    StateHasChanged();
-                    break;
-            }
-
-
+            case 0:
+                this.clienteFicha = respuestaREST.DatosCliente;
+                this.clienteFicha.cuenta.Password = "";
+                this.ClaseMensajeServer = "text-success";
+                this.MensajeError = respuestaREST.Mensaje;
+                StateHasChanged();
+                break;
+            case 5:
+                this.navigate.NavigateTo("/Cliente/Login");
+                break;
+            case 2:
+                this.ClaseMensajeServer = "text-danger";
+                MensajeError = respuestaREST.Mensaje;
+                StateHasChanged();
+                break;
+            case 1:
+                this.ClaseMensajeServer = "text-danger";
+                MensajeError = respuestaREST.Mensaje;
+                StateHasChanged();
+                break;
         }
-        else
-        {
-            String jwt = this.storageService.RecuperarJWT();
-
-            RestMessage respuestaREST = await this.restService.ModificarCliente(Cliente, false, jwt);
-
-            switch (respuestaREST.Codigo)
-            {
-                case 0:
-                    Cliente = respuestaREST.DatosCliente;
-                    this.storageService.AlmacenarDatosCliente(respuestaREST.DatosCliente);
-                    this.ClaseMensajeServer = "text-success";
-                    this.MensajeError = respuestaREST.Mensaje;
-                    StateHasChanged();
-                    break;
-
-                case 5:
-                    this.navigate.NavigateTo("/Cliente/Login");
-                    break;
-
-                case 2:
-                    this.ClaseMensajeServer = "text-danger";
-                    MensajeError = respuestaREST.Mensaje;
-                    StateHasChanged();
-                    break;
-
-                case 1:
-                    this.ClaseMensajeServer = "text-danger";
-                    MensajeError = respuestaREST.Mensaje;
-                    StateHasChanged();
-                    break;
-            }
-        }
-
-
+        
     }
+
 }
