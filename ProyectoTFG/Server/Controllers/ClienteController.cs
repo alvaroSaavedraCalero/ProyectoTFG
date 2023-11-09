@@ -678,8 +678,9 @@ namespace ProyectoTFG.Server.Controllers
                     cuenta = new Cuenta
                     {
                         CuentaActivada = true,
-                        Email = userinfo.Email,
-                    }
+                        Email = userinfo.Email
+                    },
+                    Rol = "Cliente"
                 };
 
                 // Antes de registrar y redirigir, tenemos que comprobar si el cliente esta registrado

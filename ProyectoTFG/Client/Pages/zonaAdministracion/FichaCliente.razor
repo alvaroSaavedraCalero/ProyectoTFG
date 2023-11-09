@@ -7,10 +7,20 @@
 @inject NavigationManager navigate
 @inject IRestService restService
 
-<div class="container border border-2 rounded-2 bg-light">
+<div class="container border border-2 rounded-2 bg-light mb-5 mt-4">
     <EditForm Model="clienteFicha" Context="formContext" class="mx-auto my-auto">
         <DataAnnotationsValidator></DataAnnotationsValidator>
-        <div class="row m-md-1 text-center"><h2><b>Información de la cuenta</b></h2></div>
+        <div class="row text-center">
+            <div class="col">
+                <h2><b>Información de la cuenta</b></h2>
+            </div>
+        </div>
+
+        <div class="row text-center">
+            <div class="col">
+                <img src="@clienteFicha.cuenta.ImagenAvatarBASE64" class="img-thumbnail m-3" alt="ImagenPerfil2" height="150" width="150" />
+            </div>
+        </div>
 
         <div class="row">
             <div class="col m-4">
