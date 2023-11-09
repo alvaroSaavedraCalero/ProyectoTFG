@@ -1,47 +1,45 @@
-﻿@using ProyectoTFG.Shared
+﻿@page "/Administracion/FichaCliente/{idCliente}"
 
+@inject IStorageService storageService
 @inject NavigationManager navigate
 @inject IRestService restService
-@inject IStorageService storageService
-@inject IJSRuntime jsService
 
 <div class="container border border-2 rounded-2 bg-light">
-    <EditForm Model="ClienteActual" Context="formContext" class="mx-auto my-auto">
+    <EditForm Model="Cliente" Context="formContext" class="mx-auto my-auto">
         <DataAnnotationsValidator></DataAnnotationsValidator>
-
-        <div class="row m-md-1 text-center "><h1><b>Información de la cuenta</b></h1></div>
+        <div class="row m-md-1 text-center"><h2><b>Información de la cuenta</b></h2></div>
 
         <div class="row">
             <div class="col m-4">
                 <div class="row m-md-1">
-                    <input class="form-control" type="text" id="usuario" rows="1" placeholder="@ClienteActual.cuenta.Login" @bind-value="@ClienteActual.cuenta.Login"></input>
+                    <input class="form-control" type="text" id="usuario" rows="1" placeholder="@Cliente.cuenta.Login" @bind-value="@Cliente.cuenta.Login"></input>
                     <label for="usuario" class="form-label">Usuario</label>
                 </div>
                 <div class="row m-md-1">
-                    <input class="form-control" type="text" id="nombre" rows="1" placeholder="@ClienteActual.Nombre" @bind-value="@ClienteActual.Nombre"></input>
+                    <input class="form-control" type="text" id="nombre" rows="1" placeholder="@Cliente.Nombre" @bind-value="@Cliente.Nombre"></input>
                     <label for="nombre" class="form-label">Nombre</label>
                 </div>
                 <div class="row m-md-1">
-                    <input class="form-control" type="text" id="apellidos" rows="1" placeholder="@ClienteActual.Apellidos" @bind-value="@ClienteActual.Apellidos"></input>
+                    <input class="form-control" type="text" id="apellidos" rows="1" placeholder="@Cliente.Apellidos" @bind-value="@Cliente.Apellidos"></input>
                     <label for="apellidos" class="form-label">Apellidos</label>
                 </div>
                 <div class="row m-md-1">
-                    <input type="email" disabled class="form-control" id="email" placeholder="@ClienteActual.cuenta.Email" @bind-value="@ClienteActual.cuenta.Email">
+                    <input type="email" disabled class="form-control" id="email" placeholder="@Cliente.cuenta.Email" @bind-value="@Cliente.cuenta.Email">
                     <label for="email" class="form-label">Dirección E-Mail</label>
                 </div>
             </div>
 
             <div class="col m-4">
                 <div class="row m-md-1">
-                    <input class="form-control" type="date" id="fechaNacimiento" rows="1" placeholder="@ClienteActual.FechaNacimiento" @bind-value="@ClienteActual.FechaNacimiento"></input>
+                    <input class="form-control" type="date" id="fechaNacimiento" rows="1" placeholder="@Cliente.FechaNacimiento" @bind-value="@Cliente.FechaNacimiento"></input>
                     <label for="fechaNacimiento" class="form-label">Fecha de nacimiento</label>
                 </div>
                 <div class="row m-md-1">
-                    <input class="form-control" type="text" id="nif" rows="1" placeholder="@ClienteActual.NIF" @bind-value="@ClienteActual.NIF"></input>
+                    <input class="form-control" type="text" id="nif" rows="1" placeholder="@Cliente.NIF" @bind-value="@Cliente.NIF"></input>
                     <label for="nif" class="form-label">NIF</label>
                 </div>
                 <div class="row m-md-1">
-                    <select class="form-select" aria-label="Elige genero" id="genero" @bind="@this.ClienteActual.Genero">
+                    <select class="form-select" aria-label="Elige genero" id="genero" @bind="@this.Cliente.Genero">
                         <option value="0" selected>Elige genero</option>
                         <option value="Hombre">Hombre</option>
                         <option value="Mujer">Mujer</option>
@@ -49,7 +47,7 @@
                     <label for="genero" class="form-label">Género</label>
                 </div>
                 <div class="row m-md-1">
-                    <input class="form-control" type="text" id="telefono" rows="1" placeholder="@ClienteActual.Telefono" @bind-value="@ClienteActual.Telefono"></input>
+                    <input class="form-control" type="text" id="telefono" rows="1" placeholder="@Cliente.Telefono" @bind-value="@Cliente.Telefono"></input>
                     <label for="nif" class="form-label">Telefono</label>
                 </div>
             </div>
@@ -98,16 +96,14 @@
 </div>
 
 @code {
-    public Cliente ClienteActual { get; set; } = new Cliente();
+    [Parameter]
+    public String idCliente { get; set; } = "";
+
+    public Cliente Cliente { get; set; } = new Cliente();
 
     private String MensajeError = "";
     private String ClaseMensajeServer = "";
     private String NuevaPassword = "";
-
-    protected override void OnInitialized()
-    {
-        this.ClienteActual = this.storageService.RecuperarDatosCliente();
-    }
 
     public async Task FormularioInfoCuenta(EditContext formContext)
     {
@@ -115,14 +111,14 @@
         {
             String jwt = this.storageService.RecuperarJWT();
 
-            ClienteActual.cuenta.Password = NuevaPassword;
-            RestMessage respuestaREST = await this.restService.ModificarCliente(ClienteActual, true, jwt);
+            Cliente.cuenta.Password = NuevaPassword;
+            RestMessage respuestaREST = await this.restService.ModificarCliente(Cliente, true, jwt);
 
             switch (respuestaREST.Codigo)
             {
                 case 0:
-                    ClienteActual = respuestaREST.DatosCliente;
-                    ClienteActual.cuenta.Password = "";
+                    Cliente = respuestaREST.DatosCliente;
+                    Cliente.cuenta.Password = "";
                     this.storageService.AlmacenarDatosCliente(respuestaREST.DatosCliente);
                     this.ClaseMensajeServer = "text-success";
                     this.MensajeError = respuestaREST.Mensaje;
@@ -152,12 +148,12 @@
         {
             String jwt = this.storageService.RecuperarJWT();
 
-            RestMessage respuestaREST = await this.restService.ModificarCliente(ClienteActual, false, jwt);
+            RestMessage respuestaREST = await this.restService.ModificarCliente(Cliente, false, jwt);
 
             switch (respuestaREST.Codigo)
             {
                 case 0:
-                    ClienteActual = respuestaREST.DatosCliente;
+                    Cliente = respuestaREST.DatosCliente;
                     this.storageService.AlmacenarDatosCliente(respuestaREST.DatosCliente);
                     this.ClaseMensajeServer = "text-success";
                     this.MensajeError = respuestaREST.Mensaje;

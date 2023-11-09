@@ -12,13 +12,13 @@ namespace ProyectoTFG.Server.Models
 
         private IConfiguration accesoAppSettings;
         private MongoClient clienteMongo;
-        private IMongoDatabase bdFirebox;
+        private IMongoDatabase bdCollection;
 
         public MongoDBService(IConfiguration accesoAppSettings)
         {
             this.accesoAppSettings = accesoAppSettings;
             this.clienteMongo = new MongoClient(this.accesoAppSettings["MongoDB:ConnectionString"]);
-            this.bdFirebox = this.clienteMongo.GetDatabase(this.accesoAppSettings["MongoDB:Database"]);
+            this.bdCollection = this.clienteMongo.GetDatabase(this.accesoAppSettings["MongoDB:Database"]);
         }
 
         #endregion
@@ -41,7 +41,7 @@ namespace ProyectoTFG.Server.Models
                 Cliente cliente = new Cliente();
                 // recuperamos de la coleccion cuentas, el documento asociado al email
                 FilterDefinition<BsonDocument> filtro = Builders<BsonDocument>.Filter.Eq("cuenta.email", email);
-                BsonDocument clienteBson = this.bdFirebox.GetCollection<BsonDocument>("clientes").Find(filtro).FirstOrDefaultAsync().Result;
+                BsonDocument clienteBson = this.bdCollection.GetCollection<BsonDocument>("clientes").Find(filtro).FirstOrDefaultAsync().Result;
 
                 String hashedPassword = "";
 
@@ -54,6 +54,7 @@ namespace ProyectoTFG.Server.Models
                     cliente.FechaNacimiento = System.Convert.ToDateTime(clienteBson.GetElement("fechaNacimiento").Value);
                     cliente.Genero = clienteBson.GetElement("genero").Value.ToString();
                     cliente.NIF = clienteBson.GetElement("nif").Value.ToString();
+                    cliente.Rol = clienteBson.GetElement("rol").Value.ToString();
                     cliente.cuenta = new Cuenta
                     {
                         Email = clienteBson.GetElement("cuenta").Value.ToBsonDocument().GetElement("email").Value.ToString(),
@@ -68,7 +69,7 @@ namespace ProyectoTFG.Server.Models
                     if (listaProductosDeseados.Count > 0)
                     {
                         HttpClient clienteHttp = new HttpClient();
-                        foreach(int i in listaProductosDeseados)
+                        foreach (int i in listaProductosDeseados)
                         {
                             HttpResponseMessage respuesta = await clienteHttp.GetAsync($"https://fakestoreapi.com/products/{i}");
                             String respuestaString = await respuesta.Content.ReadAsStringAsync();
@@ -119,7 +120,7 @@ namespace ProyectoTFG.Server.Models
 
                             foreach (String s in listaIdsDirecciones)
                             {
-                                Direccion dir = this.bdFirebox.GetCollection<Direccion>("direcciones").AsQueryable<Direccion>()
+                                Direccion dir = this.bdCollection.GetCollection<Direccion>("direcciones").AsQueryable<Direccion>()
                                     .Where((Direccion d) => d.IdDireccion == s).Single<Direccion>();
                                 if (dir != null)
                                 {
@@ -139,7 +140,7 @@ namespace ProyectoTFG.Server.Models
                             List<Pedido> listaPedidos = new List<Pedido>();
                             foreach (String s in listaIdsPedidos)
                             {
-                                Pedido ped = this.bdFirebox.GetCollection<Pedido>("pedidos").AsQueryable<Pedido>()
+                                Pedido ped = this.bdCollection.GetCollection<Pedido>("pedidos").AsQueryable<Pedido>()
                                     .Where((Pedido p) => p.IdPedido == s).Single<Pedido>();
                                 if (ped != null)
                                 {
@@ -171,7 +172,7 @@ namespace ProyectoTFG.Server.Models
         public async Task<Cliente> ObtenerClienteId(String id)
         {
             FilterDefinition<BsonDocument> filtro = Builders<BsonDocument>.Filter.Eq("_id", BsonObjectId.Parse(id));
-            BsonDocument clienteBson = this.bdFirebox.GetCollection<BsonDocument>("clientes").Find(filtro).FirstOrDefaultAsync().Result;
+            BsonDocument clienteBson = this.bdCollection.GetCollection<BsonDocument>("clientes").Find(filtro).FirstOrDefaultAsync().Result;
             Cliente cliente = new Cliente();
 
             if (clienteBson != null)
@@ -214,7 +215,7 @@ namespace ProyectoTFG.Server.Models
 
                     foreach (String s in listaIdsDirecciones)
                     {
-                        Direccion dir = this.bdFirebox.GetCollection<Direccion>("direcciones").AsQueryable<Direccion>()
+                        Direccion dir = this.bdCollection.GetCollection<Direccion>("direcciones").AsQueryable<Direccion>()
                             .Where((Direccion d) => d.IdDireccion == s).Single<Direccion>();
                         if (dir != null)
                         {
@@ -234,7 +235,7 @@ namespace ProyectoTFG.Server.Models
                     List<Pedido> listaPedidos = new List<Pedido>();
                     foreach (String s in listaIdsPedidos)
                     {
-                        Pedido ped = this.bdFirebox.GetCollection<Pedido>("pedidos").AsQueryable<Pedido>()
+                        Pedido ped = this.bdCollection.GetCollection<Pedido>("pedidos").AsQueryable<Pedido>()
                             .Where((Pedido p) => p.IdPedido == s).Single<Pedido>();
                         if (ped != null)
                         {
@@ -245,7 +246,7 @@ namespace ProyectoTFG.Server.Models
                 }
 
                 return cliente;
-            } 
+            }
             else { return null; }
         }
 
@@ -259,13 +260,13 @@ namespace ProyectoTFG.Server.Models
             try
             {
                 FilterDefinition<BsonDocument> filtro = Builders<BsonDocument>.Filter.Eq("idGoogle", idGoogle);
-                BsonDocument clienteBson = this.bdFirebox.GetCollection<BsonDocument>("googleSesions").Find(filtro).FirstOrDefaultAsync().Result;
+                BsonDocument clienteBson = this.bdCollection.GetCollection<BsonDocument>("googleSesions").Find(filtro).FirstOrDefaultAsync().Result;
 
                 if (clienteBson != null)
                 {
                     String idCliente = clienteBson.GetElement("idCliente").Value.ToString();
                     Cliente cliente = await this.ObtenerClienteId(idCliente);
-                    
+
                     if (cliente != null)
                     {
                         return cliente;
@@ -290,13 +291,13 @@ namespace ProyectoTFG.Server.Models
         {
             try
             {
-                BsonDocument docBson = new BsonDocument 
+                BsonDocument docBson = new BsonDocument
                 {
                     {"idGoogle", idGoogle},
                     {"idCliente", idCliente }
                 };
 
-                await this.bdFirebox.GetCollection<BsonDocument>("googleSesions").InsertOneAsync(docBson);
+                await this.bdCollection.GetCollection<BsonDocument>("googleSesions").InsertOneAsync(docBson);
                 return true;
             }
             catch (Exception ex)
@@ -314,11 +315,15 @@ namespace ProyectoTFG.Server.Models
         {
             try
             {
-                await this.bdFirebox.GetCollection<Cliente>("clientes").InsertOneAsync(cliente);
-                Cliente clienteAlmac = this.bdFirebox.GetCollection<Cliente>("clientes").AsQueryable<Cliente>()
+                Boolean insertCli = await RegistrarCliente(cliente);
+                if (insertCli)
+                {
+                    Cliente clienteAlmac = this.bdCollection.GetCollection<Cliente>("clientes").AsQueryable<Cliente>()
                     .Where((Cliente c) => c.cuenta.Email == cliente.cuenta.Email && c.cuenta.CuentaActivada == true).Single<Cliente>();
 
-                if (clienteAlmac != null) { return clienteAlmac; } else { return null; }
+                    if (clienteAlmac != null) { return clienteAlmac; } else { return null; }
+                }
+                else { return null; }
             }
             catch (Exception ex)
             {
@@ -336,14 +341,15 @@ namespace ProyectoTFG.Server.Models
             try
             {
                 UpdateDefinition<Cliente> update = Builders<Cliente>.Update.Set("cuenta.cuentaActiva", true);
-                UpdateResult resultadoUpdate = await this.bdFirebox.GetCollection<Cliente>("clientes")
+                UpdateResult resultadoUpdate = await this.bdCollection.GetCollection<Cliente>("clientes")
                     .UpdateOneAsync<Cliente>(c => c.IdCliente == idCliente, update);
 
                 if (resultadoUpdate.ModifiedCount > 0)
                 {
                     return true;
-                } else { return false; }
-                    
+                }
+                else { return false; }
+
             }
             catch (Exception)
             {
@@ -368,6 +374,7 @@ namespace ProyectoTFG.Server.Models
                     FechaNacimiento = cliente.FechaNacimiento,
                     Genero = cliente.Genero,
                     NIF = cliente.NIF,
+                    Rol = "cliente",
                     cuenta = new Cuenta
                     {
                         Login = cliente.cuenta.Login,
@@ -382,7 +389,7 @@ namespace ProyectoTFG.Server.Models
                     PedidoActual = cliente.PedidoActual
                 };
 
-                await this.bdFirebox.GetCollection<Cliente>("clientes").InsertOneAsync(registro);
+                await this.bdCollection.GetCollection<Cliente>("clientes").InsertOneAsync(registro);
 
                 return true;
             }
@@ -402,7 +409,7 @@ namespace ProyectoTFG.Server.Models
             try
             {
                 // Recuperamos la cuenta de la base de datos
-                Cliente clienteRecup = this.bdFirebox.GetCollection<Cliente>("clientes").AsQueryable<Cliente>()
+                Cliente clienteRecup = this.bdCollection.GetCollection<Cliente>("clientes").AsQueryable<Cliente>()
                     .Where((Cliente c) => c.IdCliente == cliente.IdCliente).Single<Cliente>();
 
                 if (cambioPass)
@@ -413,7 +420,7 @@ namespace ProyectoTFG.Server.Models
                     UpdateDefinition<Cliente> updatePass = Builders<Cliente>.Update
                         .Set(c => c.cuenta.Password, hash);
 
-                    UpdateResult resultadoPass = await this.bdFirebox.GetCollection<Cliente>("clientes")
+                    UpdateResult resultadoPass = await this.bdCollection.GetCollection<Cliente>("clientes")
                     .UpdateOneAsync<Cliente>(c => c.IdCliente == clienteRecup.IdCliente, updatePass);
                 }
 
@@ -434,7 +441,7 @@ namespace ProyectoTFG.Server.Models
                     .Set(c => c.cuenta.ImagenAvatarBASE64, cliente.cuenta.ImagenAvatarBASE64);
 
 
-                    UpdateResult resultadoCuenta = await this.bdFirebox.GetCollection<Cliente>("clientes")
+                    UpdateResult resultadoCuenta = await this.bdCollection.GetCollection<Cliente>("clientes")
                         .UpdateOneAsync<Cliente>(c => c.IdCliente == clienteRecup.IdCliente, updateCuenta);
 
                     // Si se ha modificado bien, modificamos la contrasela si lo quiere el cliente
@@ -449,7 +456,7 @@ namespace ProyectoTFG.Server.Models
                                 .Set(c => c.Genero, cliente.Genero)
                                 .Set(c => c.NIF, cliente.NIF);
 
-                        UpdateResult resultadoCliente = await this.bdFirebox.GetCollection<Cliente>("clientes")
+                        UpdateResult resultadoCliente = await this.bdCollection.GetCollection<Cliente>("clientes")
                             .UpdateOneAsync<Cliente>(c => c.IdCliente == cliente.IdCliente, updateCliente);
 
                         if (resultadoCliente.ModifiedCount > 0)
@@ -473,7 +480,7 @@ namespace ProyectoTFG.Server.Models
                             .Set(c => c.Genero, cliente.Genero)
                             .Set(c => c.NIF, cliente.NIF);
 
-                    UpdateResult resultadoCliente = await this.bdFirebox.GetCollection<Cliente>("clientes")
+                    UpdateResult resultadoCliente = await this.bdCollection.GetCollection<Cliente>("clientes")
                         .UpdateOneAsync<Cliente>(c => c.IdCliente == cliente.IdCliente, updateCliente);
 
                     if (resultadoCliente.ModifiedCount > 0)
@@ -502,12 +509,13 @@ namespace ProyectoTFG.Server.Models
             try
             {
                 UpdateDefinition<Cliente> update = Builders<Cliente>.Update.Set(c => c.cuenta.ImagenAvatarBASE64, imagen);
-                UpdateResult resultadoUpdate = await this.bdFirebox.GetCollection<Cliente>("clientes")
+                UpdateResult resultadoUpdate = await this.bdCollection.GetCollection<Cliente>("clientes")
                     .UpdateOneAsync<Cliente>(c => c.IdCliente == cliente.IdCliente, update);
                 if (resultadoUpdate.ModifiedCount > 0)
                 {
                     return true;
-                } else { return false; }
+                }
+                else { return false; }
             }
             catch (Exception ex)
             {
@@ -526,9 +534,9 @@ namespace ProyectoTFG.Server.Models
             try
             {
                 // Añadimos la direccion a la coleccion y obtenemos su _id
-                await this.bdFirebox.GetCollection<Direccion>("direcciones").InsertOneAsync(direccion);
+                await this.bdCollection.GetCollection<Direccion>("direcciones").InsertOneAsync(direccion);
 
-                String idDireccion = this.bdFirebox.GetCollection<Direccion>("direcciones").AsQueryable<Direccion>()
+                String idDireccion = this.bdCollection.GetCollection<Direccion>("direcciones").AsQueryable<Direccion>()
                     .Where((Direccion d) => d.NombreContacto == direccion.NombreContacto && d.ApellidosContacto == direccion.ApellidosContacto &&
                     d.NombreEmpresa == direccion.NombreEmpresa && d.TelefonoContacto == direccion.TelefonoContacto &&
                     d.Calle == direccion.Calle && d.Numero == direccion.Numero && d.CP == direccion.CP &&
@@ -539,7 +547,7 @@ namespace ProyectoTFG.Server.Models
                 // Guardamos el _id de la direccion en las direcciones del cliente
                 FilterDefinition<Cliente> filtro = Builders<Cliente>.Filter.Eq((Cliente c) => c.IdCliente, idCliente);
                 UpdateDefinition<Cliente> updateCliente = Builders<Cliente>.Update.AddToSet("direcciones", direccion.IdDireccion);
-                UpdateResult resultadoOperacion = await this.bdFirebox.GetCollection<Cliente>("clientes").UpdateOneAsync(filtro, updateCliente);
+                UpdateResult resultadoOperacion = await this.bdCollection.GetCollection<Cliente>("clientes").UpdateOneAsync(filtro, updateCliente);
 
                 if (resultadoOperacion.ModifiedCount > 0)
                 {
@@ -577,7 +585,7 @@ namespace ProyectoTFG.Server.Models
                     .Set(direc => direc.Pais, direcccion.Pais)
                     .Set(direc => direc.EsPrincipal, direcccion.EsPrincipal)
                     .Set(direc => direc.EsFaturacion, direcccion.EsFaturacion);
-                UpdateResult resultadoOperacion = await this.bdFirebox.GetCollection<Direccion>("direcciones").UpdateOneAsync(filtro, updateDireccion);
+                UpdateResult resultadoOperacion = await this.bdCollection.GetCollection<Direccion>("direcciones").UpdateOneAsync(filtro, updateDireccion);
 
 
                 if (resultadoOperacion.ModifiedCount > 0)
@@ -604,12 +612,12 @@ namespace ProyectoTFG.Server.Models
                 FilterDefinition<String> filtro = Builders<String>.Filter.Eq(str => str, direcccion.IdDireccion);
                 UpdateDefinition<Cliente> update = Builders<Cliente>.Update.Pull("direcciones", direcccion.IdDireccion);
 
-                UpdateResult resultado = await this.bdFirebox.GetCollection<Cliente>("clientes")
+                UpdateResult resultado = await this.bdCollection.GetCollection<Cliente>("clientes")
                     .UpdateOneAsync<Cliente>(c => c.IdCliente == idCliente, update);
 
                 if (resultado.ModifiedCount > 0)
                 {
-                    DeleteResult resultadoDelete = await this.bdFirebox.GetCollection<Direccion>("direcciones")
+                    DeleteResult resultadoDelete = await this.bdCollection.GetCollection<Direccion>("direcciones")
                         .DeleteOneAsync<Direccion>((Direccion d) => d.IdDireccion == direcccion.IdDireccion);
 
                     if (resultadoDelete.DeletedCount > 0)
@@ -645,15 +653,15 @@ namespace ProyectoTFG.Server.Models
                 // preparamos el pedido
                 pedido.IdCliente = cliente.IdCliente;
 
-                await this.bdFirebox.GetCollection<Pedido>("pedidos").InsertOneAsync(pedido);
+                await this.bdCollection.GetCollection<Pedido>("pedidos").InsertOneAsync(pedido);
 
-                pedido.IdPedido = this.bdFirebox.GetCollection<Pedido>("pedidos").AsQueryable<Pedido>().
+                pedido.IdPedido = this.bdCollection.GetCollection<Pedido>("pedidos").AsQueryable<Pedido>().
                     Where((Pedido p) => p.IdCliente == cliente.IdCliente && p.ItemsPedido == pedido.ItemsPedido).Single<Pedido>().IdPedido;
 
                 // Teniendo el Id del pedido, lo guardamos en los pedidos del cliente
                 FilterDefinition<Cliente> filtro = Builders<Cliente>.Filter.Eq((Cliente c) => c.IdCliente, cliente.IdCliente);
                 UpdateDefinition<Cliente> update = Builders<Cliente>.Update.AddToSet("pedidos", pedido.IdPedido);
-                UpdateResult resultadoOperacion = await this.bdFirebox.GetCollection<Cliente>("clientes").UpdateOneAsync(filtro, update);
+                UpdateResult resultadoOperacion = await this.bdCollection.GetCollection<Cliente>("clientes").UpdateOneAsync(filtro, update);
 
                 if (resultadoOperacion.ModifiedCount > 0)
                 {
@@ -679,7 +687,7 @@ namespace ProyectoTFG.Server.Models
             {
                 FilterDefinition<Cliente> filtro = Builders<Cliente>.Filter.Eq((Cliente c) => c.IdCliente, idCliente);
                 UpdateDefinition<Cliente> update = Builders<Cliente>.Update.AddToSet("listaDeseos", idProducto);
-                UpdateResult resultado = await this.bdFirebox.GetCollection<Cliente>("clientes").UpdateOneAsync(filtro, update);
+                UpdateResult resultado = await this.bdCollection.GetCollection<Cliente>("clientes").UpdateOneAsync(filtro, update);
 
                 if (resultado.ModifiedCount == 1)
                 {
@@ -708,7 +716,7 @@ namespace ProyectoTFG.Server.Models
             {
                 FilterDefinition<Cliente> filtro = Builders<Cliente>.Filter.Eq((Cliente c) => c.IdCliente, idCliente);
                 UpdateDefinition<Cliente> update = Builders<Cliente>.Update.Pull("listaDeseos", idProducto);
-                UpdateResult resultado = await this.bdFirebox.GetCollection<Cliente>("clientes").UpdateOneAsync(filtro, update);
+                UpdateResult resultado = await this.bdCollection.GetCollection<Cliente>("clientes").UpdateOneAsync(filtro, update);
 
                 if (resultado.ModifiedCount > 0)
                 {
@@ -736,7 +744,7 @@ namespace ProyectoTFG.Server.Models
         {
             try
             {
-                await this.bdFirebox.GetCollection<ComentarioCli>("comentarios").InsertOneAsync(
+                await this.bdCollection.GetCollection<ComentarioCli>("comentarios").InsertOneAsync(
                     new ComentarioCli
                     {
                         Comentario = comentario,
@@ -763,7 +771,7 @@ namespace ProyectoTFG.Server.Models
             try
             {
                 FilterDefinition<ComentarioCli> filter = Builders<ComentarioCli>.Filter.Eq((ComentarioCli c) => c.IdProducto, idProducto);
-                List<ComentarioCli> listaComentarios = await this.bdFirebox.GetCollection<ComentarioCli>("comentarios").FindAsync(filter).Result.ToListAsync();
+                List<ComentarioCli> listaComentarios = await this.bdCollection.GetCollection<ComentarioCli>("comentarios").FindAsync(filter).Result.ToListAsync();
                 return listaComentarios;
             }
             catch (Exception ex)
@@ -781,7 +789,7 @@ namespace ProyectoTFG.Server.Models
         {
             try
             {
-                await this.bdFirebox.GetCollection<PaypalPedidoInfo>("paypalTemp").InsertOneAsync(datosPedido);
+                await this.bdCollection.GetCollection<PaypalPedidoInfo>("paypalTemp").InsertOneAsync(datosPedido);
                 return true;
             }
             catch (Exception ex)
@@ -800,10 +808,11 @@ namespace ProyectoTFG.Server.Models
             try
             {
                 FilterDefinition<PaypalPedidoInfo> filtro = Builders<PaypalPedidoInfo>.Filter.Eq((PaypalPedidoInfo p) => p.Pedido.IdPedido, idPedido);
-                PaypalPedidoInfo recup = await this.bdFirebox.GetCollection<PaypalPedidoInfo>("paypalTemp").Find(filtro).FirstOrDefaultAsync();
-                if (recup == null) { return null; } else 
-                { 
-                    DeleteResult resultado = await this.bdFirebox.GetCollection<PaypalPedidoInfo>("paypalTemp").DeleteOneAsync(filtro);
+                PaypalPedidoInfo recup = await this.bdCollection.GetCollection<PaypalPedidoInfo>("paypalTemp").Find(filtro).FirstOrDefaultAsync();
+                if (recup == null) { return null; }
+                else
+                {
+                    DeleteResult resultado = await this.bdCollection.GetCollection<PaypalPedidoInfo>("paypalTemp").DeleteOneAsync(filtro);
                     if (resultado.DeletedCount > 0) { return recup; } else { return null; }
                 }
             }
@@ -815,7 +824,105 @@ namespace ProyectoTFG.Server.Models
 
         #endregion
 
+
+        #region metodos Administracion
+
+        /// <summary>
+        /// Recupera todos los clientes de la base de datos
+        /// </summary>
+        /// <returns>Una lista con los clientes recuperados</returns>
+        public async Task<List<Cliente>> GetClientes()
+        {
+            List<Cliente> listaClientes = new List<Cliente>();
+            FilterDefinition<BsonDocument> filtro = Builders<BsonDocument>.Filter.Empty;
+            List<BsonDocument> listaClientesBson = this.bdCollection.GetCollection<BsonDocument>("clientes").Find(filtro).ToList();
+
+            if (listaClientesBson != null || listaClientesBson.Count == 0)
+            {
+                foreach (BsonDocument clienteBson in listaClientesBson)
+                {
+                    Cliente cliente = new Cliente();
+
+                    cliente.IdCliente = clienteBson.GetElement("_id").Value.ToString();
+                    cliente.Nombre = clienteBson.GetElement("nombre").Value.ToString();
+                    cliente.Apellidos = clienteBson.GetElement("apellidos").Value.ToString();
+                    cliente.Telefono = clienteBson.GetElement("telefono").Value.ToString();
+                    cliente.FechaNacimiento = System.Convert.ToDateTime(clienteBson.GetElement("fechaNacimiento").Value);
+                    cliente.Genero = clienteBson.GetElement("genero").Value.ToString();
+                    cliente.NIF = clienteBson.GetElement("nif").Value.ToString();
+                    cliente.cuenta = new Cuenta
+                    {
+                        Email = clienteBson.GetElement("cuenta").Value.ToBsonDocument().GetElement("email").Value.ToString(),
+                        Login = clienteBson.GetElement("cuenta").Value.ToBsonDocument().GetElement("login").Value.ToString(),
+                        CuentaActivada = System.Convert.ToBoolean(clienteBson.GetElement("cuenta").Value.ToBsonDocument().GetElement("cuentaActiva").Value),
+                        ImagenAvatarBASE64 = clienteBson.GetElement("cuenta").Value.ToBsonDocument().GetElement("imagenAvatarBASE64").Value.ToString(),
+                        Password = clienteBson.GetElement("cuenta").Value.ToBsonDocument().GetElement("password").Value.ToString()
+                    };
+
+                    // Recupero la lista de deseos
+                    List<int> listaProductosDeseados = clienteBson.GetElement("listaDeseos").Value.AsBsonArray.Select(s => s.ToInt32()).ToList() ?? new List<int>();
+                    if (listaProductosDeseados.Count > 0)
+                    {
+                        HttpClient clienteHttp = new HttpClient();
+                        foreach (int i in listaProductosDeseados)
+                        {
+                            HttpResponseMessage respuesta = await clienteHttp.GetAsync($"https://fakestoreapi.com/products/{i}");
+                            String respuestaString = await respuesta.Content.ReadAsStringAsync();
+                            ProductoAPI productoApi = JsonSerializer.Deserialize<ProductoAPI>(respuestaString);
+                            cliente.ListaDeseos.Add(productoApi);
+                        }
+                    }
+
+                    // Recupero las direcciones asociadas
+                    List<String> listaIdsDirecciones = clienteBson.GetElement("direcciones").Value.AsBsonArray.Select(s => s.AsString).ToList() ?? new List<String>();
+
+                    if (listaIdsDirecciones != null || listaIdsDirecciones.Count != 0)
+                    {
+                        List<Direccion> listaDirecciones = new List<Direccion>();
+
+                        foreach (String s in listaIdsDirecciones)
+                        {
+                            Direccion dir = this.bdCollection.GetCollection<Direccion>("direcciones").AsQueryable<Direccion>()
+                                .Where((Direccion d) => d.IdDireccion == s).Single<Direccion>();
+                            if (dir != null)
+                            {
+                                listaDirecciones.Add(dir);
+                            }
+                        }
+
+                        // Y las añadimos a las direcciones del cliente
+                        cliente.MisDirecciones = listaDirecciones;
+                    }
+
+                    // Recuperamos los pedidos asociados
+                    List<String> listaIdsPedidos = clienteBson.GetElement("pedidos").Value.AsBsonArray.Select(s => s.AsString).ToList() ?? new List<String>();
+
+                    if (listaIdsPedidos != null || listaIdsPedidos.Count != 0)
+                    {
+                        List<Pedido> listaPedidos = new List<Pedido>();
+                        foreach (String s in listaIdsPedidos)
+                        {
+                            Pedido ped = this.bdCollection.GetCollection<Pedido>("pedidos").AsQueryable<Pedido>()
+                                .Where((Pedido p) => p.IdPedido == s).Single<Pedido>();
+                            if (ped != null)
+                            {
+                                listaPedidos.Add(ped);
+                            }
+                        }
+                        cliente.MisPedidos = listaPedidos;
+                    }
+
+                    listaClientes.Add(cliente);
+                }
+
+                return listaClientes;
+            }
+            else { return null; }
+
+        }
+
+        #endregion
+
         #endregion
     }
-
 }

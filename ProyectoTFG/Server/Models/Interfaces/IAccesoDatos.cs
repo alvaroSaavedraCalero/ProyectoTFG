@@ -32,5 +32,11 @@ namespace ProyectoTFG.Server.Models.Interfaces
         Task<List<ComentarioCli>> RecuperarComentariosProducto(String idProducto);
 
         #endregion
+
+        #region metodos Administracion
+
+        Task<List<Cliente>> GetClientes();
+
+        #endregion
     }
 }

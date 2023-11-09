@@ -217,7 +217,6 @@ namespace ProyectoTFG.Client.Models
 
         #endregion
 
-
         #region zona Tienda
 
         /// <summary>
@@ -396,6 +395,25 @@ namespace ProyectoTFG.Client.Models
             };
             HttpResponseMessage respuesta = await this.clienteHttp.PostAsJsonAsync<Dictionary<String, String>>("api/Tienda/RealizarPagoPayPal", datos);
             return await respuesta.Content.ReadAsStringAsync();
+        }
+
+        #endregion
+
+        #region zona Administracion
+
+        /// <summary>
+        /// Realiza una peticion a la API_REST de Administracion para obtener los clientes de la base de datos
+        /// </summary>
+        /// <param name="jwt">JWT del cliente</param>
+        /// <returns>La respuesta del servidor en forma de lista de clientes</returns>
+        public async Task<List<Cliente>> GetClientes(String jwt)
+        {
+            Dictionary<String, String> datos = new Dictionary<String, String>
+            {
+                {"jwt", jwt }
+            };
+            HttpResponseMessage respuesta = await this.clienteHttp.PostAsJsonAsync<Dictionary<String, String>>("api/Administracion/GetClientes", datos);
+            return await respuesta.Content.ReadFromJsonAsync<List<Cliente>>();
         }
 
         #endregion

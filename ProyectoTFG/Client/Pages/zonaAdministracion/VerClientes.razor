@@ -1,0 +1,107 @@
+﻿@page "/Administracion/VerClientes"
+
+@inject IRestService restService
+@inject IStorageService storageService
+@inject IJSRuntime jsService
+@inject NavigationManager navigate
+
+<div class="container">
+    <div class="row-cols-1, d-sm-inline-flex" style="padding-bottom:20px">
+        <div class="col-2">
+            <input class="form-control" style="margin-left:5px" type="search" placeholder="Por nombre..." @oninput="@(e => FiltradoClientes(e, "nombre"))" />
+        </div>
+        <div class="col-2">
+            <input class="form-control" style="margin-left:10px" type="search" placeholder="Por apellidos..." @oninput="@(e => FiltradoClientes(e, "apellidos"))" />
+        </div>
+        <div class="col-2">
+            <input class="form-control" style="margin-left:15px" placeholder="Por nombre de usuario..." @oninput="@(e => FiltradoClientes(e, "login"))" />
+        </div>
+        <div class="col-2">
+            <input class="form-control" style="margin-left:20px" placeholder="Por NIF..." @oninput="@(e => FiltradoClientes(e, "nif"))" />
+        </div>
+    </div>
+    <div class="row">
+        @if (this.listaClientesFiltrados.Count == 0)
+        {
+            <div class="col">
+                <span class="">No se han encontrado clientes.</span>
+            </div>
+        }
+        else
+        {
+            <div class="col">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Nombre</th>
+                            <th>Apellidos</th>
+                            <th>Telefono</th>
+                            <th>Nif</th>
+                            <th>Usuario</th>
+                            <th>Email</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (Cliente cli in this.listaClientesFiltrados)
+                        {
+                            <tr>
+                                <td><img src="@cli.cuenta.ImagenAvatarBASE64" width="40" height="40" alt="imagenPerfil" class="rounded-circle flex-shrink-0" @onclick="() => MostrarCliente(cli.IdCliente)" /></td>
+                                <td>@cli.Nombre</td>
+                                <td>@cli.Apellidos</td>
+                                <td>@cli.Telefono</td>
+                                <td>@cli.NIF</td>
+                                <td>@cli.cuenta.Login</td>
+                                <td>@cli.cuenta.Email</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    public List<Cliente> listaClientes { get; set; } = new List<Cliente>();
+    public List<Cliente> listaClientesFiltrados { get; set; } = new List<Cliente>();
+
+    protected async override Task OnInitializedAsync()
+    {
+        String jwt = this.storageService.RecuperarJWT();
+
+        this.listaClientes = await this.restService.GetClientes(jwt);
+        this.listaClientesFiltrados = this.listaClientes;
+    }
+
+    public void FiltradoClientes(ChangeEventArgs e, string campo)
+    {
+        String valor = e.Value.ToString();
+
+        switch(campo)
+        {
+            case "nombre":
+                listaClientesFiltrados = listaClientes.Where((Cliente c) => c.Nombre.StartsWith(valor, StringComparison.OrdinalIgnoreCase)).ToList();
+                break;
+
+            case "apellidos":
+                listaClientesFiltrados = listaClientes.Where((Cliente c) => c.Apellidos.StartsWith(valor, StringComparison.OrdinalIgnoreCase)).ToList();
+                break;
+
+            case "login":
+                listaClientesFiltrados = listaClientes.Where((Cliente c) => c.cuenta.Login.StartsWith(valor, StringComparison.OrdinalIgnoreCase)).ToList();
+                break;
+
+            case "nif":
+                listaClientesFiltrados = listaClientes.Where((Cliente c) => c.NIF.StartsWith(valor, StringComparison.OrdinalIgnoreCase)).ToList();
+                break;
+        }
+    }
+
+    
+
+    public async void MostrarCliente(String idCliente)
+    {
+        await jsService.InvokeVoidAsync("open", $"Administracion/FichaCliente/{idCliente}", "_blank");
+    }   
+}

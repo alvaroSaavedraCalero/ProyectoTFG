@@ -17,6 +17,8 @@ namespace ProyectoTFG.Shared
         [BsonRepresentation(BsonType.ObjectId)]
         public String IdCliente { get; set; }
 
+        [BsonElement("rol")]
+        public String Rol { get; set; } = "";
 
 
         [Required(ErrorMessage = "*Nombre obligatortio")]

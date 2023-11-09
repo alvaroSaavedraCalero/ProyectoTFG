@@ -35,5 +35,11 @@ namespace ProyectoTFG.Client.Models.Interfaces
         Task<List<ComentarioCli>> RecuperarComentariosProd(ProductoAPI producto);
 
         #endregion
+
+        #region zona Administracion
+
+        Task<List<Cliente>> GetClientes(String jwt);
+
+        #endregion
     }
 }

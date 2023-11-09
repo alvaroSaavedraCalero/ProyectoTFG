@@ -5,47 +5,91 @@
 @inject IJSRuntime jsService
 @inject IRestService restService
 @using ProyectoTFG.Client.Pages.zonaCliente.Panel
+@using ProyectoTFG.Client.Pages.zonaAdministracion
 @using Microsoft.Extensions.Primitives
 @using Microsoft.AspNetCore.WebUtilities
 
 
 <div class="container ">
     <div class="row m-5 mt-5 mb-5 ms-5 me-5">
-        <!-- Zona aside -->
-        <div class="col-lg-3 col-md-3">
-            <aside class="card">
-                <h1 class="card-header text-black">Mi cuenta</h1>
-                <div class="card-body grid d-flex flex-column">
-                    <a @onclick="() =>{ActivarNegrita(1); StateHasChanged();} "><span class="@clase1">Panel de control</span></a>
-                    <a @onclick="() =>{ActivarNegrita(2); StateHasChanged();} "><span class="@clase2">Información de la cuenta</span></a>
-                    <a @onclick="() =>{ActivarNegrita(3); StateHasChanged();} "><span class="@clase3">Libreta de Direcciones</span></a>
-                    <a @onclick="() =>{ActivarNegrita(4); StateHasChanged();} "><span class="@clase4">Mis pedidos</span></a>
-                </div>
-            </aside>
-        </div>
-        <div class="col-lg-9 col-md-8">
-            <main>
+        @if (this.ClienteActual.Rol == "Administrador")
+        {
+            <div class="col-lg-3 col-md-3">
+                <aside class="card">
+                    <h1 class="card-header text-black">Mi cuenta</h1>
+                    <div class="card-body grid d-flex flex-column">
+                        <a @onclick="() =>{ActivarNegrita(1); StateHasChanged();}"><span class="@clase1">Administracion de clientes</span></a>
+                        <a @onclick="() =>{ActivarNegrita(2); StateHasChanged();}"><span class="@clase2">Panel de control</span></a>
+                        <a @onclick="() =>{ActivarNegrita(3); StateHasChanged();}"><span class="@clase3">Información de la cuenta</span></a>
+                        <a @onclick="() =>{ActivarNegrita(4); StateHasChanged();}"><span class="@clase4">Libreta de Direcciones</span></a>
+                        <a @onclick="() =>{ActivarNegrita(5); StateHasChanged();}"><span class="@clase5">Mis pedidos</span></a>
+                    </div>
+                </aside>
+            </div>
+            <div class="col-lg-9 col-md-8">
+                <main>
+                    @switch (ItemLista)
+                    {
+                        case 1:
+                            <VerClientes />
+                            break;
 
-                @switch (ItemLista)
-                {
-                    case 1:
-                        <PanelDeControl />
-                        break;
+                        case 2:
+                            <PanelDeControl />
+                            break;
 
-                    case 2:
-                        <InfoCuenta/>
-                        break;
+                        case 3:
+                            <InfoCuenta />
+                            break;
 
-                    case 3:
-                        <LibretaDirecciones/>
-                        break;
+                        case 4:
+                            <LibretaDirecciones />
+                            break;
 
-                    case 4:
-                        <MisPedidos/>
-                        break;
-                }
-            </main>
-        </div>
+                        case 5:
+                            <MisPedidos />
+                            break;
+                    }
+                </main>
+            </div>
+        }
+        else
+        {
+            <!-- Zona aside -->
+            <div class="col-lg-3 col-md-3">
+                <aside class="card">
+                    <h1 class="card-header text-black">Mi cuenta</h1>
+                    <div class="card-body grid d-flex flex-column">
+                        <a @onclick="() =>{ActivarNegrita(1); StateHasChanged();} "><span class="@clase1">Panel de control</span></a>
+                        <a @onclick="() =>{ActivarNegrita(2); StateHasChanged();} "><span class="@clase2">Información de la cuenta</span></a>
+                        <a @onclick="() =>{ActivarNegrita(3); StateHasChanged();} "><span class="@clase3">Libreta de Direcciones</span></a>
+                        <a @onclick="() =>{ActivarNegrita(4); StateHasChanged();} "><span class="@clase4">Mis pedidos</span></a>
+                    </div>
+                </aside>
+            </div>
+            <div class="col-lg-9 col-md-8">
+                <main>
+                    @switch (ItemLista)
+                    {
+                        case 1:
+                            <PanelDeControl />
+                            break;
+
+                        case 2:
+                            <InfoCuenta />
+                            break;
+
+                        case 3:
+                            <LibretaDirecciones />
+                            break;
+
+                        case 4:
+                            <MisPedidos />
+                            break;
+                    }
+                </main>
+            </div>
+        }
     </div>
 </div>
 
