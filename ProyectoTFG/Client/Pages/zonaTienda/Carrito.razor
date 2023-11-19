@@ -78,11 +78,11 @@
                                         else
                                         {
                                             <button class="btn btn-outline-dark" @onclick="@(() => {
-                                                if (@item.CatidadItem > 0) {
+                                                if (@item.CatidadItem > 1) {
                                                     @item.CatidadItem--;
                                                     CalcularTotal();
                                                 } else {
-                                                    @item.CatidadItem = 0;
+                                                    @item.CatidadItem = 1;
                                                     CalcularTotal();
                                                 }
                                                 StateHasChanged();
@@ -168,6 +168,7 @@
         Decimal subtotal = ClienteLogued.PedidoActual.ItemsPedido.Sum((ItemPedido i) => i.CatidadItem * i.ProductoItem.price);
         SubTotal = subtotal;
         Total = ClienteLogued.PedidoActual.GastosEnvio + SubTotal;
+        StateHasChanged();
     }
 
     public async Task EliminarItem(String idItemPedido)
