@@ -182,8 +182,8 @@
 
     public async Task IrAlCobro()
     {
-        Direccion direcEnvio = ClienteLogued.MisDirecciones.Find((Direccion d) => d.EsPrincipal == true) ?? new Direccion();
-        Direccion direcFact = ClienteLogued.MisDirecciones.Find((Direccion d) => d.EsFaturacion == true) ?? new Direccion();
+        Direccion direcEnvio = ClienteLogued.MisDirecciones.Find((Direccion d) => d.EsPrincipal == true);
+        Direccion direcFact = ClienteLogued.MisDirecciones.Find((Direccion d) => d.EsFaturacion == true);
 
         if (direcEnvio != null || direcFact != null)
         {

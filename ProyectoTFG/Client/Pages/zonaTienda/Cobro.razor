@@ -27,28 +27,37 @@ else
             <div class="row">
                 <!-- Primera columna -->
                 <div class="col-7 ">
-                    <!-- direccion de envio -->
-                    <div class="border rounded">
-                        <div class="row text-center">
-                            <div class="flex d-flex justify-content-center">
-                                <h3 class="text-black mt-2"><b>Dirección de Envío</b></h3>
-                            </div>
-                            <span class="mt-3">@direcEnvio.NombreContacto @direcEnvio.ApellidosContacto</span>
-                            <span>@direcEnvio.Calle @direcEnvio.Numero</span>
-                            <span>@direcEnvio.CP @direcEnvio.MuniDirecc.DMUN50</span>
-                            <span>@ClienteLogueado.cuenta.Email</span>
-                            <span>@direcEnvio.TelefonoContacto</span>
+                    @if (direcEnvio == null)
+                    {
+                        <div class="text-center d-flex flex-column align-content-between border rounded">
+                            <span class="text-danger mt-2">No ha establecido una dirección de envío.</span>
+                            <button class="btn btn-dark w-50 mx-auto mb-2" @onclick="@(() => this.navigate.NavigateTo("/Cliente/PanelCliente?dir=1"))">Establecer dirección de envío</button>
                         </div>
-                    </div>
-
+                    }
+                    else
+                    {
+                        <!-- direccion de envio -->
+                        <div class="border rounded">
+                            <div class="row text-center">
+                                <div class="flex d-flex justify-content-center">
+                                    <h3 class="text-black mt-2"><b>Dirección de Envío</b></h3>
+                                </div>
+                                <span class="mt-3">@direcEnvio.NombreContacto @direcEnvio.ApellidosContacto</span>
+                                <span>@direcEnvio.Calle @direcEnvio.Numero</span>
+                                <span>@direcEnvio.CP @direcEnvio.MuniDirecc.DMUN50</span>
+                                <span>@ClienteLogueado.cuenta.Email</span>
+                                <span>@direcEnvio.TelefonoContacto</span>
+                            </div>
+                        </div>
+                    }
                     <!-- metodos de pago -->
                     <div class="row">
                         <div class="col">
                             <div class="border rounded mt-4">
-                                <div class="row text-center">
+                                <div class="row text-center mt-2">
                                     <h3 class="text-black"><b>Métodos de pago</b></h3>
                                 </div>
-                                <div class="row">
+                                <div class="row mb-2">
                                     <div class="form-check ms-5">
                                         <input class="form-check-input" type="radio" name="flexRadioDefault" id="pagoTarjeta" @onchange="@(e => {
                                             this.jsService.InvokeVoidAsync("console.log", e);
@@ -57,28 +66,38 @@ else
                                                 ClasePagoPayPal = DisplayNone;
                                             }
                                         })">
-                                        <label class="form-check-label" for="pagoTarjeta">Tarjeta de crédito: Visa, Mastercard</label>
-                                        <i class="fa-brands fa-cc-visa float-end me-xxl-5"></i>
+                                        <label class="form-check-label" for="pagoTarjeta">Visa, Mastercard</label>
+                                        <i class="fa-brands fa-cc-visa"></i>
                                         <div class="@ClasePagoTarjeta">
-                                            <div class="row">
+                                            <div class="row mb-3">
                                                 <div class="col">
-                                                    <div class="form-group w-25 me-2">
-                                                        <input type="numer" class="@ClaseNumeroTarjeta" id="cardNumber" placeholder="1234 1234 1234 1234" @bind-value="NumeroTarjetaCliente">
+                                                    <div class="form-group me-2">
+                                                        <label style="font-size: small;">Numero de cuenta</label>
+                                                        <input type="numer" class="@ClaseNumeroTarjeta w-75" id="cardNumber" placeholder="1234 1234 1234 1234" @bind-value="NumeroTarjetaCliente">
                                                     </div>
                                                 </div>
 
                                                 <div class="col">
-                                                    <div class="form-group w-25 me-2 ms-2">
-                                                        <input type="text" class="form-group w-75" id="expirationMonth" placeholder="Mes Caducidad" @bind-value="Mes">
-                                                    </div>
-                                                    <div class="form-group w-25 me-2 ms-2">
-                                                        <input type="text" class="form-group w-75" id="expirationYear" placeholder="Año Caducidad" @bind-value="Anio">
+                                                    <div class="row">
+
+                                                        <div class="form-group me-2 ms-2 mb-1">
+                                                            <label style="font-size: small;">Mes caducidad</label>
+                                                            <input type="text" class="form-group w-25" id="expirationMonth" placeholder="Mes Caducidad" @bind-value="Mes">
+                                                        </div>
+
+
+                                                        <div class="form-group me-2 ms-2">
+                                                            <label style="font-size: small;">Año caducidad</label>
+                                                            <input type="text" class="form-group w-25" id="expirationYear" placeholder="Año Caducidad" @bind-value="Anio">
+                                                        </div>
+
                                                     </div>
                                                 </div>
 
                                                 <div class="col">
-                                                    <div class="form-group w-25">
-                                                        <input type="text" class="form-group w-75" id="cvv" placeholder="CVC" @bind-value="CVC">
+                                                    <div class="form-group me-2 ms-2">
+                                                        <label style="font-size: small;">CVC</label>
+                                                        <input type="text" class="form-group w-25" id="cvv" placeholder="CVC" @bind-value="CVC">
                                                     </div>
                                                 </div>
 
@@ -95,7 +114,7 @@ else
                                             }
                                         })">
                                         <label class="form-check-label" for="pagoPayPal">PayPal</label>
-                                        <i class="fa-brands fa-cc-paypal float-end me-xxl-5 "></i>
+                                        <i class="fa-brands fa-cc-paypal"></i>
                                     </div>
 
 
@@ -115,7 +134,7 @@ else
                         <div class="col">
                             <div class="border rounded mt-4">
                                 <div class="form-check ms-5">
-                                    <input class="form-check-input mt-3" type="radio" name="flexRadioDefault1" id="Envio" checked="checked">
+                                    <input class="form-check-input mt-3 mb-2" type="radio" name="flexRadioDefault1" id="Envio" checked="checked">
                                     <label class="form-check-label" for="Envio">
                                         <b>DHL estándar</b>    2 €<br />
                                         Tiempo estandar de entrega 5-7 días laborables. Gratis a partir de 100 €.
@@ -129,7 +148,7 @@ else
                     <!-- Boton de compra -->
                     <div class="row mt-3 mb-3">
                         <div class="flex d-flex justify-content-between">
-                            <a><span>&lt; Volver a tus datos</span></a>
+                            <button class="btn btn-outline-dark rounded" @onclick="@(() => this.jsService.InvokeVoidAsync("window.history.back"))">Volver</button>
                             <button class="btn btn-outline-primary rounded" @onclick="@(() => RealizarPedido())"><b>Comprar</b></button>
                         </div>
                     </div>
@@ -276,8 +295,7 @@ else
                     RestMessage respuestaServer = await this.restService.AlmacenarPedido(ClienteLogueado.PedidoActual, ClienteLogueado, jwt);
                     if (respuestaServer.Codigo == 0)
                     {
-                        ClienteLogueado.PedidoActual = new Pedido();
-                        this.storageService.AlmacenarDatosCliente(ClienteLogueado);
+                        this.storageService.AlmacenarDatosCliente(respuestaServer.DatosCliente);
                         this.navigate.NavigateTo("/Tienda/PedidoRealizadoOK");
                     }
                     break;
@@ -312,5 +330,5 @@ else
         }
     }
 
-   
+
 } 

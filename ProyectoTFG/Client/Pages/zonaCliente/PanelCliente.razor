@@ -4,6 +4,7 @@
 @inject NavigationManager navigate
 @inject IJSRuntime jsService
 @inject IRestService restService
+
 @using ProyectoTFG.Client.Pages.zonaCliente.Panel
 @using ProyectoTFG.Client.Pages.zonaAdministracion
 @using Microsoft.Extensions.Primitives
@@ -23,6 +24,7 @@
                         <a @onclick="() =>{ActivarNegrita(3); StateHasChanged();}"><span class="@clase3">Información de la cuenta</span></a>
                         <a @onclick="() =>{ActivarNegrita(4); StateHasChanged();}"><span class="@clase4">Libreta de Direcciones</span></a>
                         <a @onclick="() =>{ActivarNegrita(5); StateHasChanged();}"><span class="@clase5">Mis pedidos</span></a>
+                        <a @onclick="@(() =>{this.storageService.CerrarSesion(); this.navigate.NavigateTo("/Cliente/Login");})"><span class="">Cerrar sesion</span></a>
                     </div>
                 </aside>
             </div>
@@ -123,7 +125,7 @@
 
             ActivarNegrita(1);
         }
-        else
+        else if (!String.IsNullOrEmpty(queryString["idgooglesesion"]))
         {
             // Se han logueado con google
             String idgooglesesion = queryString["idgooglesesion"];
@@ -142,6 +144,12 @@
             {
                 this.navigate.NavigateTo("/Cliente/Login");
             }
+        }
+        else if (!String.IsNullOrEmpty(queryString["dir"]))
+        {
+            String dir = queryString["dir"];
+            ActivarNegrita(4);
+            StateHasChanged();
         }
         queryString.Remove("idgooglesesion");
         uri.Query = queryString.ToString();

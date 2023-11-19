@@ -52,9 +52,6 @@
 
         if (queryString.Count == 0)
         {
-            // Entonces el pago se ha realizado con tarjeta y 
-            // SUPONGO que los subjets funcionan correctamente
-
             this.cliente = this.storageService.RecuperarDatosCliente();
             this.pedido = this.cliente.PedidoActual;
             this.cliente.PedidoActual = new Pedido();

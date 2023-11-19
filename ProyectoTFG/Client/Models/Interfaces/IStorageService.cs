@@ -12,6 +12,7 @@ namespace ProyectoTFG.Client.Models.Interfaces
         void AlmacenarJWT(String jwt);
         void AlmacenarDatosCliente(Cliente datosCliente);
         void AlmacenarListaDeseos(List<ProductoAPI> listaDeseos);
+        void CerrarSesion();
 
         #endregion
 
@@ -24,6 +25,7 @@ namespace ProyectoTFG.Client.Models.Interfaces
         Task AlmacenarJWTAsync(String jwt);
         Task AlmacenarDatosClienteAsync(Cliente datosCliente);
         Task AlmacenarListaDeseosAsync(List<ProductoAPI> listaDeseos);
+        Task CerrarSesionAsync();
 
         #endregion
     }

@@ -92,7 +92,7 @@
                     }
                 </div>
             </div>
-            <div class="row m-xl-2"><h3 class="text-black"><b>Libreta de Direcciones</b></h3></div>
+            <div class="row mb-1"><h3 class="text-black"><b>Libreta de Direcciones</b></h3></div>
             @if (ClienteActual.MisDirecciones.Count > 2 || ClienteActual.MisDirecciones.Any((Direccion d) => d.EsFaturacion == false || d.EsPrincipal == false)) 
             {
                 @foreach (Direccion d in ClienteActual.MisDirecciones)
@@ -115,6 +115,7 @@
                         </div>
                     </div>
                 }
+                <button class="btn btn-dark text-white rounded-pill mb-3" @onclick="@(() => ActivarComponente(Direc, "guardar"))">Añadir dirección</button>
             }
             else
             {
@@ -124,7 +125,7 @@
                         <a @onclick="@(()=>this.navigate.NavigateTo("/Cliente/PanelCliente"))"><span>Volver</span></a>
                     </div>
                     <div class="col-md-6">
-                        <button class="btn btn-dark text-white rounded-pill" @onclick="@(() => ActivarComponente(Direc, "guardar"))">Nueva dirección</button>
+                        <button class="btn btn-dark text-white rounded-pill mb-3" @onclick="@(() => ActivarComponente(Direc, "guardar"))">Añadir dirección</button>
                     </div>
                 </div>
             }
