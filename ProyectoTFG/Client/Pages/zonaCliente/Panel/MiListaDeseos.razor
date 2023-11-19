@@ -1,5 +1,7 @@
 ﻿@page "/Cliente/ListaDeseos"
 
+@using ProyectoTFG.Client.Models
+
 @inject IStorageService storageService
 @inject NavigationManager navigate
 
@@ -39,7 +41,11 @@ else
     protected override void OnInitialized()
     {
         this.ClienteActual = this.storageService.RecuperarDatosCliente();
-        this.listaDeseos = this.storageService.RecuperarListaDeseos();
+        List<ProductoAPI> listaRecup = this.storageService.RecuperarListaDeseos();
+
+        // Quito los elementos que son iguales por que por alguna razon
+        // hay duplicados en la lista recuperada
+        this.listaDeseos = listaRecup.Distinct(new ComparadorProductos()).ToList();
     }
 
 }

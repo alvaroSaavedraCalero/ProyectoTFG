@@ -668,9 +668,17 @@ namespace ProyectoTFG.Server.Controllers
                 Oauth2Service servAPIS = new Oauth2Service(new Google.Apis.Services.BaseClientService.Initializer { HttpClientInitializer = credencialesAPI });
                 Userinfo userinfo = await servAPIS.Userinfo.Get().ExecuteAsync();
 
+                String imagenClienteBase64 = "";
+                using (HttpClient httpClient = new HttpClient())
+                {
+                    // https://lh3.googleusercontent.com/a/ACg8ocJmKqdDeGfx6_q7TA96ZIqMVW-YoYNQ9nbb3jZAJ48dEdg=s96-c
+                    byte[] imagenArray = await httpClient.GetByteArrayAsync(userinfo.Picture);
+                    imagenClienteBase64 = $"data:jpg;base64,{Convert.ToBase64String(imagenArray)}";
+                }
+                
+
                 // Generamos un cliente con los datos del userInfo y lo guardamos en la base de datos.
                 // Por otra parte, guardamos en un objeto el id del userInfo junto al id del cliente guardado
-
                 Cliente nuevoCliente = new Cliente
                 {
                     Nombre = userinfo.GivenName,
@@ -678,7 +686,8 @@ namespace ProyectoTFG.Server.Controllers
                     cuenta = new Cuenta
                     {
                         CuentaActivada = true,
-                        Email = userinfo.Email
+                        Email = userinfo.Email,
+                        ImagenAvatarBASE64 = imagenClienteBase64
                     },
                     Rol = "Cliente"
                 };

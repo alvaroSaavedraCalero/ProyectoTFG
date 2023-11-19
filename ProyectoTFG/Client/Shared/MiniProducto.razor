@@ -21,7 +21,7 @@
                     <img src="@this.ProductoActual.image" width="200" height="200" />
                 </a>
             </div>
-            <button class="btn " @onclick="@DesearProducto">
+            <button class="btn " @onclick="@(() => DesearProducto())">
                 @if (CorazonRojo)
                 {
                     <i class="fa-solid fa-heart"></i>
@@ -77,8 +77,6 @@
                 }
             }
         }
-
-
         
         if (ProductoActual.title.Length > 18)
         {
@@ -103,7 +101,6 @@
                 ClienteLogued.ListaDeseos.Remove(ProductoActual);
                 this.storageService.AlmacenarDatosCliente(ClienteLogued);
                 CorazonRojo = false;
-                StateHasChanged();
             }
             else if (respuestaREST.Codigo == 5)
             {
@@ -122,12 +119,12 @@
                 ClienteLogued.ListaDeseos.Add(ProductoActual);
                 this.storageService.AlmacenarDatosCliente(ClienteLogued);
                 CorazonRojo = true;
-                StateHasChanged();
             }
             else if (respuestaREST.Codigo == 5)
             {
                 this.navigate.NavigateTo("/Cliente/Login");
             }
         }
+        StateHasChanged();
     }
 }

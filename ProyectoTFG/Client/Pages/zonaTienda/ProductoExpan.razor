@@ -155,6 +155,11 @@
         this.ClienteLogued = this.storageService.RecuperarDatosCliente();
         this.listaDeseos = this.storageService.RecuperarListaDeseos();
 
+        foreach(ProductoAPI p in this.listaDeseos)
+        {
+            if (p.id == this.ProductoSelected.id) { this.CorazonRojo = true; break; }
+        }
+
         ListaComentarios = await this.restService.RecuperarComentariosProd(ProductoSelected);
     }
 
