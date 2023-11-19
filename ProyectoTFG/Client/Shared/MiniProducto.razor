@@ -96,9 +96,9 @@
 
             if (respuestaREST.Codigo == 0)
             {
-                this.listaDeseos.Remove(ProductoActual);
+                if (this.listaDeseos.Contains(ProductoActual)) { this.listaDeseos.Remove(ProductoActual); }
                 this.storageService.AlmacenarListaDeseos(this.listaDeseos);
-                ClienteLogued.ListaDeseos.Remove(ProductoActual);
+                if (this.ClienteLogued.ListaDeseos.Contains(ProductoActual)) { ClienteLogued.ListaDeseos.Remove(ProductoActual); }
                 this.storageService.AlmacenarDatosCliente(ClienteLogued);
                 CorazonRojo = false;
             }
@@ -114,9 +114,9 @@
 
             if (respuestaREST.Codigo == 0)
             {
-                this.listaDeseos.Add(ProductoActual);
+                if (!this.listaDeseos.Contains(ProductoActual)) { this.listaDeseos.Add(ProductoActual); }
                 this.storageService.AlmacenarListaDeseos(this.listaDeseos);
-                ClienteLogued.ListaDeseos.Add(ProductoActual);
+                if (!this.ClienteLogued.ListaDeseos.Contains(ProductoActual)) { ClienteLogued.ListaDeseos.Add(ProductoActual); }
                 this.storageService.AlmacenarDatosCliente(ClienteLogued);
                 CorazonRojo = true;
             }
