@@ -3,6 +3,8 @@
 @inject IJSRuntime jsService
 @inject NavigationManager navigate
 
+@using ProyectoTFG.Client.Pages.zonaCliente
+
 
 <EditForm Model="DireccionEdit" Context="formContext" class="m-4">
 
@@ -36,11 +38,11 @@
             </div>
             <div class="row m-ms-1 mt-3">
                <div class="col-md-6">
-                    <input type="checkbox" class="form-check-input" @bind-value="@this.DireccionEdit.EsPrincipal"></input>
+                    <input type="checkbox" class="form-check-input" @bind-value="@this.DireccionEdit.EsEnvio" checked="@this.DireccionEdit.EsEnvio"></input>
                     <label class="form-label">Dirección Envío</label>
                 </div>
                 <div class="col-md-6">
-                    <input type="checkbox" class="form-check-input" @bind-value="@this.DireccionEdit.EsFaturacion"></input>
+                    <input type="checkbox" class="form-check-input" @bind-value="@this.DireccionEdit.EsFaturacion" checked="@this.DireccionEdit.EsFaturacion"></input>
                     <label class="form-label">Dirección Facturación</label> 
                 </div>
             </div>

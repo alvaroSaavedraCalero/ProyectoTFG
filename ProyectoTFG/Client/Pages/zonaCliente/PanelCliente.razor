@@ -24,7 +24,7 @@
                         <a @onclick="() =>{ActivarNegrita(3); StateHasChanged();}"><span class="@clase3">Información de la cuenta</span></a>
                         <a @onclick="() =>{ActivarNegrita(4); StateHasChanged();}"><span class="@clase4">Libreta de Direcciones</span></a>
                         <a @onclick="() =>{ActivarNegrita(5); StateHasChanged();}"><span class="@clase5">Mis pedidos</span></a>
-                        <a @onclick="@(() =>{this.storageService.CerrarSesion(); this.navigate.NavigateTo("/Cliente/Login");})"><span class="">Cerrar sesion</span></a>
+                        <a @onclick="@(() =>{this.storageService.CerrarSesion(); this.navigate.NavigateTo("/");})"><span class="">Cerrar sesion</span></a>
                     </div>
                 </aside>
             </div>
@@ -66,6 +66,7 @@
                         <a @onclick="() =>{ActivarNegrita(2); StateHasChanged();} "><span class="@clase2">Información de la cuenta</span></a>
                         <a @onclick="() =>{ActivarNegrita(3); StateHasChanged();} "><span class="@clase3">Libreta de Direcciones</span></a>
                         <a @onclick="() =>{ActivarNegrita(4); StateHasChanged();} "><span class="@clase4">Mis pedidos</span></a>
+                        <a @onclick="@(() =>{this.storageService.CerrarSesion(); this.navigate.NavigateTo("/");})"><span class="">Cerrar sesion</span></a>
                     </div>
                 </aside>
             </div>
@@ -82,7 +83,7 @@
                             break;
 
                         case 3:
-                            <LibretaDirecciones />
+                            <LibretaDirecciones componenteDireccion="componenteDireccion" />
                             break;
 
                         case 4:
@@ -100,6 +101,8 @@
     public Cliente? ClienteActual { get; set; }
     private int ItemLista = 0;
     private String textoNegrita = "fw-bold";
+
+    private ComponenteDireccion componenteDireccion;
 
 
     // Strings de clases del aside
@@ -125,35 +128,35 @@
 
             ActivarNegrita(1);
         }
-        else if (!String.IsNullOrEmpty(queryString["idgooglesesion"]))
+        else
         {
-            // Se han logueado con google
-            String idgooglesesion = queryString["idgooglesesion"];
+            String idGoogle = queryString["idgooglesesion"];
+            if (!String.IsNullOrEmpty(idGoogle))
+            {
+                // Se han logueado con google
+                String idgooglesesion = queryString["idgooglesesion"];
 
-            // Hay que obtener el cliente registrado con google a traves de este idgoogle
-            // y guardarlo en el cliente actual
-            RestMessage respuestaServer = await this.restService.ObtenerClienteGoogle(idgooglesesion);
-            if (respuestaServer.Codigo == 0)
-            {
-                this.storageService.AlmacenarDatosCliente(respuestaServer.DatosCliente);
-                this.storageService.AlmacenarJWT(respuestaServer.TokenSesion);
-                this.ClienteActual = respuestaServer.DatosCliente;
-                ActivarNegrita(1);
-            }
-            else
-            {
-                this.navigate.NavigateTo("/Cliente/Login");
+                // Hay que obtener el cliente registrado con google a traves de este idgoogle
+                // y guardarlo en el cliente actual
+                RestMessage respuestaServer = await this.restService.ObtenerClienteGoogle(idgooglesesion);
+                if (respuestaServer.Codigo == 0)
+                {
+                    this.storageService.AlmacenarDatosCliente(respuestaServer.DatosCliente);
+                    this.storageService.AlmacenarJWT(respuestaServer.TokenSesion);
+                    this.ClienteActual = respuestaServer.DatosCliente;
+                    ActivarNegrita(1);
+                }
+                else
+                {
+                    this.navigate.NavigateTo("/Cliente/Login");
+                }
+
+                queryString.Remove("idgooglesesion");
+                uri.Query = queryString.ToString();
+                this.navigate.NavigateTo("/Cliente/PanelCliente");
+                
             }
         }
-        else if (!String.IsNullOrEmpty(queryString["dir"]))
-        {
-            String dir = queryString["dir"];
-            ActivarNegrita(4);
-            StateHasChanged();
-        }
-        queryString.Remove("idgooglesesion");
-        uri.Query = queryString.ToString();
-        this.navigate.NavigateTo("/Cliente/PanelCliente");
     }
 
     protected override void OnParametersSet()
@@ -163,7 +166,7 @@
     }
 
 
-    private void ActivarNegrita(int i)
+    public void ActivarNegrita(int i)
     {
         switch (i)
         {

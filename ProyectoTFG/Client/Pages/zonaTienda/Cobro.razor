@@ -20,36 +20,52 @@ else
                 <div class="col"><img src="images/MegaShopLogo.png" width="189" height="189" alt="logo" class="mx-auto my-auto rounded rounded-circle" /></div>
             </div>
             <div class="row">
-                <div class="col">
-                    <span class="text-danger">@MensajeError</span>
-                </div>
-            </div>
-            <div class="row">
                 <!-- Primera columna -->
                 <div class="col-7 ">
-                    @if (direcEnvio == null)
+                    @if (direcEnvio == null || direcFact == null)
                     {
                         <div class="text-center d-flex flex-column align-content-between border rounded">
-                            <span class="text-danger mt-2">No ha establecido una dirección de envío.</span>
-                            <button class="btn btn-dark w-50 mx-auto mb-2" @onclick="@(() => this.navigate.NavigateTo("/Cliente/PanelCliente?dir=1"))">Establecer dirección de envío</button>
+                            <span class="text-danger mt-2">No ha establecido una dirección de envío y de facturación. Dirijase a su libreta de direcciones y establezca una.</span>
                         </div>
                     }
                     else
                     {
-                        <!-- direccion de envio -->
-                        <div class="border rounded">
-                            <div class="row text-center">
-                                <div class="flex d-flex justify-content-center">
-                                    <h3 class="text-black mt-2"><b>Dirección de Envío</b></h3>
+                        <div class="row">
+                            <div class="col-6">
+                                <!-- direccion de envio -->
+                                <div class="border rounded">
+                                    <div class="row text-center">
+                                        <div class="flex d-flex justify-content-center">
+                                            <h3 class="text-black mt-2"><b>Dirección de Envío</b></h3>
+                                        </div>
+                                        <span class="mt-3">@direcEnvio.NombreContacto @direcEnvio.ApellidosContacto</span>
+                                        <span>@direcEnvio.Calle @direcEnvio.Numero</span>
+                                        <span>@direcEnvio.CP @direcEnvio.MuniDirecc.DMUN50</span>
+                                        <span>@ClienteLogueado.cuenta.Email</span>
+                                        <span>@direcEnvio.TelefonoContacto</span>
+                                    </div>
                                 </div>
-                                <span class="mt-3">@direcEnvio.NombreContacto @direcEnvio.ApellidosContacto</span>
-                                <span>@direcEnvio.Calle @direcEnvio.Numero</span>
-                                <span>@direcEnvio.CP @direcEnvio.MuniDirecc.DMUN50</span>
-                                <span>@ClienteLogueado.cuenta.Email</span>
-                                <span>@direcEnvio.TelefonoContacto</span>
+                            </div>
+                            <div class="col-6">
+                                <!-- direccion de facturacion -->
+                                <div class="border rounded">
+                                    <div class="row text-center">
+                                        <div class="flex d-flex justify-content-center">
+                                            <h3 class="text-black mt-2"><b>Dirección de Facturación</b></h3>
+                                        </div>
+                                        <span class="mt-3">@direcFact.NombreContacto @direcFact.ApellidosContacto</span>
+                                        <span>@direcFact.Calle @direcFact.Numero</span>
+                                        <span>@direcFact.CP @direcFact.MuniDirecc.DMUN50</span>
+                                        <span>@ClienteLogueado.cuenta.Email</span>
+                                        <span>@direcFact.TelefonoContacto</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     }
+                    
+
+
                     <!-- metodos de pago -->
                     <div class="row">
                         <div class="col">
@@ -145,6 +161,12 @@ else
                     </div>
 
 
+                    <div class="row">
+                        <div class="col">
+                            <span class="text-danger">@MensajeError</span>
+                        </div>
+                    </div>
+                    
                     <!-- Boton de compra -->
                     <div class="row mt-3 mb-3">
                         <div class="flex d-flex justify-content-between">
@@ -156,54 +178,38 @@ else
 
                 <!-- Segunda columna -->
                 <div class="col-5 bg-secondary bg-gradient">
-                    <div class="row text-end mt-2"><a><span>Editar carrito</span></a></div>
                     <div class="row mt-2">
                         <div class="col">
                             @foreach (ItemPedido itemP in ClienteLogueado.PedidoActual.ItemsPedido)
                             {
-                                <div class="m-3">
-                                    <img src="@itemP.ProductoItem.image" width="75" height="75" />
-                                    <h5>@itemP.ProductoItem.title</h5>
-                                    <span>@itemP.ProductoItem.price €</span>
-                                    <br />
-                                    <span>Uds.: @itemP.CatidadItem</span>
+                                <div class="m-3 border rounded">
+                                    <div class="m-2 text-center">
+                                        <img src="@itemP.ProductoItem.image" width="75" height="75" />
+                                        <h5>@itemP.ProductoItem.title</h5>
+                                        <span>@itemP.ProductoItem.price €</span>
+                                        <br />
+                                        <span>@itemP.CatidadItem Uds.</span>
+                                    </div>
                                 </div>
                             }
                         </div>
                     </div>
-                    <div class="row mt-2">
-                        <a class="" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-                            Cupón de descuento
-                        </a>
-                        <div class="collapse" id="collapseExample">
-                            <div class="form-floating mb-3">
-                                <input type="text" class="form-control" id="floatingInput" placeholder="12345">
-                                <label for="floatingInput">Codigo de Descuento</label>
-                                <button class="btn btn-outline-dark">Aplicar descuento</button>
-                            </div>
-                            <div class="form-floating mb-3">
-                                <input type="text" class="form-control" id="floatingInput1" placeholder="AB123">
-                                <label for="floatingInput1">Cupón de descuento</label>
-                                <button class="btn btn-outline-dark">Aplicar</button>
-                            </div>
-                        </div>
-                    </div>
                     <div class="row">
-                        <div class="flex d-flex justify-content-between">
-                            <span class="ms-5">Subtotal</span>
+                        <div class="">
+                            <span class="ms-5"><b>Subtotal --> </b></span>
                             <span class="me-5">@ClienteLogueado.PedidoActual.SubTotal €</span>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="flex d-flex justify-content-between">
-                            <span class="ms-5">Envío</span>
+                        <div class="">
+                            <span class="ms-5"><b>Envío --> </b></span>
                             <span class="me-5">@ClienteLogueado.PedidoActual.GastosEnvio €</span>
                         </div>
                     </div>
                     <br />
                     <div class="row">
-                        <div class="flex d-flex justify-content-between">
-                            <span class="ms-5"><b>Total. IVA incluido.</b></span>
+                        <div class="">
+                            <span class="ms-5"><b>Total. IVA incluido. --> </b></span>
                             <span class="me-5">@ClienteLogueado.PedidoActual.Total €</span>
                         </div>
                     </div>
@@ -240,7 +246,7 @@ else
     {
         ClienteLogueado = this.storageService.RecuperarDatosCliente();
 
-        direcEnvio = ClienteLogueado.MisDirecciones.Find((Direccion d) => d.EsPrincipal == true);
+        direcEnvio = ClienteLogueado.MisDirecciones.Find((Direccion d) => d.EsEnvio == true);
         if (direcEnvio != null) ClienteLogueado.PedidoActual.DireccionEnvio = direcEnvio;
         direcFact = ClienteLogueado.MisDirecciones.Find((Direccion d) => d.EsFaturacion == true);
         if (direcFact != null) ClienteLogueado.PedidoActual.DireccionFacturacion = direcFact;

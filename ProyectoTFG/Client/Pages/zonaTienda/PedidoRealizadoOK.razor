@@ -10,40 +10,42 @@
 
 
 <div class="container">
-    <div class="row">
-        <h3>El pedido se ha realizado correctamente. En su apartado de perfil puede comprobar el pedido realizado</h3>
-        <div class="col">
-            <div class="row border m-2">
-                <div class="col-6 bg-success bg-gradient d-flex justify-content-center align-items-center">
-                    <div class="">
-                        <h3 class="text-black"><b>Num Pedido: @this.pedido.IdPedido.Substring(0, 8)</b></h3>
-                        <h5 class="text-black">Precio pedido: @this.pedido.Total</h5>
-                        <h5 class="text-black">Fecha: @this.pedido.FechaPedido.Date</h5>
-                    </div>
-                </div>
-                <div class="col-6">
-                    @foreach (ItemPedido itemP in this.pedido.ItemsPedido)
-                    {
-                        <div class="row text-center border">
-                            <div class="m-3">
-                                <img src="@itemP.ProductoItem.image" width="75" height="75" />
-                                <h5>@itemP.ProductoItem.title</h5>
-                                <span class="text-info">@itemP.ProductoItem.price €</span>
-                                <br />
-                                <span><b>Uds.:</b> @itemP.CatidadItem</span>
-                            </div>
+        <div class="row">
+            <h3>El pedido se ha realizado correctamente. En su apartado de perfil puede comprobar el pedido realizado</h3>
+            <div class="col">
+                <div class="row border m-2">
+                    <div class="col-6 bg-success bg-gradient d-flex justify-content-center align-items-center">
+                        <div class="">
+                            <h3 class="text-black"><b>Num Pedido: @numeroPedido</b></h3>
+                            <h5 class="text-black">Precio pedido: @this.pedido.Total €</h5>
+                            <h5 class="text-black">Fecha: @this.pedido.FechaPedido.Day/@this.pedido.FechaPedido.Month/@this.pedido.FechaPedido.Year</h5>
                         </div>
-                    }
+                    </div>
+                    <div class="col-6">
+                        @foreach (ItemPedido itemP in this.pedido.ItemsPedido)
+                        {
+                            <div class="row text-center border">
+                                <div class="m-3">
+                                    <img src="@itemP.ProductoItem.image" width="75" height="75" />
+                                    <h5>@itemP.ProductoItem.title</h5>
+                                    <span class="text-info">@itemP.ProductoItem.price €</span>
+                                    <br />
+                                    <span><b>Uds.:</b> @itemP.CatidadItem</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 </div>
 
 
 @code {
-    private Cliente cliente = new Cliente();
-    private Pedido pedido = new Pedido();
+    public Cliente? cliente { get; set; } = new Cliente();
+    public Pedido? pedido { get; set; } = new Pedido();
+
+    private String numeroPedido = ""; 
 
     protected override async Task OnInitializedAsync()
     {
@@ -68,19 +70,21 @@
             String idCliente = queryString["idCliente"];
             String idPedido = queryString["idPedido"];
 
+            numeroPedido = idPedido.Substring(1, 9);
+
             RestMessage respuestaServer = await this.restService.ObtenerClienteId(idCliente);
             if (respuestaServer.Codigo == 0)
             {
                 this.cliente = respuestaServer.DatosCliente;
-                this.pedido = this.cliente.MisPedidos.Find((Pedido p) => p.IdPedido == idPedido);
+                this.pedido = await this.restService.RecuperarPedidoPorId(idPedido);
                 this.storageService.AlmacenarDatosCliente(respuestaServer.DatosCliente);
                 this.storageService.AlmacenarJWT(respuestaServer.TokenSesion);
-            }
 
-            queryString.Remove("idCliente");
-            queryString.Remove("idPedido");
-            uri.Query = queryString.ToString();
-            this.navigate.NavigateTo("/Tienda/PedidoRealizadoOK");
+                queryString.Remove("idCliente");
+                queryString.Remove("idPedido");
+                uri.Query = queryString.ToString();
+                this.navigate.NavigateTo("/Tienda/PedidoRealizadoOK");
+            }
         }
     }
 

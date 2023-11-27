@@ -6,83 +6,196 @@
 @inject IStorageService storageService
 @inject NavigationManager navigate
 @inject IRestService restService
+@inject IJSRuntime jsService
 
 <div class="container border border-2 rounded-2 bg-light mb-5 mt-4">
-    <EditForm Model="clienteFicha" Context="formContext" class="mx-auto my-auto">
-        <DataAnnotationsValidator></DataAnnotationsValidator>
-        <div class="row text-center">
-            <div class="col">
-                <h2><b>Información de la cuenta</b></h2>
-            </div>
-        </div>
-
-        <div class="row text-center">
-            <div class="col">
-                <img src="@clienteFicha.cuenta.ImagenAvatarBASE64" class="img-thumbnail m-3" alt="ImagenPerfil2" height="150" width="150" />
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col m-4">
-                <div class="row m-md-1">
-                    <input class="form-control" type="text" id="usuario" rows="1" placeholder="@clienteFicha.cuenta.Login" @bind-value="@clienteFicha.cuenta.Login"></input>
-                    <label for="usuario" class="form-label">Usuario</label>
-                </div>
-                <div class="row m-md-1">
-                    <input class="form-control" type="text" id="nombre" rows="1" placeholder="@clienteFicha.Nombre" @bind-value="@clienteFicha.Nombre"></input>
-                    <label for="nombre" class="form-label">Nombre</label>
-                </div>
-                <div class="row m-md-1">
-                    <input class="form-control" type="text" id="apellidos" rows="1" placeholder="@clienteFicha.Apellidos" @bind-value="@clienteFicha.Apellidos"></input>
-                    <label for="apellidos" class="form-label">Apellidos</label>
-                </div>
-                <div class="row m-md-1">
-                    <input type="email" disabled class="form-control" id="email" placeholder="@clienteFicha.cuenta.Email" @bind-value="@clienteFicha.cuenta.Email">
-                    <label for="email" class="form-label">Dirección E-Mail</label>
+    <div class="container">
+        <EditForm Model="clienteFicha" Context="formContext" class="mx-auto my-auto">
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+            <div class="row text-center mt-4">
+                <div class="col">
+                    <h2><b>Información de la cuenta</b></h2>
                 </div>
             </div>
 
-            <div class="col m-4">
-                <div class="row m-md-1">
-                    <input class="form-control" type="date" id="fechaNacimiento" rows="1" placeholder="@clienteFicha.FechaNacimiento" @bind-value="@clienteFicha.FechaNacimiento"></input>
-                    <label for="fechaNacimiento" class="form-label">Fecha de nacimiento</label>
-                </div>
-                <div class="row m-md-1">
-                    <input class="form-control" type="text" id="nif" rows="1" placeholder="@clienteFicha.NIF" @bind-value="@clienteFicha.NIF"></input>
-                    <label for="nif" class="form-label">NIF</label>
-                </div>
-                <div class="row m-md-1">
-                    <select class="form-select" aria-label="Elige genero" id="genero" @bind="@this.clienteFicha.Genero">
-                        <option value="0" selected>Elige genero</option>
-                        <option value="Hombre">Hombre</option>
-                        <option value="Mujer">Mujer</option>
-                    </select>
-                    <label for="genero" class="form-label">Género</label>
-                </div>
-                <div class="row m-md-1">
-                    <input class="form-control" type="text" id="telefono" rows="1" placeholder="@clienteFicha.Telefono" @bind-value="@clienteFicha.Telefono"></input>
-                    <label for="nif" class="form-label">Telefono</label>
-                </div>
-            </div>
-
-        </div>
-
-        @if (!String.IsNullOrEmpty(MensajeError))
-        {
             <div class="row text-center">
-                <label class="mt-3 mb-4 @ClaseMensajeServer">@MensajeError</label>
-            </div>
-        }
-
-        <div class="row">
-            <div class="col text-center">
-                <div class="flex justify-between">
-                    <button type="submit" class="btn btn-dark m-2 mb-3" @onclick="(() => FormularioInfoCuenta(formContext))">Guardar</button>
+                <div class="col">
+                    <img src="@clienteFicha.cuenta.ImagenAvatarBASE64" class="img-thumbnail m-3" alt="ImagenPerfil2" height="150" width="150" />
                 </div>
+            </div>
+
+            <div class="row">
+                <div class="col m-4">
+                    <div class="row m-md-1">
+                        <input class="form-control" type="text" id="usuario" rows="1" placeholder="@clienteFicha.cuenta.Login" @bind-value="@clienteFicha.cuenta.Login"></input>
+                        <label for="usuario" class="form-label">Usuario</label>
+                    </div>
+                    <div class="row m-md-1">
+                        <input class="form-control" type="text" id="nombre" rows="1" placeholder="@clienteFicha.Nombre" @bind-value="@clienteFicha.Nombre"></input>
+                        <label for="nombre" class="form-label">Nombre</label>
+                    </div>
+                    <div class="row m-md-1">
+                        <input class="form-control" type="text" id="apellidos" rows="1" placeholder="@clienteFicha.Apellidos" @bind-value="@clienteFicha.Apellidos"></input>
+                        <label for="apellidos" class="form-label">Apellidos</label>
+                    </div>
+                    <div class="row m-md-1">
+                        <input type="email" disabled class="form-control" id="email" placeholder="@clienteFicha.cuenta.Email" @bind-value="@clienteFicha.cuenta.Email">
+                        <label for="email" class="form-label">Dirección E-Mail</label>
+                    </div>
+                </div>
+
+                <div class="col m-4">
+                    <div class="row m-md-1">
+                        <input class="form-control" type="date" id="fechaNacimiento" rows="1" placeholder="@clienteFicha.FechaNacimiento" @bind-value="@clienteFicha.FechaNacimiento"></input>
+                        <label for="fechaNacimiento" class="form-label">Fecha de nacimiento</label>
+                    </div>
+                    <div class="row m-md-1">
+                        <input class="form-control" type="text" id="nif" rows="1" placeholder="@clienteFicha.NIF" @bind-value="@clienteFicha.NIF"></input>
+                        <label for="nif" class="form-label">NIF</label>
+                    </div>
+                    <div class="row m-md-1">
+                        <select class="form-select" aria-label="Elige genero" id="genero" @bind="@this.clienteFicha.Genero">
+                            <option value="0" selected>Elige genero</option>
+                            <option value="Hombre">Hombre</option>
+                            <option value="Mujer">Mujer</option>
+                        </select>
+                        <label for="genero" class="form-label">Género</label>
+                    </div>
+                    <div class="row m-md-1">
+                        <input class="form-control" type="text" id="telefono" rows="1" placeholder="@clienteFicha.Telefono" @bind-value="@clienteFicha.Telefono"></input>
+                        <label for="nif" class="form-label">Telefono</label>
+                    </div>
+                </div>
+
+            </div>
+
+            @if (!String.IsNullOrEmpty(MensajeError))
+            {
+                <div class="row text-center">
+                    <label class="mt-3 mb-4 @ClaseMensajeServer">@MensajeError</label>
+                </div>
+            }
+
+            <div class="row">
+                <div class="col text-center">
+                    <div class="flex justify-between">
+                        <button type="submit" class="btn btn-dark m-2 mb-3" @onclick="(() => FormularioInfoCuenta(formContext))">Guardar</button>
+                    </div>
+                </div>
+            </div>
+
+        </EditForm>
+    </div>
+    
+
+    <hr class="mt-4 mb-4"/>
+
+    <!-- Direcciones del cliente -->
+    <div class="container">
+        <div class="row text-center">
+            <div class="col">
+                <h2><b>Direcciones del cliente</b></h2>
             </div>
         </div>
 
-    </EditForm>
+        <div class="row">
+            @if (this.listaDirecciones.Count == 0)
+            {
+                <div class="col">
+                    <span class="">El cliente no tiene direcciones.</span>
+                </div>
+            }
+            else
+            {
+                <div class="col">
+                    <table class="table table-bordered table-hover text-center">
+                        <thead>
+                            <tr>
+                                <th>Id Dirección</th>
+                                <th>Nombre Empresa</th>
+                                <th>Nombre Contacto</th>
+                                <th>Telefono Contacto</th>
+                                <th>Calle</th>
+                                <th>Código Postal</th>
+                                <th>Municipio</th>
+                                <th>Es facturación</th>
+                                <th>Es envío</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (Direccion dire in this.listaDirecciones)
+                            {
+                                <tr>
+                                    <td class="text-center">@dire.IdDireccion</td>
+                                    <td class="text-center">@dire.NombreEmpresa</td>
+                                    <td class="text-center">@dire.NombreContacto @dire.ApellidosContacto</td>
+                                    <td class="text-center">@dire.TelefonoContacto</td>
+                                    <td class="text-center">@dire.Calle, @dire.Numero</td>
+                                    <td class="text-center">@dire.CP</td>
+                                    <td class="text-center">@dire.MuniDirecc.DMUN50, @dire.ProvDirec.PRO</td>
+                                    <td class="text-center">@if (dire.EsFaturacion) {<div class="text-center"><i class="fa-solid fa-check"></i></div>}</td>
+                                    <td class="text-center">@if (dire.EsEnvio) {<div class="text-center"><i class="fa-solid fa-check"></i></div>}</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
+    <hr class="mt-4 mb-4" />
+
+    <!-- Pedidos -->
+    <div class="container">
+        <div class="row text-center">
+            <div class="col">
+                <h2><b>Pedidos del cliente</b></h2>
+            </div>
+        </div>
+
+        <div class="row">
+            @if (this.listaPedidos.Count == 0)
+            {
+                <div class="col">
+                    <span class="">El cliente no tiene pedidos realizados.</span>
+                </div>
+            }
+            else
+            {
+                <div class="col">
+                    <table class="table table-bordered table-hover text-center">
+                        <thead>
+                            <tr>
+                                <th>Id Pedido</th>
+                                <th>Subtotal</th>
+                                <th>Gastos Envío</th>
+                                <th>Total</th>
+                                <th>Dirección Envío</th>
+                                <th>Dirección Facturación</th>
+                                <th>Fecha</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (Pedido pedi in this.listaPedidos)
+                            {
+                                <tr>
+                                    <td class="text-center">@pedi.IdPedido</td>
+                                    <td class="text-center">@pedi.SubTotal €</td>
+                                    <td class="text-center">@pedi.GastosEnvio €</td>
+                                    <td class="text-center">@pedi.Total €</td>
+                                    <td class="text-center">@pedi.DireccionEnvio.CP, @pedi.DireccionEnvio.MuniDirecc.DMUN50, @pedi.DireccionEnvio.ProvDirec.PRO</td>
+                                    <td class="text-center">@pedi.DireccionFacturacion.CP, @pedi.DireccionFacturacion.MuniDirecc.DMUN50, @pedi.DireccionFacturacion.ProvDirec.PRO</td>
+                                    <td class="text-center">@pedi.FechaPedido.Day/@pedi.FechaPedido.Month/@pedi.FechaPedido.Year</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
 </div>
 
 @code {
@@ -91,6 +204,8 @@
     private String? MensajeError = "";
     private String ClaseMensajeServer = "";
     private Cliente? clienteFicha = new Cliente();
+    private List<Direccion>? listaDirecciones = new List<Direccion>();
+    private List<Pedido>? listaPedidos = new List<Pedido>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -100,7 +215,16 @@
 
         this.ClienteLogued = this.storageService.RecuperarDatosCliente();
         RestMessage respuesta = await this.restService.ObtenerClienteId(idCliente);
-        if (respuesta.Codigo == 0) { this.clienteFicha = respuesta.DatosCliente; } else { MensajeError = "No se ha podido recuperar el cliente solicitado"; }
+        if (respuesta.Codigo == 0) 
+        {
+            this.clienteFicha = respuesta.DatosCliente;
+            this.listaDirecciones = clienteFicha.MisDirecciones;
+            this.listaPedidos = clienteFicha.MisPedidos;
+        }
+        else 
+        { 
+            MensajeError = "No se ha podido recuperar el cliente solicitado"; 
+        }
     }
 
     public async Task FormularioInfoCuenta(EditContext formContext)

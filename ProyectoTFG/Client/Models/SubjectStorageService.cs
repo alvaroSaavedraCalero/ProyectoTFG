@@ -87,9 +87,9 @@ namespace ProyectoTFG.Client.Models
         /// </summary>
         public void CerrarSesion()
         {
-            this.jwtSubject.Dispose();
-            this.datosClienteSubject.Dispose();
-            this.listaDeseosSubject.Dispose();
+            this.jwt = "";
+            this.datosCliente = new Cliente();
+            this.listaDeseos = new List<ProductoAPI>();
         }
 
         #endregion

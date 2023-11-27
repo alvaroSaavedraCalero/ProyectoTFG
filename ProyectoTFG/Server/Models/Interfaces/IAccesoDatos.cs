@@ -30,6 +30,7 @@ namespace ProyectoTFG.Server.Models.Interfaces
         Task<Boolean> DesDesearProducto(String idProducto, String idCliente);
         Task<Boolean> SubirComentario(String idCliente, String comentario, String nombreCliente, String idProducto, String imagenCliente);
         Task<List<ComentarioCli>> RecuperarComentariosProducto(String idProducto);
+        Task<Pedido> ObtenerPedidoId(String idPedido);
 
         #endregion
 

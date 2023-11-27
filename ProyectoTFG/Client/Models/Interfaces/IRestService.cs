@@ -33,6 +33,7 @@ namespace ProyectoTFG.Client.Models.Interfaces
         Task<RestMessage> DesDesearProd(Cliente clienteActual, ProductoAPI producto, String jwt);
         Task<RestMessage> AlmacenarComentario(String jwt, String comentario, String idCliente, String nombreCliente, String idProducto, String imagenCliente);
         Task<List<ComentarioCli>> RecuperarComentariosProd(ProductoAPI producto);
+        Task<Pedido> RecuperarPedidoPorId(String idPedido);
 
         #endregion
 
