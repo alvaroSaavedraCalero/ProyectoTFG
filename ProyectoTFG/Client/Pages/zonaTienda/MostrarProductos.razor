@@ -19,9 +19,8 @@
 
 
 @code {
-
     [Parameter]
-    public String Categoria { get; set; }
+    public String Categoria { get; set; } = "";
 
     private List<ProductoAPI> listaProductos = new List<ProductoAPI>();
     private Cliente ClienteLogueado = new Cliente();
