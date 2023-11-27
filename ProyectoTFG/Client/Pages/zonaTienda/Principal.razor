@@ -11,10 +11,10 @@
         <div class="row">
             @if (items.Count >= 4)
             {
-                @for (int i = 0; i < 4; i++)
+                @for (int i = 0; i < 8; i++)
                 {
                     ProductoAPI p = items[i];
-                    <div class="col mx-auto my-auto">
+                    <div class="col mx-auto my-auto mt-3">
                         <MiniProducto ProductoActual="p"></MiniProducto>
                     </div>
                 }

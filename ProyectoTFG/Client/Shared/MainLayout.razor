@@ -57,6 +57,29 @@
         @Body
     </div>
 
+    <!-- footer -->
+    <footer class="mt-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-12 text-center">
+                    <h2 class="footer-heading">Álvaro Saavedra Calero</h2>
+                    <p class="menu">
+                        <a class="text-decoration-none" @onclick="@(() => this.jsService.InvokeVoidAsync("open", "https://github.com/alvaroSaavedraCalero", "_blank"))"><i class="fa-brands fa-github"></i></a>
+                        <a class="text-decoration-none" @onclick="@(() => this.jsService.InvokeVoidAsync("open", "https://github.com/alvaroSaavedraCalero/ProyectoTFG", "_blank"))"><i class="fa-solid fa-diagram-project"></i></a>
+                        <a class="text-decoration-none" @onclick="@(() => this.jsService.InvokeVoidAsync("open", "https://www.linkedin.com/in/alvaro-saavedra-calero-9a8178189", "_blank"))"><i class="fa-brands fa-linkedin"></i></a>
+                    </p>
+                </div>
+            </div>
+            <div class="row mt-5">
+                <div class="col-md-12 text-center">
+                    <p class="copyright">
+                        Copyright ©2023 All rights reserved 
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
 </div>
 
 
