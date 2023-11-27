@@ -122,7 +122,6 @@ namespace ProyectoTFG.Server.Controllers
                     else
                     {
                         direccionStripe = datosPago.DireccionEnvio ?? datosPago.DireccionPrincipal;
-
                     }
 
 
