@@ -20,35 +20,60 @@ else
                 <div class="col"><img src="images/MegaShopLogo.png" width="189" height="189" alt="logo" class="mx-auto my-auto rounded rounded-circle" /></div>
             </div>
             <div class="row">
-                <div class="col">
-                    <span class="text-danger">@MensajeError</span>
-                </div>
-            </div>
-            <div class="row">
                 <!-- Primera columna -->
                 <div class="col-7 ">
-                    <!-- direccion de envio -->
-                    <div class="border rounded">
-                        <div class="row text-center">
-                            <div class="flex d-flex justify-content-center">
-                                <h3 class="text-black mt-2"><b>Dirección de Envío</b></h3>
-                            </div>
-                            <span class="mt-3">@direcEnvio.NombreContacto @direcEnvio.ApellidosContacto</span>
-                            <span>@direcEnvio.Calle @direcEnvio.Numero</span>
-                            <span>@direcEnvio.CP @direcEnvio.MuniDirecc.DMUN50</span>
-                            <span>@ClienteLogueado.cuenta.Email</span>
-                            <span>@direcEnvio.TelefonoContacto</span>
+                    @if (direcEnvio == null || direcFact == null)
+                    {
+                        <div class="text-center d-flex flex-column align-content-between border rounded">
+                            <span class="text-danger mt-2">No ha establecido una dirección de envío y de facturación. Dirijase a su libreta de direcciones y establezca una.</span>
                         </div>
-                    </div>
+                    }
+                    else
+                    {
+                        <div class="row">
+                            <div class="col-6">
+                                <!-- direccion de envio -->
+                                <div class="border rounded">
+                                    <div class="row text-center">
+                                        <div class="flex d-flex justify-content-center">
+                                            <h3 class="text-black mt-2"><b>Dirección de Envío</b></h3>
+                                        </div>
+                                        <span class="mt-3">@direcEnvio.NombreContacto @direcEnvio.ApellidosContacto</span>
+                                        <span>@direcEnvio.Calle @direcEnvio.Numero</span>
+                                        <span>@direcEnvio.CP @direcEnvio.MuniDirecc.DMUN50</span>
+                                        <span>@ClienteLogueado.cuenta.Email</span>
+                                        <span>@direcEnvio.TelefonoContacto</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <!-- direccion de facturacion -->
+                                <div class="border rounded">
+                                    <div class="row text-center">
+                                        <div class="flex d-flex justify-content-center">
+                                            <h3 class="text-black mt-2"><b>Dirección de Facturación</b></h3>
+                                        </div>
+                                        <span class="mt-3">@direcFact.NombreContacto @direcFact.ApellidosContacto</span>
+                                        <span>@direcFact.Calle @direcFact.Numero</span>
+                                        <span>@direcFact.CP @direcFact.MuniDirecc.DMUN50</span>
+                                        <span>@ClienteLogueado.cuenta.Email</span>
+                                        <span>@direcFact.TelefonoContacto</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    
+
 
                     <!-- metodos de pago -->
                     <div class="row">
                         <div class="col">
                             <div class="border rounded mt-4">
-                                <div class="row text-center">
+                                <div class="row text-center mt-2">
                                     <h3 class="text-black"><b>Métodos de pago</b></h3>
                                 </div>
-                                <div class="row">
+                                <div class="row mb-2">
                                     <div class="form-check ms-5">
                                         <input class="form-check-input" type="radio" name="flexRadioDefault" id="pagoTarjeta" @onchange="@(e => {
                                             this.jsService.InvokeVoidAsync("console.log", e);
@@ -57,28 +82,38 @@ else
                                                 ClasePagoPayPal = DisplayNone;
                                             }
                                         })">
-                                        <label class="form-check-label" for="pagoTarjeta">Tarjeta de crédito: Visa, Mastercard</label>
-                                        <i class="fa-brands fa-cc-visa float-end me-xxl-5"></i>
+                                        <label class="form-check-label" for="pagoTarjeta">Visa, Mastercard</label>
+                                        <i class="fa-brands fa-cc-visa"></i>
                                         <div class="@ClasePagoTarjeta">
-                                            <div class="row">
+                                            <div class="row mb-3">
                                                 <div class="col">
-                                                    <div class="form-group w-25 me-2">
-                                                        <input type="numer" class="@ClaseNumeroTarjeta" id="cardNumber" placeholder="1234 1234 1234 1234" @bind-value="NumeroTarjetaCliente">
+                                                    <div class="form-group me-2">
+                                                        <label style="font-size: small;">Numero de cuenta</label>
+                                                        <input type="numer" class="@ClaseNumeroTarjeta w-75" id="cardNumber" placeholder="1234 1234 1234 1234" @bind-value="NumeroTarjetaCliente">
                                                     </div>
                                                 </div>
 
                                                 <div class="col">
-                                                    <div class="form-group w-25 me-2 ms-2">
-                                                        <input type="text" class="form-group w-75" id="expirationMonth" placeholder="Mes Caducidad" @bind-value="Mes">
-                                                    </div>
-                                                    <div class="form-group w-25 me-2 ms-2">
-                                                        <input type="text" class="form-group w-75" id="expirationYear" placeholder="Año Caducidad" @bind-value="Anio">
+                                                    <div class="row">
+
+                                                        <div class="form-group me-2 ms-2 mb-1">
+                                                            <label style="font-size: small;">Mes caducidad</label>
+                                                            <input type="text" class="form-group w-25" id="expirationMonth" placeholder="Mes Caducidad" @bind-value="Mes">
+                                                        </div>
+
+
+                                                        <div class="form-group me-2 ms-2">
+                                                            <label style="font-size: small;">Año caducidad</label>
+                                                            <input type="text" class="form-group w-25" id="expirationYear" placeholder="Año Caducidad" @bind-value="Anio">
+                                                        </div>
+
                                                     </div>
                                                 </div>
 
                                                 <div class="col">
-                                                    <div class="form-group w-25">
-                                                        <input type="text" class="form-group w-75" id="cvv" placeholder="CVC" @bind-value="CVC">
+                                                    <div class="form-group me-2 ms-2">
+                                                        <label style="font-size: small;">CVC</label>
+                                                        <input type="text" class="form-group w-25" id="cvv" placeholder="CVC" @bind-value="CVC">
                                                     </div>
                                                 </div>
 
@@ -95,7 +130,7 @@ else
                                             }
                                         })">
                                         <label class="form-check-label" for="pagoPayPal">PayPal</label>
-                                        <i class="fa-brands fa-cc-paypal float-end me-xxl-5 "></i>
+                                        <i class="fa-brands fa-cc-paypal"></i>
                                     </div>
 
 
@@ -115,7 +150,7 @@ else
                         <div class="col">
                             <div class="border rounded mt-4">
                                 <div class="form-check ms-5">
-                                    <input class="form-check-input mt-3" type="radio" name="flexRadioDefault1" id="Envio" checked="checked">
+                                    <input class="form-check-input mt-3 mb-2" type="radio" name="flexRadioDefault1" id="Envio" checked="checked">
                                     <label class="form-check-label" for="Envio">
                                         <b>DHL estándar</b>    2 €<br />
                                         Tiempo estandar de entrega 5-7 días laborables. Gratis a partir de 100 €.
@@ -126,10 +161,16 @@ else
                     </div>
 
 
+                    <div class="row">
+                        <div class="col">
+                            <span class="text-danger">@MensajeError</span>
+                        </div>
+                    </div>
+                    
                     <!-- Boton de compra -->
                     <div class="row mt-3 mb-3">
                         <div class="flex d-flex justify-content-between">
-                            <a><span>&lt; Volver a tus datos</span></a>
+                            <button class="btn btn-outline-dark rounded" @onclick="@(() => this.jsService.InvokeVoidAsync("window.history.back"))">Volver</button>
                             <button class="btn btn-outline-primary rounded" @onclick="@(() => RealizarPedido())"><b>Comprar</b></button>
                         </div>
                     </div>
@@ -137,54 +178,38 @@ else
 
                 <!-- Segunda columna -->
                 <div class="col-5 bg-secondary bg-gradient">
-                    <div class="row text-end mt-2"><a><span>Editar carrito</span></a></div>
                     <div class="row mt-2">
                         <div class="col">
                             @foreach (ItemPedido itemP in ClienteLogueado.PedidoActual.ItemsPedido)
                             {
-                                <div class="m-3">
-                                    <img src="@itemP.ProductoItem.image" width="75" height="75" />
-                                    <h5>@itemP.ProductoItem.title</h5>
-                                    <span>@itemP.ProductoItem.price €</span>
-                                    <br />
-                                    <span>Uds.: @itemP.CatidadItem</span>
+                                <div class="m-3 border rounded">
+                                    <div class="m-2 text-center">
+                                        <img src="@itemP.ProductoItem.image" width="75" height="75" />
+                                        <h5>@itemP.ProductoItem.title</h5>
+                                        <span>@itemP.ProductoItem.price €</span>
+                                        <br />
+                                        <span>@itemP.CatidadItem Uds.</span>
+                                    </div>
                                 </div>
                             }
                         </div>
                     </div>
-                    <div class="row mt-2">
-                        <a class="" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-                            Cupón de descuento
-                        </a>
-                        <div class="collapse" id="collapseExample">
-                            <div class="form-floating mb-3">
-                                <input type="text" class="form-control" id="floatingInput" placeholder="12345">
-                                <label for="floatingInput">Codigo de Descuento</label>
-                                <button class="btn btn-outline-dark">Aplicar descuento</button>
-                            </div>
-                            <div class="form-floating mb-3">
-                                <input type="text" class="form-control" id="floatingInput1" placeholder="AB123">
-                                <label for="floatingInput1">Cupón de descuento</label>
-                                <button class="btn btn-outline-dark">Aplicar</button>
-                            </div>
-                        </div>
-                    </div>
                     <div class="row">
-                        <div class="flex d-flex justify-content-between">
-                            <span class="ms-5">Subtotal</span>
+                        <div class="">
+                            <span class="ms-5"><b>Subtotal --> </b></span>
                             <span class="me-5">@ClienteLogueado.PedidoActual.SubTotal €</span>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="flex d-flex justify-content-between">
-                            <span class="ms-5">Envío</span>
+                        <div class="">
+                            <span class="ms-5"><b>Envío --> </b></span>
                             <span class="me-5">@ClienteLogueado.PedidoActual.GastosEnvio €</span>
                         </div>
                     </div>
                     <br />
                     <div class="row">
-                        <div class="flex d-flex justify-content-between">
-                            <span class="ms-5"><b>Total. IVA incluido.</b></span>
+                        <div class="">
+                            <span class="ms-5"><b>Total. IVA incluido. --> </b></span>
                             <span class="me-5">@ClienteLogueado.PedidoActual.Total €</span>
                         </div>
                     </div>
@@ -221,7 +246,7 @@ else
     {
         ClienteLogueado = this.storageService.RecuperarDatosCliente();
 
-        direcEnvio = ClienteLogueado.MisDirecciones.Find((Direccion d) => d.EsPrincipal == true);
+        direcEnvio = ClienteLogueado.MisDirecciones.Find((Direccion d) => d.EsEnvio == true);
         if (direcEnvio != null) ClienteLogueado.PedidoActual.DireccionEnvio = direcEnvio;
         direcFact = ClienteLogueado.MisDirecciones.Find((Direccion d) => d.EsFaturacion == true);
         if (direcFact != null) ClienteLogueado.PedidoActual.DireccionFacturacion = direcFact;
@@ -276,8 +301,7 @@ else
                     RestMessage respuestaServer = await this.restService.AlmacenarPedido(ClienteLogueado.PedidoActual, ClienteLogueado, jwt);
                     if (respuestaServer.Codigo == 0)
                     {
-                        ClienteLogueado.PedidoActual = new Pedido();
-                        this.storageService.AlmacenarDatosCliente(ClienteLogueado);
+                        this.storageService.AlmacenarDatosCliente(respuestaServer.DatosCliente);
                         this.navigate.NavigateTo("/Tienda/PedidoRealizadoOK");
                     }
                     break;
@@ -312,5 +336,5 @@ else
         }
     }
 
-   
+
 } 

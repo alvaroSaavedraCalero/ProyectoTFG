@@ -1,5 +1,7 @@
 ﻿@page "/Cliente/ListaDeseos"
 
+@using ProyectoTFG.Client.Models
+
 @inject IStorageService storageService
 @inject NavigationManager navigate
 
@@ -40,6 +42,8 @@ else
     {
         this.ClienteActual = this.storageService.RecuperarDatosCliente();
         this.listaDeseos = this.storageService.RecuperarListaDeseos();
+
+        
     }
 
 }

@@ -397,6 +397,21 @@ namespace ProyectoTFG.Client.Models
             return await respuesta.Content.ReadAsStringAsync();
         }
 
+        /// <summary>
+        /// Realiza una peticion a la API_REST de Tienda para obtener un pedido
+        /// </summary>
+        /// <param name="idPedido">El id del pedido a recuperar</param>
+        /// <returns>La respuesta del servidor en forma del pedido recuperado</returns>
+        public async Task<Pedido> RecuperarPedidoPorId(string idPedido)
+        {
+            Dictionary<String, String> datos = new Dictionary<String, String>
+            {
+                {"idPedido", idPedido }
+            };
+            HttpResponseMessage respuesta = await this.clienteHttp.PostAsJsonAsync<Dictionary<String, String>>("api/Tienda/ObtenerPedidoId", datos);
+            return await respuesta.Content.ReadFromJsonAsync<Pedido>();
+        }
+
         #endregion
 
         #region zona Administracion

@@ -9,17 +9,17 @@
 <div class="container">
 
     <div class="row-cols-1, d-sm-inline-flex" style="padding-bottom:20px">
-        <div class="col-2">
-            <input class="form-control" style="margin-left:5px" type="search" placeholder="Por nombre..." @oninput="@(e => FiltradoClientes(e, "nombre"))" />
-        </div>
-        <div class="col-2">
-            <input class="form-control" style="margin-left:10px" type="search" placeholder="Por apellidos..." @oninput="@(e => FiltradoClientes(e, "apellidos"))" />
-        </div>
-        <div class="col-2">
-            <input class="form-control" style="margin-left:15px" placeholder="Por nombre de usuario..." @oninput="@(e => FiltradoClientes(e, "login"))" />
-        </div>
-        <div class="col-2">
-            <input class="form-control" style="margin-left:20px" placeholder="Por NIF..." @oninput="@(e => FiltradoClientes(e, "nif"))" />
+        <div class="col-2 mx-auto">
+            <input class="form-control " type="search" placeholder="Por nombre..." @oninput="@(e => FiltradoClientes(e, "nombre"))" />
+        </div>                        
+        <div class="col-2 mx-auto">
+            <input class="form-control" type="search" placeholder="Por apellidos..." @oninput="@(e => FiltradoClientes(e, "apellidos"))" />
+        </div>                        
+        <div class="col-3 mx-auto">
+            <input class="form-control " placeholder="Por nombre de usuario..." @oninput="@(e => FiltradoClientes(e, "login"))" />
+        </div>                        
+        <div class="col-2 mx-auto">
+            <input class="form-control " placeholder="Por NIF..." @oninput="@(e => FiltradoClientes(e, "nif"))" />
         </div>
     </div>
     <div class="row">

@@ -156,7 +156,7 @@
 
         if (ClienteActual.MisDirecciones.Count != 0)
         {
-            direcPago = ClienteActual.MisDirecciones.FirstOrDefault((Direccion d) => d.EsPrincipal == true) ?? new Direccion();
+            direcPago = ClienteActual.MisDirecciones.FirstOrDefault((Direccion d) => d.EsEnvio == true) ?? new Direccion();
             direcEnvio = ClienteActual.MisDirecciones.FirstOrDefault((Direccion d) => d.EsFaturacion == true) ?? new Direccion();
         }
 

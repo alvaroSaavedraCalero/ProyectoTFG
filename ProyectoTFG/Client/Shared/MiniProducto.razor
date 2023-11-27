@@ -21,7 +21,7 @@
                     <img src="@this.ProductoActual.image" width="200" height="200" />
                 </a>
             </div>
-            <button class="btn " @onclick="@DesearProducto">
+            <button class="btn " @onclick="@(() => DesearProducto())">
                 @if (CorazonRojo)
                 {
                     <i class="fa-solid fa-heart"></i>
@@ -77,8 +77,6 @@
                 }
             }
         }
-
-
         
         if (ProductoActual.title.Length > 18)
         {
@@ -98,12 +96,11 @@
 
             if (respuestaREST.Codigo == 0)
             {
-                this.listaDeseos.Remove(ProductoActual);
+                if (this.listaDeseos.Contains(ProductoActual)) { this.listaDeseos.Remove(ProductoActual); }
                 this.storageService.AlmacenarListaDeseos(this.listaDeseos);
-                ClienteLogued.ListaDeseos.Remove(ProductoActual);
+                if (this.ClienteLogued.ListaDeseos.Contains(ProductoActual)) { ClienteLogued.ListaDeseos.Remove(ProductoActual); }
                 this.storageService.AlmacenarDatosCliente(ClienteLogued);
                 CorazonRojo = false;
-                StateHasChanged();
             }
             else if (respuestaREST.Codigo == 5)
             {
@@ -117,17 +114,17 @@
 
             if (respuestaREST.Codigo == 0)
             {
-                this.listaDeseos.Add(ProductoActual);
+                if (!this.listaDeseos.Contains(ProductoActual)) { this.listaDeseos.Add(ProductoActual); }
                 this.storageService.AlmacenarListaDeseos(this.listaDeseos);
-                ClienteLogued.ListaDeseos.Add(ProductoActual);
+                if (!this.ClienteLogued.ListaDeseos.Contains(ProductoActual)) { ClienteLogued.ListaDeseos.Add(ProductoActual); }
                 this.storageService.AlmacenarDatosCliente(ClienteLogued);
                 CorazonRojo = true;
-                StateHasChanged();
             }
             else if (respuestaREST.Codigo == 5)
             {
                 this.navigate.NavigateTo("/Cliente/Login");
             }
         }
+        StateHasChanged();
     }
 }

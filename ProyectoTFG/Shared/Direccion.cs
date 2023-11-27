@@ -46,8 +46,8 @@ namespace ProyectoTFG.Shared
         [BsonElement("pais")]
         public String Pais { get; set; } = "España";
 
-        [BsonElement("esPrincipal")]
-        public Boolean EsPrincipal { get; set; } = false;
+        [BsonElement("esEnvio")]
+        public Boolean EsEnvio { get; set; } = false;
 
         [BsonElement("esFacturacion")]
         public Boolean EsFaturacion { get; set; } = false;

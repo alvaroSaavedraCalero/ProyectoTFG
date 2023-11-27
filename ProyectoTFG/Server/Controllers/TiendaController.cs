@@ -637,6 +637,20 @@ namespace ProyectoTFG.Server.Controllers
             }
         }
 
+        [HttpPost]
+        public async Task<Pedido> ObtenerPedidoId([FromBody] Dictionary<String, String> datos)
+        {
+            try
+            {
+                Pedido pedido = await this.accesoBD.ObtenerPedidoId(datos["idPedido"]);
+                return pedido;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
         #endregion
 
 
@@ -648,7 +662,8 @@ namespace ProyectoTFG.Server.Controllers
             // Recuperamos el contexto del cliente
             PaypalPedidoInfo datosPed = await this.accesoBD.RecuperarDatosPayPal(idPedido);
 
-            if (datosPed == null) { return Redirect("https://localhost:7083/Tienda/Cobro"); } else
+            if (datosPed == null) { return Redirect("https://localhost:7083/Tienda/Cobro"); } 
+            else
             {
                 APIContext apiContext = JsonSerializer.Deserialize<APIContext>(datosPed.PayPalContextClient);
                 if (Convert.ToBoolean(Cancel))

@@ -82,6 +82,16 @@ namespace ProyectoTFG.Client.Models
             this.listaDeseosSubject.OnNext(listaDeseos);
         }
 
+        /// <summary>
+        /// Reinicia los subjects de forma que ya no habra datos del cliente
+        /// </summary>
+        public void CerrarSesion()
+        {
+            this.jwt = "";
+            this.datosCliente = new Cliente();
+            this.listaDeseos = new List<ProductoAPI>();
+        }
+
         #endregion
 
 
@@ -113,6 +123,11 @@ namespace ProyectoTFG.Client.Models
         }
 
         public Task AlmacenarListaDeseosAsync(List<ProductoAPI> listaDeseos)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task CerrarSesionAsync()
         {
             throw new NotImplementedException();
         }

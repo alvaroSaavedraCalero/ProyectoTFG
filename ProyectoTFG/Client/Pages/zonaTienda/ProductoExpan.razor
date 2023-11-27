@@ -155,6 +155,11 @@
         this.ClienteLogued = this.storageService.RecuperarDatosCliente();
         this.listaDeseos = this.storageService.RecuperarListaDeseos();
 
+        foreach(ProductoAPI p in this.listaDeseos)
+        {
+            if (p.id == this.ProductoSelected.id) { this.CorazonRojo = true; break; }
+        }
+
         ListaComentarios = await this.restService.RecuperarComentariosProd(ProductoSelected);
     }
 
@@ -247,9 +252,9 @@
 
             if (respuestaREST.Codigo == 0)
             {
-                this.listaDeseos.Remove(ProductoSelected);
+                if (this.listaDeseos.Contains(ProductoSelected)) { this.listaDeseos.Remove(ProductoSelected); }
                 this.storageService.AlmacenarListaDeseos(this.listaDeseos);
-                ClienteLogued.ListaDeseos.Remove(ProductoSelected);
+                if (this.ClienteLogued.ListaDeseos.Contains(ProductoSelected)) { ClienteLogued.ListaDeseos.Remove(ProductoSelected); }
                 this.storageService.AlmacenarDatosCliente(ClienteLogued);
                 CorazonRojo = false;
                 StateHasChanged();
@@ -266,9 +271,9 @@
 
             if (respuestaREST.Codigo == 0)
             {
-                this.listaDeseos.Add(ProductoSelected);
+                if (!this.listaDeseos.Contains(ProductoSelected)) { this.listaDeseos.Add(ProductoSelected); }
                 this.storageService.AlmacenarListaDeseos(this.listaDeseos);
-                ClienteLogued.ListaDeseos.Add(ProductoSelected);
+                if (!this.ClienteLogued.ListaDeseos.Contains(ProductoSelected)) { ClienteLogued.ListaDeseos.Add(ProductoSelected); }
                 this.storageService.AlmacenarDatosCliente(ClienteLogued);
                 CorazonRojo = true;
                 StateHasChanged();

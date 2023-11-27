@@ -430,10 +430,8 @@ namespace ProyectoTFG.Server.Models
                 Boolean mismoEmail = cliente.cuenta.Email == clienteRecup.cuenta.Email;
                 Boolean mismoCuentaAcvt = cliente.cuenta.CuentaActivada == clienteRecup.cuenta.CuentaActivada;
 
-
-                // o sea que se ha modificado ningun campo de la cuenta,
-                // si todo es true (o sea todo es igual), dara false y solo mofidicamos la cuenta
-                if (!(mismoLogin && mismoEmail && mismoCuentaAcvt))
+                // En caso de que se haya modificado un campo de la cuenta
+                if ((!mismoLogin || !mismoEmail || !mismoCuentaAcvt))
                 {
                     UpdateDefinition<Cliente> updateCuenta = Builders<Cliente>.Update
                     .Set(c => c.cuenta.Login, cliente.cuenta.Login)
@@ -459,12 +457,7 @@ namespace ProyectoTFG.Server.Models
                         UpdateResult resultadoCliente = await this.bdCollection.GetCollection<Cliente>("clientes")
                             .UpdateOneAsync<Cliente>(c => c.IdCliente == cliente.IdCliente, updateCliente);
 
-                        if (resultadoCliente.ModifiedCount > 0)
-                        {
-                            // el cliente tambien se modifico correctamente, asi que retornamos el cliente modificado
-                            return cliente;
-                        }
-                        else { return null; }
+                        return await ObtenerClienteId(cliente.IdCliente);
                     }
                     else { return null; }
 
@@ -513,6 +506,11 @@ namespace ProyectoTFG.Server.Models
                     .UpdateOneAsync<Cliente>(c => c.IdCliente == cliente.IdCliente, update);
                 if (resultadoUpdate.ModifiedCount > 0)
                 {
+                    // Modificamos la imagen de los comentarios con este idCliente
+                    UpdateDefinition<ComentarioCli> updateComentario = Builders<ComentarioCli>.Update.Set(cmc => cmc.ImagenCliente, imagen);
+                    UpdateResult resultadoUpdateComentario = await this.bdCollection.GetCollection<ComentarioCli>("comentarios")
+                        .UpdateManyAsync<ComentarioCli>(cmc => cmc.IdCliente == cliente.IdCliente, updateComentario);
+
                     return true;
                 }
                 else { return false; }
@@ -541,7 +539,7 @@ namespace ProyectoTFG.Server.Models
                     d.NombreEmpresa == direccion.NombreEmpresa && d.TelefonoContacto == direccion.TelefonoContacto &&
                     d.Calle == direccion.Calle && d.Numero == direccion.Numero && d.CP == direccion.CP &&
                     d.ProvDirec.Equals(direccion.ProvDirec) && d.MuniDirecc.Equals(direccion.MuniDirecc) &&
-                    d.Pais == direccion.Pais && d.EsPrincipal == direccion.EsPrincipal && d.EsFaturacion == direccion.EsFaturacion)
+                    d.Pais == direccion.Pais && d.EsEnvio == direccion.EsEnvio && d.EsFaturacion == direccion.EsFaturacion)
                     .Select((Direccion dire) => dire.IdDireccion).Single<String>();
 
                 // Guardamos el _id de la direccion en las direcciones del cliente
@@ -583,7 +581,7 @@ namespace ProyectoTFG.Server.Models
                     .Set(direc => direc.ProvDirec, direcccion.ProvDirec)
                     .Set(direc => direc.MuniDirecc, direcccion.MuniDirecc)
                     .Set(direc => direc.Pais, direcccion.Pais)
-                    .Set(direc => direc.EsPrincipal, direcccion.EsPrincipal)
+                    .Set(direc => direc.EsEnvio, direcccion.EsEnvio)
                     .Set(direc => direc.EsFaturacion, direcccion.EsFaturacion);
                 UpdateResult resultadoOperacion = await this.bdCollection.GetCollection<Direccion>("direcciones").UpdateOneAsync(filtro, updateDireccion);
 
@@ -815,6 +813,25 @@ namespace ProyectoTFG.Server.Models
                     DeleteResult resultado = await this.bdCollection.GetCollection<PaypalPedidoInfo>("paypalTemp").DeleteOneAsync(filtro);
                     if (resultado.DeletedCount > 0) { return recup; } else { return null; }
                 }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Recupera un pedido de la base de datos a traves de su id
+        /// </summary>
+        /// <param name="idPedido">Id del pedido</param>
+        /// <returns>El pedido recuperado, null en caso contrario</returns>
+        public async Task<Pedido> ObtenerPedidoId(string idPedido)
+        {
+            try
+            {
+                FilterDefinition<Pedido> filtro = Builders<Pedido>.Filter.Eq((Pedido ped) => ped.IdPedido, idPedido);
+                Pedido pedidoRecup = await this.bdCollection.GetCollection<Pedido>("pedidos").FindAsync(filtro).Result.SingleAsync();
+                return pedidoRecup;
             }
             catch (Exception ex)
             {
