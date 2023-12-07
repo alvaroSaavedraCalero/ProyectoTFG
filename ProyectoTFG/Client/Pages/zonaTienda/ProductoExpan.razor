@@ -26,7 +26,7 @@
                     @if (!MostrarMasCantidad)
                     {
                         <select id="cantidadItem" class="form-select w-25" tabindex=""
-                            @onchange="@(e => {
+                                @onchange="@(e => {
                                 int cantidad = int.Parse(e.Value.ToString());
                                 if (cantidad == 6) {
                                     MostrarMasCantidad = true;
@@ -155,7 +155,7 @@
         this.ClienteLogued = this.storageService.RecuperarDatosCliente();
         this.listaDeseos = this.storageService.RecuperarListaDeseos();
 
-        foreach(ProductoAPI p in this.listaDeseos)
+        foreach (ProductoAPI p in this.listaDeseos)
         {
             if (p.id == this.ProductoSelected.id) { this.CorazonRojo = true; break; }
         }
@@ -165,79 +165,88 @@
 
     public async Task AniadirCarrito()
     {
-        // Vamos a jugar constantemente con el pedido actual, y en caso de que se realice la compra,
-        // ya la guardamos de manera permanente en la base de datos
-        if (ClienteLogued != null)
+        String jwt = this.storageService.RecuperarJWT();
+        if (String.IsNullOrEmpty(jwt)) { this.navigate.NavigateTo("/Cliente/Login"); }
+        else 
         {
-            ItemPedido itemP = ClienteLogued.PedidoActual.ItemsPedido.Find((ItemPedido i) => i.ProductoItem.id == ProductoSelected.id);
+            // Vamos a jugar constantemente con el pedido actual, y en caso de que se realice la compra,
+            // ya la guardamos de manera permanente en la base de datos
+            if (ClienteLogued != null)
+            {
+                ItemPedido itemP = ClienteLogued.PedidoActual.ItemsPedido.Find((ItemPedido i) => i.ProductoItem.id == ProductoSelected.id);
 
-            if (itemP != null)
-            {
-                int posItem = ClienteLogued.PedidoActual.ItemsPedido.FindIndex((ItemPedido i) => i.ProductoItem.id == ProductoSelected.id);
-                int cantidadNueva = itemP.CatidadItem + CantidaItemProdActu;
-                ClienteLogued.PedidoActual.ItemsPedido[posItem].CatidadItem = cantidadNueva;
-                this.storageService.AlmacenarDatosCliente(ClienteLogued);
-                this.navigate.NavigateTo("/Tienda/Carrito");
+                if (itemP != null)
+                {
+                    int posItem = ClienteLogued.PedidoActual.ItemsPedido.FindIndex((ItemPedido i) => i.ProductoItem.id == ProductoSelected.id);
+                    int cantidadNueva = itemP.CatidadItem + CantidaItemProdActu;
+                    ClienteLogued.PedidoActual.ItemsPedido[posItem].CatidadItem = cantidadNueva;
+                    this.storageService.AlmacenarDatosCliente(ClienteLogued);
+                    this.navigate.NavigateTo("/Tienda/Carrito");
+                }
+                else
+                {
+                    // significa que el cliente aun no tiene en el pedido este item
+                    ItemPedido itemPedido = new ItemPedido
+                        {
+                            IdItemPedido = ContadorItemsId.ToString(),
+                            CatidadItem = CantidaItemProdActu,
+                            ProductoItem = ProductoSelected
+                        };
+                    ClienteLogued.PedidoActual.ItemsPedido.Add(itemPedido);
+                    ContadorItemsId++;
+                    this.storageService.AlmacenarDatosCliente(ClienteLogued);
+                    this.navigate.NavigateTo("/Tienda/Carrito");
+                }
             }
-            else
-            {
-                // significa que el cliente aun no tiene en el pedido este item
-                ItemPedido itemPedido = new ItemPedido
-                    {
-                        IdItemPedido = ContadorItemsId.ToString(),
-                        CatidadItem = CantidaItemProdActu,
-                        ProductoItem = ProductoSelected
-                    };
-                ClienteLogued.PedidoActual.ItemsPedido.Add(itemPedido);
-                ContadorItemsId++;
-                this.storageService.AlmacenarDatosCliente(ClienteLogued);
-                this.navigate.NavigateTo("/Tienda/Carrito");
-            }
+            else { this.navigate.NavigateTo("/Cliente/Login"); }
         }
-        else { this.navigate.NavigateTo("/Cliente/Login"); }
     }
 
     public async Task AniadirComentario()
     {
-        if (String.IsNullOrEmpty(Comentario))
-        {
-            ErrorComentario = "El comentario esta vacio";
-            StateHasChanged();
-        }
+        String jwt = this.storageService.RecuperarJWT();
+
+        if (String.IsNullOrEmpty(jwt)) { this.navigate.NavigateTo("/Cliente/Login"); }
         else
         {
-            String jwt = this.storageService.RecuperarJWT();
-            RestMessage respuestaServidor = await this.restService.AlmacenarComentario(jwt, Comentario, ClienteLogued.IdCliente,
-                ClienteLogued.cuenta.Login, ProductoSelected.id.ToString(), ClienteLogued.cuenta.ImagenAvatarBASE64);
-
-            switch (respuestaServidor.Codigo)
+            if (String.IsNullOrEmpty(Comentario))
             {
-                case 0:
-                    ListaComentarios.Add(new ComentarioCli
-                        {
-                            Comentario = Comentario,
-                            IdCliente = ClienteLogued.IdCliente,
-                            IdProducto = ProductoSelected.id.ToString(),
-                            NombreCliente = ClienteLogued.cuenta.Login,
-                            ImagenCliente = ClienteLogued.cuenta.ImagenAvatarBASE64
-                        });
-                    Comentario = "";
-                    break;
-
-                case 1:
-                    ErrorComentario = "Ha habido algun error al subir el comentario";
-                    break;
-
-                case 2:
-                    ErrorComentario = "Ha habido algun error al subir el comentario";
-                    break;
-
-                case 5:
-                    this.navigate.NavigateTo("/Cliente/Login");
-                    break;
+                ErrorComentario = "El comentario esta vacio";
+                StateHasChanged();
             }
-            StateHasChanged();
+            else
+            {
+                RestMessage respuestaServidor = await this.restService.AlmacenarComentario(jwt, Comentario, ClienteLogued.IdCliente,
+                    ClienteLogued.cuenta.Login, ProductoSelected.id.ToString(), ClienteLogued.cuenta.ImagenAvatarBASE64);
 
+                switch (respuestaServidor.Codigo)
+                {
+                    case 0:
+                        ListaComentarios.Add(new ComentarioCli
+                            {
+                                Comentario = Comentario,
+                                IdCliente = ClienteLogued.IdCliente,
+                                IdProducto = ProductoSelected.id.ToString(),
+                                NombreCliente = ClienteLogued.cuenta.Login,
+                                ImagenCliente = ClienteLogued.cuenta.ImagenAvatarBASE64
+                            });
+                        Comentario = "";
+                        break;
+
+                    case 1:
+                        ErrorComentario = "Ha habido algun error al subir el comentario";
+                        break;
+
+                    case 2:
+                        ErrorComentario = "Ha habido algun error al subir el comentario";
+                        break;
+
+                    case 5:
+                        this.navigate.NavigateTo("/Cliente/Login");
+                        break;
+                }
+                StateHasChanged();
+            }
         }
     }
 
@@ -245,42 +254,46 @@
     {
         String jwt = this.storageService.RecuperarJWT();
 
-        if (CorazonRojo)
-        {
-            // En caso de que el producto ya este deseado, lo desdeseamos
-            RestMessage respuestaREST = await this.restService.DesDesearProd(ClienteLogued, ProductoSelected, jwt);
-
-            if (respuestaREST.Codigo == 0)
-            {
-                if (this.listaDeseos.Contains(ProductoSelected)) { this.listaDeseos.Remove(ProductoSelected); }
-                this.storageService.AlmacenarListaDeseos(this.listaDeseos);
-                if (this.ClienteLogued.ListaDeseos.Contains(ProductoSelected)) { ClienteLogued.ListaDeseos.Remove(ProductoSelected); }
-                this.storageService.AlmacenarDatosCliente(ClienteLogued);
-                CorazonRojo = false;
-                StateHasChanged();
-            }
-            else if (respuestaREST.Codigo == 5)
-            {
-                this.navigate.NavigateTo("/Cliente/Login");
-            }
-        }
+        if (String.IsNullOrEmpty(jwt)) { this.navigate.NavigateTo("/Cliente/Login"); }
         else
         {
-            // En caso de que no este deseado, lo deseamos
-            RestMessage respuestaREST = await this.restService.DesearProducto(ClienteLogued, ProductoSelected, jwt);
+            if (CorazonRojo)
+            {
+                // En caso de que el producto ya este deseado, lo desdeseamos
+                RestMessage respuestaREST = await this.restService.DesDesearProd(ClienteLogued, ProductoSelected, jwt);
 
-            if (respuestaREST.Codigo == 0)
-            {
-                if (!this.listaDeseos.Contains(ProductoSelected)) { this.listaDeseos.Add(ProductoSelected); }
-                this.storageService.AlmacenarListaDeseos(this.listaDeseos);
-                if (!this.ClienteLogued.ListaDeseos.Contains(ProductoSelected)) { ClienteLogued.ListaDeseos.Add(ProductoSelected); }
-                this.storageService.AlmacenarDatosCliente(ClienteLogued);
-                CorazonRojo = true;
-                StateHasChanged();
+                if (respuestaREST.Codigo == 0)
+                {
+                    if (this.listaDeseos.Contains(ProductoSelected)) { this.listaDeseos.Remove(ProductoSelected); }
+                    this.storageService.AlmacenarListaDeseos(this.listaDeseos);
+                    if (this.ClienteLogued.ListaDeseos.Contains(ProductoSelected)) { ClienteLogued.ListaDeseos.Remove(ProductoSelected); }
+                    this.storageService.AlmacenarDatosCliente(ClienteLogued);
+                    CorazonRojo = false;
+                    StateHasChanged();
+                }
+                else if (respuestaREST.Codigo == 5)
+                {
+                    this.navigate.NavigateTo("/Cliente/Login");
+                }
             }
-            else if (respuestaREST.Codigo == 5)
+            else
             {
-                this.navigate.NavigateTo("/Cliente/Login");
+                // En caso de que no este deseado, lo deseamos
+                RestMessage respuestaREST = await this.restService.DesearProducto(ClienteLogued, ProductoSelected, jwt);
+
+                if (respuestaREST.Codigo == 0)
+                {
+                    if (!this.listaDeseos.Contains(ProductoSelected)) { this.listaDeseos.Add(ProductoSelected); }
+                    this.storageService.AlmacenarListaDeseos(this.listaDeseos);
+                    if (!this.ClienteLogued.ListaDeseos.Contains(ProductoSelected)) { ClienteLogued.ListaDeseos.Add(ProductoSelected); }
+                    this.storageService.AlmacenarDatosCliente(ClienteLogued);
+                    CorazonRojo = true;
+                    StateHasChanged();
+                }
+                else if (respuestaREST.Codigo == 5)
+                {
+                    this.navigate.NavigateTo("/Cliente/Login");
+                }
             }
         }
     }

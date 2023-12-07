@@ -635,12 +635,14 @@ namespace ProyectoTFG.Server.Controllers
         [HttpGet]
         public async Task<IActionResult> LoginCallBackGoogle([FromQuery] String code)
         {
-            // En la url que nos manda google, van estos parametros:
-            //  -code <-- codigo cliente para solicitar jwt de uso de las google-apis
-            // -state <-- codigo aleatorio para id.cliente
-            // -scope <-- ambito de valide del codigo para solicitar el uso de las google-apis
-            // -authuser
-            // -prompt
+            /*
+            En la url que nos manda google, van estos parametros:
+            -code < --codigo cliente para solicitar jwt de uso de las google - apis
+           - state < --codigo aleatorio para id.cliente
+           - scope < --ambito de valide del codigo para solicitar el uso de las google - apis
+           - authuser
+           - prompt
+            */
 
             try
             {
@@ -676,7 +678,6 @@ namespace ProyectoTFG.Server.Controllers
                     imagenClienteBase64 = $"data:jpg;base64,{Convert.ToBase64String(imagenArray)}";
                 }
                 
-
                 // Generamos un cliente con los datos del userInfo y lo guardamos en la base de datos.
                 // Por otra parte, guardamos en un objeto el id del userInfo junto al id del cliente guardado
                 Cliente nuevoCliente = new Cliente

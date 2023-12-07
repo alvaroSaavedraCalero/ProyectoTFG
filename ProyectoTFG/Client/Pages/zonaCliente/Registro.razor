@@ -56,7 +56,7 @@
         <div class="row m-sm-1">
             <div class="flex justify-between">
                 <button type="submit" class="btn btn-outline-secondary" @onclick="@(() => RegistrarCliente(context))">Crear una cuenta cliente</button>
-                <a @onclick="@(() =>this.navigate.NavigateTo("/"))">Volver</a>
+                <nutton class="btn btn-outline-danger" @onclick="@(() =>this.navigate.NavigateTo("/Cliente/Login"))">Volver</nutton>
             </div>
         </div>
     </EditForm>
