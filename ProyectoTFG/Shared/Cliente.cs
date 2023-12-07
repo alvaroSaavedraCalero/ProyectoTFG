@@ -18,7 +18,7 @@ namespace ProyectoTFG.Shared
         public String IdCliente { get; set; }
 
         [BsonElement("rol")]
-        public String Rol { get; set; } = "";
+        public String Rol { get; set; } = "Cliente";
 
 
         [Required(ErrorMessage = "*Nombre obligatortio")]

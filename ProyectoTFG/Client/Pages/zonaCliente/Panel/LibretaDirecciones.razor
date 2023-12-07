@@ -134,6 +134,9 @@
 </div>
 
 @code {
+    [Parameter]
+    public ComponenteDireccion componenteDireccion { get; set; } = new ComponenteDireccion();
+
     public Cliente? ClienteActual { get; set; } = new Cliente();
     public List<Direccion>? ListaDirecciones { get; set; } = new List<Direccion>();
 

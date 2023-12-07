@@ -12,11 +12,7 @@
         <div class="col m-1">
             <div class="text-center m-2">
                 <a @onclick="@(() => {
-                    if (!String.IsNullOrEmpty(this.ClienteLogued.IdCliente)) {
-                        this.navigate.NavigateTo($"/Tienda/ProductoExpan?idProd={ProductoActual.id}");
-                    } else {
-                        this.navigate.NavigateTo("/Cliente/Login");
-                    }
+                    this.navigate.NavigateTo($"/Tienda/ProductoExpan?idProd={ProductoActual.id}");
                 })">
                     <img src="@this.ProductoActual.image" width="200" height="200" />
                 </a>

@@ -83,7 +83,7 @@
                             break;
 
                         case 3:
-                            <LibretaDirecciones componenteDireccion="componenteDireccion" />
+                            <LibretaDirecciones componenteDireccion=@componenteDirec />
                             break;
 
                         case 4:
@@ -98,11 +98,11 @@
 
 
 @code {
-    public Cliente? ClienteActual { get; set; }
+    public Cliente? ClienteActual { get; set; } = new Cliente();
     private int ItemLista = 0;
     private String textoNegrita = "fw-bold";
 
-    private ComponenteDireccion componenteDireccion;
+    private ComponenteDireccion componenteDirec = new ComponenteDireccion();
 
 
     // Strings de clases del aside
@@ -117,6 +117,7 @@
     {
         UriBuilder uri = new UriBuilder(navigate.Uri);
         Dictionary<String, StringValues> queryString = QueryHelpers.ParseQuery(uri.Query);
+
         if (queryString.Count == 0)
         {
             // Significa que el login se ha realizado de manera "interna" (sin google)
@@ -133,12 +134,9 @@
             String idGoogle = queryString["idgooglesesion"];
             if (!String.IsNullOrEmpty(idGoogle))
             {
-                // Se han logueado con google
-                String idgooglesesion = queryString["idgooglesesion"];
-
                 // Hay que obtener el cliente registrado con google a traves de este idgoogle
                 // y guardarlo en el cliente actual
-                RestMessage respuestaServer = await this.restService.ObtenerClienteGoogle(idgooglesesion);
+                RestMessage respuestaServer = await this.restService.ObtenerClienteGoogle(idGoogle);
                 if (respuestaServer.Codigo == 0)
                 {
                     this.storageService.AlmacenarDatosCliente(respuestaServer.DatosCliente);
@@ -154,17 +152,10 @@
                 queryString.Remove("idgooglesesion");
                 uri.Query = queryString.ToString();
                 this.navigate.NavigateTo("/Cliente/PanelCliente");
-                
             }
         }
-    }
 
-    protected override void OnParametersSet()
-    {
-        this.ClienteActual = this.storageService.RecuperarDatosCliente();
-        base.OnParametersSet();
     }
-
 
     public void ActivarNegrita(int i)
     {
