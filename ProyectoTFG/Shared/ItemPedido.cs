@@ -12,7 +12,7 @@ namespace ProyectoTFG.Shared
         #region propiedades de la clase itempedido
 
         [BsonElement("idItemPedido")]
-        public String IdItemPedido { get; set; } = Guid.NewGuid().ToString();
+        public String IdItemPedido { get; set; } = "";
 
         [BsonElement("idPedido")]
         public String IdPedido { get; set; } = "";
